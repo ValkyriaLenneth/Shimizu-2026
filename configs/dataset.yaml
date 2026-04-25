@@ -1,0 +1,28 @@
+dataset_name: building_cls_v1
+raw_root: data/unzip
+processed_root: data/processed/building_cls_v1
+manifest_dir: data/manifests
+audit_dir: data/audit
+
+seed: 20260425
+split:
+  train: 0.70
+  val: 0.15
+  test: 0.15
+
+image_extensions:
+  - .jpg
+  - .jpeg
+  - .png
+  - .bmp
+  - .webp
+
+class_map:
+  a: 天井
+  b: 内壁
+  c: RC壁
+  d: RC柱
+
+copy_mode: hardlink
+overwrite_processed: false
+exclude_cross_class_duplicates: true

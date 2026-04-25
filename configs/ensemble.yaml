@@ -1,0 +1,10 @@
+ensemble_name: ensemble_effb0_resnet34
+output_root: outputs/runs
+class_to_idx: data/manifests/class_to_idx.json
+manifest_dir: data/manifests
+
+members:
+  - run_dir: outputs/runs/20260425_104726_efficientnet_b0
+    weight: 0.5
+  - run_dir: outputs/runs/20260425_132343_resnet34
+    weight: 0.5

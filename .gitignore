@@ -1,0 +1,32 @@
+# Environments
+.venv/
+__pycache__/
+*.py[cod]
+
+# Raw and prepared data
+data/raw_zip/
+data/unzip/
+data/processed/
+
+# Generated audit/manifests can be reproduced from data, keep them out of code repo.
+data/audit/
+data/manifests/
+
+# Training outputs and archives
+outputs/
+*.zip
+*.pth
+*.pt
+*.ckpt
+
+# Local logs and caches
+*.log
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# OS/editor
+.DS_Store
+.idea/
+.vscode/

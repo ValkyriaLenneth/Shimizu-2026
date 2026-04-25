@@ -1,0 +1,22 @@
+name: shimizu-building-cls
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  - pytorch
+  - torchvision
+  - pytorch-cuda=12.4
+  - numpy
+  - pandas
+  - pillow
+  - scikit-learn
+  - matplotlib
+  - seaborn
+  - pyyaml
+  - tqdm
+  - tensorboard
+  - pip:
+      - timm
