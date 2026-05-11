@@ -4,10 +4,10 @@
 
 ## Git 现场
 
-本地提交：
+本地保存现场提交：
 
 ```text
-c9d03c50d8d08717f352a8157b866e8e520bc771
+以 `git log --oneline -3` 显示的最新本地提交为准。
 ```
 
 提交内容：
@@ -54,7 +54,6 @@ git push origin main
 ```text
 artifacts/shimizu_2026_datasets_and_results_20260511.tar.gz
 size: 14G
-sha256: e0a23ae27f9b96320f013b80b5567496959ee7f956424b15c033c8e17acbfb43
 ```
 
 包含：
@@ -71,7 +70,6 @@ sha256: e0a23ae27f9b96320f013b80b5567496959ee7f956424b15c033c8e17acbfb43
 ```text
 artifacts/shimizu_2026_code_snapshot_20260511.tar.gz
 size: 2.2M
-sha256: a3acf028850630818097440ea7228c56fb62444711f7720e6791e94ebd455aa1
 ```
 
 Git bundle：
@@ -79,7 +77,12 @@ Git bundle：
 ```text
 artifacts/shimizu_2026_git_bundle_20260511.bundle
 size: 2.2M
-sha256: 3f611c9d6f56b968dba2e1b629942c5eec817837ce3fa2f5104d9e09df391606
+```
+
+精确 SHA256 校验和写在：
+
+```text
+artifacts/SHA256SUMS
 ```
 
 ## 恢复入口
