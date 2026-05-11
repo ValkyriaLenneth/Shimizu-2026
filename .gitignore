@@ -7,10 +7,13 @@ __pycache__/
 data/raw_zip/
 data/unzip/
 data/processed/
+data/zip/
+data/shimizu-split/
 
 # Generated audit/manifests can be reproduced from data, keep them out of code repo.
 data/audit/
 data/manifests/
+*.cache
 
 # Training outputs and archives
 outputs/
@@ -18,6 +21,13 @@ outputs/
 *.pth
 *.pt
 *.ckpt
+artifacts/
+coarse_router_yolov9/.venv/
+coarse_router_yolov9/datasets/
+coarse_router_yolov9/runs/
+coarse_router_yolov9/qa/
+coarse_router_yolov9/weights/
+coarse_router_yolov9/yolov9/.git/
 
 # Local logs and caches
 *.log

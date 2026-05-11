@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <rect width="1280" height="720" fill="#f7f8fa"/>
+  <text x="64" y="76" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#1f2933">Validation result snapshot</text>
+  <text x="64" y="116" font-family="Arial, sans-serif" font-size="19" fill="#52606d">YOLOv9 GELAN-C, 50 epochs, best validation mAP@0.5 at epoch 48.</text>
+
+  <rect x="70" y="170" width="540" height="410" rx="8" fill="#ffffff" stroke="#d7dde7"/>
+  <text x="102" y="216" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#1f2933">YOLO router metrics</text>
+  <rect x="132" y="278" width="360" height="40" fill="#8ab8f4"/>
+  <text x="510" y="306" font-family="Arial, sans-serif" font-size="18" fill="#1f2933">precision 0.724</text>
+  <rect x="132" y="348" width="316" height="40" fill="#7bc79a"/>
+  <text x="466" y="376" font-family="Arial, sans-serif" font-size="18" fill="#1f2933">recall 0.636</text>
+  <rect x="132" y="418" width="354" height="40" fill="#f2b46d"/>
+  <text x="504" y="446" font-family="Arial, sans-serif" font-size="18" fill="#1f2933">mAP@0.5 0.712</text>
+  <rect x="132" y="488" width="288" height="40" fill="#b492e6"/>
+  <text x="438" y="516" font-family="Arial, sans-serif" font-size="18" fill="#1f2933">mAP@0.5:0.95 0.580</text>
+
+  <rect x="670" y="170" width="540" height="410" rx="8" fill="#ffffff" stroke="#d7dde7"/>
+  <text x="702" y="216" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#1f2933">What the result supports</text>
+  <circle cx="724" cy="282" r="6" fill="#2f855a"/>
+  <text x="744" y="289" font-family="Arial, sans-serif" font-size="18" fill="#1f2933">The router learns meaningful coarse element regions from noisy labels.</text>
+  <circle cx="724" cy="350" r="6" fill="#2f855a"/>
+  <text x="744" y="357" font-family="Arial, sans-serif" font-size="18" fill="#1f2933">Prediction review pages show usable routing behavior on validation/test images.</text>
+  <circle cx="724" cy="418" r="6" fill="#a23b3b"/>
+  <text x="744" y="425" font-family="Arial, sans-serif" font-size="18" fill="#1f2933">This is a validation run, not yet a production-quality detector.</text>
+  <circle cx="724" cy="486" r="6" fill="#a23b3b"/>
+  <text x="744" y="493" font-family="Arial, sans-serif" font-size="18" fill="#1f2933">Similar categories and upstream type bias remain the main risks.</text>
+</svg>

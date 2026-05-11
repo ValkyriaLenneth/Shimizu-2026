@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <rect width="1280" height="720" fill="#f7f8fa"/>
+  <text x="64" y="76" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#1f2933">Coarse-router dataset built from Gemini annotations</text>
+  <text x="64" y="116" font-family="Arial, sans-serif" font-size="19" fill="#52606d">1,935 source images, 3,950 boxes, four routing classes.</text>
+
+  <rect x="70" y="170" width="540" height="410" rx="8" fill="#ffffff" stroke="#d7dde7"/>
+  <text x="102" y="216" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#1f2933">Image split</text>
+  <rect x="142" y="274" width="386" height="38" fill="#8ab8f4"/>
+  <text x="542" y="301" font-family="Arial, sans-serif" font-size="18" fill="#1f2933">train 1548</text>
+  <rect x="142" y="344" width="48" height="38" fill="#7bc79a"/>
+  <text x="204" y="371" font-family="Arial, sans-serif" font-size="18" fill="#1f2933">val 194</text>
+  <rect x="142" y="414" width="48" height="38" fill="#f2b46d"/>
+  <text x="204" y="441" font-family="Arial, sans-serif" font-size="18" fill="#1f2933">test 193</text>
+  <text x="102" y="522" font-family="Arial, sans-serif" font-size="17" fill="#52606d">Class-balanced sampling: ceiling 500, inner wall 500, RC wall 500, RC column 435.</text>
+
+  <rect x="670" y="170" width="540" height="410" rx="8" fill="#ffffff" stroke="#d7dde7"/>
+  <text x="702" y="216" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#1f2933">Box count by routed class</text>
+  <rect x="742" y="274" width="365" height="34" fill="#7bc79a"/>
+  <text x="1124" y="299" font-family="Arial, sans-serif" font-size="17" fill="#1f2933">inner wall 1311</text>
+  <rect x="742" y="338" width="334" height="34" fill="#8ab8f4"/>
+  <text x="1093" y="363" font-family="Arial, sans-serif" font-size="17" fill="#1f2933">ceiling 1198</text>
+  <rect x="742" y="402" width="229" height="34" fill="#f2b46d"/>
+  <text x="988" y="427" font-family="Arial, sans-serif" font-size="17" fill="#1f2933">RC wall 822</text>
+  <rect x="742" y="466" width="173" height="34" fill="#b492e6"/>
+  <text x="932" y="491" font-family="Arial, sans-serif" font-size="17" fill="#1f2933">RC column 619</text>
+</svg>

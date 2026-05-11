@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <rect width="1280" height="720" fill="#f7f8fa"/>
+  <text x="64" y="72" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#1f2933">Why the previous YOLO data cannot be used directly</text>
+  <text x="64" y="112" font-family="Arial, sans-serif" font-size="19" fill="#52606d">The existing datasets are damage-grade detectors inside a known building-element bucket; the new router needs element-type regions across the whole image.</text>
+
+  <rect x="64" y="160" width="500" height="420" rx="8" fill="#ffffff" stroke="#d7dde7"/>
+  <text x="96" y="210" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#1f2933">Existing YOLO task</text>
+  <text x="96" y="246" font-family="Arial, sans-serif" font-size="18" fill="#52606d">Dataset is already split by element type</text>
+  <rect x="96" y="286" width="190" height="64" rx="6" fill="#eef6ff" stroke="#8ab8f4"/>
+  <text x="116" y="326" font-family="Arial, sans-serif" font-size="20" fill="#1f2933">ceiling/</text>
+  <rect x="326" y="286" width="190" height="64" rx="6" fill="#fff4e6" stroke="#f2b46d"/>
+  <text x="346" y="326" font-family="Arial, sans-serif" font-size="20" fill="#1f2933">rc_wall/</text>
+  <rect x="96" y="378" width="420" height="110" rx="6" fill="#fff7f7" stroke="#f1b6b6"/>
+  <text x="122" y="420" font-family="Arial, sans-serif" font-size="20" fill="#1f2933">Labels: damage grade B / C / D</text>
+  <text x="122" y="455" font-family="Arial, sans-serif" font-size="17" fill="#52606d">Example names: 天井の損傷程度B, 耐震壁の損傷程度C</text>
+  <text x="96" y="532" font-family="Arial, sans-serif" font-size="18" fill="#a23b3b">Problem: these labels do not tell us where the ceiling/wall/column areas are.</text>
+
+  <rect x="716" y="160" width="500" height="420" rx="8" fill="#ffffff" stroke="#d7dde7"/>
+  <text x="748" y="210" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#1f2933">Needed router task</text>
+  <text x="748" y="246" font-family="Arial, sans-serif" font-size="18" fill="#52606d">One model finds coarse element regions first</text>
+  <rect x="748" y="286" width="190" height="64" rx="6" fill="#e7f7ee" stroke="#7bc79a"/>
+  <text x="778" y="326" font-family="Arial, sans-serif" font-size="20" fill="#1f2933">inner wall</text>
+  <rect x="978" y="286" width="190" height="64" rx="6" fill="#eef6ff" stroke="#8ab8f4"/>
+  <text x="1028" y="326" font-family="Arial, sans-serif" font-size="20" fill="#1f2933">ceiling</text>
+  <rect x="748" y="378" width="190" height="64" rx="6" fill="#fff4e6" stroke="#f2b46d"/>
+  <text x="808" y="418" font-family="Arial, sans-serif" font-size="20" fill="#1f2933">RC wall</text>
+  <rect x="978" y="378" width="190" height="64" rx="6" fill="#f6edff" stroke="#b492e6"/>
+  <text x="1032" y="418" font-family="Arial, sans-serif" font-size="20" fill="#1f2933">RC column</text>
+  <text x="748" y="506" font-family="Arial, sans-serif" font-size="20" fill="#1f2933">Labels: element category + coarse box</text>
+  <text x="748" y="542" font-family="Arial, sans-serif" font-size="18" fill="#52606d">Output routes each crop to the corresponding damage model.</text>
+
+  <path d="M588 366 H690" stroke="#334e68" stroke-width="4" marker-end="url(#arrow)"/>
+  <circle cx="638" cy="366" r="28" fill="#ffffff" stroke="#d7dde7"/>
+  <text x="627" y="377" font-family="Arial, sans-serif" font-size="30" font-weight="700" fill="#a23b3b">≠</text>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#334e68"/>
+    </marker>
+  </defs>
+</svg>
