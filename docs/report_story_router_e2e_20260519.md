@@ -272,7 +272,25 @@ RC柱是自动识别中最困难的一类，主要原因是数据量较少、场
 
 可视化材料：
 
-![损失匹配样本汇总](report_assets_20260519/filter_loss_cases.jpg)
+3-C-00039：RC壁样本被自动识别为 RC柱，导致期望的壁类分支没有被使用。
+
+![3-C-00039 class mismatch](report_assets_20260519/lost_match_01_3-C-00039_class_mismatch.jpg)
+
+d-173：原始类别为 RC柱，但自动识别只输出了天井和壁类，因此 RC柱 裂缝分支没有命中。
+
+![d-173 no RC column](report_assets_20260519/lost_match_02_d-173_no_rc_column.jpg)
+
+d-10022：自动识别输出了 RC柱，但区域覆盖不到该裂缝位置，属于过滤区域几何覆盖不足。
+
+![d-10022 filter coverage](report_assets_20260519/lost_match_03_d-10022_filter_coverage.jpg)
+
+d-40044：RC柱 被识别为壁类，后续使用了错误分支。
+
+![d-40044 wall instead of column](report_assets_20260519/lost_match_04_d-40044_wall_instead_column.jpg)
+
+4-C-00022：RC柱 被识别为壁类，后续使用了错误分支。
+
+![4-C-00022 wall instead of column](report_assets_20260519/lost_match_05_4-C-00022_wall_instead_column.jpg)
 
 这说明当前主要瓶颈不是裂缝等级模型本身，也不是整图识别方式本身，而是自动识别类别没有命中，尤其是 RC柱 被识别成壁类的样本。
 
