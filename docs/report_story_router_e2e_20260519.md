@@ -173,11 +173,11 @@ RC柱是自动识别中最困难的一类，主要原因是数据量较少、场
 
 局部图片方式示意：
 
-![局部图片方式示意](report_assets_20260519/crop_method_demo_d10022.jpg)
+![局部图片方式示意](report_assets_20260519/crop_method_demo_d36.jpg)
 
 同一样本下，局部图片方式与整图过滤方式的输出差异：
 
-![局部图片方式与整图过滤方式对比](report_assets_20260519/crop_vs_fullimage_filter_d10022.jpg)
+![局部图片方式与整图过滤方式对比](report_assets_20260519/crop_vs_fullimage_filter_d36.jpg)
 
 ### 3.2 整图识别 + 区域过滤 + 结果合并
 
