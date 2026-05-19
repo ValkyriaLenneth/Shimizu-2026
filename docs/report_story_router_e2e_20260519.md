@@ -148,7 +148,17 @@ RC柱是自动识别中最困难的一类，主要原因是数据量较少、场
 | RC壁等级更高案例 | 同一区域 RC壁模型等级高于内壁模型 | 需要业务规则决定保守输出还是提示用户 |
 | 内壁等级更高案例 | 同一区域内壁模型等级高于 RC壁模型 | UI 确认可以避免自动选择造成误解 |
 
-![壁类等级差异案例](report_assets_20260519/wall_grade_cases.jpg)
+等级一致案例：内壁模型与 RC壁模型都输出 B。
+
+![壁类等级一致案例](report_assets_20260519/wall_grade_01_same_b40334_clean.jpg)
+
+等级差异案例 1：内壁模型输出 D，RC壁模型输出 B。
+
+![壁类等级差异案例 1](report_assets_20260519/wall_grade_02_innerD_rcB_b40565_clean.jpg)
+
+等级差异案例 2：RC壁模型输出 B，内壁模型输出 D。
+
+![壁类等级差异案例 2](report_assets_20260519/wall_grade_03_rcB_innerD_c40600_clean.jpg)
 
 ### 2.6 Part 2 小结
 
