@@ -9,6 +9,9 @@ data/unzip/
 data/processed/
 data/zip/
 data/shimizu-split/
+data/final_crack_yolo_20260519/
+additional_data_2026-05-19/
+external/
 
 # Generated audit/manifests can be reproduced from data, keep them out of code repo.
 data/audit/
@@ -22,6 +25,9 @@ outputs/
 *.pt
 *.ckpt
 artifacts/
+*.bundle
+handoff_20260519/SHA256SUMS.txt
+docs/review.txt
 coarse_router_yolov9/.venv/
 coarse_router_yolov9/datasets/
 coarse_router_yolov9/runs/
