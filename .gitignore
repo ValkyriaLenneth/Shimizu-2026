@@ -46,3 +46,9 @@ coarse_router_yolov9/yolov9/.git/
 .DS_Store
 .idea/
 .vscode/
+/data/shimizu_building_cls_processed_dataset_v1_20260425
+/handoff_20260519/shimizu_20260519_data_package
+/handoff_20260519/shimizu_20260519_minimal_repro_package
+/handoff_20260519/shimizu_20260519_router_models_and_results
+/result/shimizu_building_cls_results_20260425
+/result/shimizu_training_results_models_tests_20260425
