@@ -12,10 +12,18 @@ from typing import Any
 import cv2
 import yaml
 
+from .ambiguity_display import build_ambiguity_candidate_groups
 from .crack_detector_registry import build_detector_registry
+from .fallback_policy import (
+    Task,
+    plan_dynamic_fallback_tasks,
+    plan_main_tasks,
+    plan_static_fallback_tasks,
+)
 from .region_view import make_region_view, map_region_xyxy_to_original, padded_xyxy
 from .result_merge import Detection, center_in_xyxy, ioa_over_first_xyxy, nms_detections, prod_like_merge_detections
 from .router_infer import RouterConfig, RouterInfer
+from .wall_candidate_display import build_wall_candidate_display
 
 
 def parse_args() -> argparse.Namespace:
@@ -132,59 +140,13 @@ def run_one(image_path: Path, router: RouterInfer, registry: dict[str, Any], con
     region_transport = str(region_cfg.get("region_transport", "ndarray_slice"))
 
     if region_transport == "full_image_filter":
-        full_image_outputs: dict[str, list[Detection]] = {}
-        for router_region_index, router_det in enumerate(router_result["detections"]):
-            router_class = router_det["class_name"]
-            detectors = registry.get(router_class, [])
-            filter_box = tuple(
-                float(v)
-                for v in padded_xyxy(
-                    router_det["bbox_xyxy"],
-                    image.shape,
-                    padding_ratio=float(region_cfg.get("region_padding_ratio", 0.10)),
-                )
-            )
-            for detector in detectors:
-                detector_name = getattr(detector, "name", "unknown")
-                if detector_name not in full_image_outputs:
-                    try:
-                        full_image_outputs[detector_name] = [
-                            Detection(
-                                xyxy=det.xyxy,
-                                confidence=det.confidence,
-                                grade=det.grade,
-                                source_model=det.source_model,
-                                source_router_class=router_class,
-                            )
-                            for det in detector.predict(image, router_class)
-                        ]
-                    except Exception as exc:
-                        warnings.append(f"detector_exception:{detector_name}:{type(exc).__name__}")
-                        full_image_outputs[detector_name] = []
-                for det in full_image_outputs[detector_name]:
-                    if not detection_in_router_region(det.xyxy, filter_box, region_cfg):
-                        continue
-                    mapped_detection = Detection(
-                        xyxy=det.xyxy,
-                        confidence=det.confidence,
-                        grade=det.grade,
-                        source_model=det.source_model,
-                        source_router_class=router_class,
-                    )
-                    all_cracks.append(mapped_detection)
-                    raw_record = detection_dict(mapped_detection)
-                    raw_record.update(
-                        {
-                            "router_region_index": router_region_index,
-                            "router_bbox_xyxy": [round(float(v), 3) for v in router_det["bbox_xyxy"]],
-                            "router_filter_bbox_xyxy": [round(float(v), 3) for v in filter_box],
-                            "router_confidence": router_det["confidence"],
-                            "router_class_name": router_class,
-                            "detector_input_shape": list(image.shape),
-                            "region_transport": "full_image_filter",
-                        }
-                    )
-                    raw_crack_records.append(raw_record)
+        all_cracks, raw_crack_records, fallback_warnings = _run_full_image_filter_with_fallback(
+            image=image,
+            router_result=router_result,
+            registry=registry,
+            config=config,
+        )
+        warnings.extend(fallback_warnings)
     else:
         for router_region_index, router_det in enumerate(router_result["detections"]):
             router_class = router_det["class_name"]
@@ -238,18 +200,49 @@ def run_one(image_path: Path, router: RouterInfer, registry: dict[str, Any], con
             cross_grade_iou_threshold=float(merge_cfg.get("cross_grade_iou_threshold", 0.60)),
             prefer_higher_grade=bool(merge_cfg.get("prefer_higher_grade", True)),
         )
+    ambiguity_cfg = config.get("ambiguity_display", {}) or {}
+    ambiguity_groups, ambiguity_used_indices = build_ambiguity_candidate_groups(
+        merged,
+        iou_threshold=float(ambiguity_cfg.get("iou_threshold", 0.50)),
+    )
+    ambiguity_display = [det for group in ambiguity_groups for det in group["display_detections"]]
+    wall_records_for_display = _wall_records_excluding_ambiguity(
+        raw_crack_records, merged, ambiguity_used_indices
+    )
+    wall_display_cfg = config.get("wall_display", {})
+    wall_candidate_display = build_wall_candidate_display(
+        wall_records_for_display,
+        iou_threshold=float(wall_display_cfg.get("pair_iou_threshold", merge_cfg.get("cross_model_iou_threshold", 0.55))),
+        ioa_threshold=float(wall_display_cfg.get("pair_ioa_threshold", 0.70)),
+        min_single_confidence=float(wall_display_cfg.get("min_single_confidence", 0.05)),
+        max_single_groups_per_model=int(wall_display_cfg.get("max_single_groups_per_model", 1)),
+    )
     if router_result["route_decision"]["status"] == "low_confidence":
         warnings.append("router_low_confidence_multi_model_fallback_todo")
     if not router_result["detections"]:
         warnings.append("router_unknown")
+    if wall_candidate_display["summary"]["has_grade_conflict"]:
+        warnings.append("wall_grade_conflict_candidates")
+    if ambiguity_groups:
+        warnings.append(f"ambiguous_class_candidates:{len(ambiguity_groups)}")
+
+    display_items = _compose_display_items(
+        merged=merged,
+        ambiguity_used_indices=ambiguity_used_indices,
+        wall_display=wall_candidate_display["display_detections"],
+        ambiguity_display=ambiguity_display,
+    )
 
     return {
         "image": str(image_path),
         "image_shape": list(image.shape),
-        "pipeline_version": "router3_crack_v1",
+        "pipeline_version": "router3_crack_v2_class_safe",
         "router": router_result,
         "raw_crack_detections": raw_crack_records,
         "crack_detections": [detection_dict(d) for d in merged],
+        "display_crack_detections": display_items,
+        "wall_candidate_display": wall_candidate_display,
+        "ambiguity_candidate_groups": ambiguity_groups,
         "warnings": warnings,
     }
 
@@ -265,6 +258,75 @@ def detection_dict(det: Detection) -> dict[str, Any]:
     }
 
 
+def display_crack_detections(merged: list[Detection], wall_display: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Return product-display detections.
+
+    Non-wall detections keep the existing merged output. Wall detections are
+    replaced by the display groups: same level -> one item, different levels ->
+    two subtype candidates under the same image record.
+    """
+    non_wall = [detection_dict(det) for det in merged if det.source_router_class != "壁类"]
+    return non_wall + wall_display
+
+
+def _compose_display_items(
+    merged: list[Detection],
+    ambiguity_used_indices: set[int],
+    wall_display: list[dict[str, Any]],
+    ambiguity_display: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Build the final display list with strict class-isolation.
+
+    Order:
+    1. Non-wall detections that are NOT part of an ambiguity group (天井 /
+       RC柱 main outputs and independent RC柱 fallback rescues).
+    2. Wall candidate display groups (inner_wall vs rc_wall pairing).
+    3. Ambiguous class candidate groups (cross-class pairs preserved as
+       parallel candidates so the auditor can pick the correct class).
+    """
+    non_wall = [
+        detection_dict(det)
+        for index, det in enumerate(merged)
+        if det.source_router_class != "壁类" and index not in ambiguity_used_indices
+    ]
+    return non_wall + wall_display + ambiguity_display
+
+
+def _wall_records_excluding_ambiguity(
+    raw_records: list[dict[str, Any]],
+    merged: list[Detection],
+    ambiguity_used_indices: set[int],
+) -> list[dict[str, Any]]:
+    """Remove wall raw records whose merged representative was claimed by an
+    ambiguity group, so they are not rendered twice (once via wall_display,
+    once via ambiguity_display).
+    """
+    if not ambiguity_used_indices:
+        return raw_records
+    excluded_boxes: list[tuple[float, float, float, float]] = []
+    for index in ambiguity_used_indices:
+        det = merged[index]
+        if det.source_router_class != "壁类":
+            continue
+        excluded_boxes.append(tuple(float(v) for v in det.xyxy))
+    if not excluded_boxes:
+        return raw_records
+    filtered: list[dict[str, Any]] = []
+    for record in raw_records:
+        if str(record.get("source_router_class")) != "壁类":
+            filtered.append(record)
+            continue
+        bbox = record.get("bbox_xyxy") or [0, 0, 0, 0]
+        record_box = tuple(float(v) for v in bbox)
+        if any(
+            ioa_over_first_xyxy(record_box, excluded) >= 0.80
+            for excluded in excluded_boxes
+        ):
+            continue
+        filtered.append(record)
+    return filtered
+
+
 def detection_in_router_region(
     detection_xyxy: tuple[float, float, float, float],
     router_xyxy: tuple[float, float, float, float],
@@ -277,6 +339,209 @@ def detection_in_router_region(
     if mode == "ioa":
         return ioa_over_first_xyxy(detection_xyxy, router_xyxy) >= ioa_threshold
     return center_in_xyxy(detection_xyxy, router_xyxy) or ioa_over_first_xyxy(detection_xyxy, router_xyxy) >= ioa_threshold
+
+
+def _flatten_registry(registry: dict[str, list[Any]]) -> dict[str, Any]:
+    flat: dict[str, Any] = {}
+    for detectors in registry.values():
+        for detector in detectors:
+            name = getattr(detector, "name", None)
+            if name and name not in flat:
+                flat[name] = detector
+    return flat
+
+
+def _run_full_image_filter_with_fallback(
+    image: Any,
+    router_result: dict[str, Any],
+    registry: dict[str, list[Any]],
+    config: dict[str, Any],
+) -> tuple[list[Detection], list[dict[str, Any]], list[str]]:
+    """Two-phase task scheduler.
+
+    Phase 1 runs main tasks plus the static-trigger fallback tasks
+    (morphology / parallel-walls / low-confidence-router / empty-router).
+    Phase 2 inspects the maximum main-detector confidence per router region
+    and, if any region's main detectors fell silent, enqueues the
+    cross-class sister detector(s) as a dynamic Trigger-B fallback.
+    """
+    region_cfg = config["pipeline"]
+    fallback_cfg = config.get("fallback_policy", {}) or {}
+    flat_registry = _flatten_registry(registry)
+    available = list(flat_registry.keys())
+
+    router_detections = router_result.get("detections", [])
+    router_status = str(router_result.get("route_decision", {}).get("status", "unknown"))
+
+    detector_outputs: dict[str, list[Detection]] = {}
+    warnings: list[str] = []
+
+    def _ensure_outputs(detector_name: str, source_router_class: str) -> list[Detection]:
+        if detector_name in detector_outputs:
+            return detector_outputs[detector_name]
+        detector = flat_registry.get(detector_name)
+        if detector is None:
+            detector_outputs[detector_name] = []
+            return []
+        try:
+            outputs = [
+                Detection(
+                    xyxy=det.xyxy,
+                    confidence=det.confidence,
+                    grade=det.grade,
+                    source_model=det.source_model,
+                    source_router_class=source_router_class,
+                )
+                for det in detector.predict(image, source_router_class)
+            ]
+        except Exception as exc:
+            warnings.append(f"detector_exception:{detector_name}:{type(exc).__name__}")
+            outputs = []
+        detector_outputs[detector_name] = outputs
+        return outputs
+
+    aggregated: dict[tuple[str, int], dict[str, Any]] = {}
+
+    def _apply_tasks(tasks: list[Task]) -> None:
+        for task in tasks:
+            outputs = _ensure_outputs(task.detector_name, task.source_router_class)
+            for det_index, det in enumerate(outputs):
+                if det.confidence < task.min_confidence:
+                    continue
+                if not detection_in_router_region(det.xyxy, task.filter_box, region_cfg):
+                    continue
+                key = (task.detector_name, det_index)
+                entry = aggregated.get(key)
+                if entry is None:
+                    entry = {
+                        "detection": det,
+                        "router_region_indices": list(task.router_region_indices),
+                        "filter_boxes": [list(task.filter_box)],
+                        "task_kinds": ["fallback" if task.is_fallback else "main"],
+                        "fallback_reasons": [task.fallback_reason] if task.is_fallback else [],
+                        "source_router_class": task.source_router_class,
+                        "is_fallback": task.is_fallback,
+                        "fallback_reason": task.fallback_reason,
+                        "min_confidence": task.min_confidence,
+                    }
+                    aggregated[key] = entry
+                    continue
+                for idx in task.router_region_indices:
+                    if idx not in entry["router_region_indices"]:
+                        entry["router_region_indices"].append(idx)
+                entry["filter_boxes"].append(list(task.filter_box))
+                entry["task_kinds"].append("fallback" if task.is_fallback else "main")
+                if not task.is_fallback:
+                    entry["is_fallback"] = False
+                    entry["fallback_reason"] = ""
+                    entry["source_router_class"] = task.source_router_class
+                    entry["min_confidence"] = min(entry["min_confidence"], task.min_confidence)
+                else:
+                    if task.fallback_reason and task.fallback_reason not in entry["fallback_reasons"]:
+                        entry["fallback_reasons"].append(task.fallback_reason)
+
+    main_tasks = plan_main_tasks(
+        router_detections=router_detections,
+        image_shape=image.shape,
+        region_cfg=region_cfg,
+        fallback_cfg=fallback_cfg,
+        available_detector_names=available,
+    )
+    static_fallback_tasks = plan_static_fallback_tasks(
+        router_detections=router_detections,
+        router_status=router_status,
+        image_shape=image.shape,
+        region_cfg=region_cfg,
+        fallback_cfg=fallback_cfg,
+        available_detector_names=available,
+    )
+    _apply_tasks(main_tasks + static_fallback_tasks)
+
+    max_main_conf_by_region = _max_main_conf_per_region(aggregated, router_detections)
+    dynamic_fallback_tasks = plan_dynamic_fallback_tasks(
+        router_detections=router_detections,
+        max_main_conf_by_region=max_main_conf_by_region,
+        image_shape=image.shape,
+        region_cfg=region_cfg,
+        fallback_cfg=fallback_cfg,
+        available_detector_names=available,
+    )
+    if dynamic_fallback_tasks:
+        _apply_tasks(dynamic_fallback_tasks)
+
+    all_cracks: list[Detection] = []
+    raw_crack_records: list[dict[str, Any]] = []
+    fallback_count = 0
+    fallback_reasons_summary: dict[str, int] = {}
+    for (detector_name, det_index), entry in aggregated.items():
+        det: Detection = entry["detection"]
+        promoted = Detection(
+            xyxy=det.xyxy,
+            confidence=det.confidence,
+            grade=det.grade,
+            source_model=det.source_model,
+            source_router_class=entry["source_router_class"],
+        )
+        all_cracks.append(promoted)
+        primary_router_index = next(iter(entry["router_region_indices"]), -1)
+        primary_router_box = (
+            router_detections[primary_router_index]["bbox_xyxy"]
+            if 0 <= primary_router_index < len(router_detections)
+            else []
+        )
+        primary_router_conf = (
+            float(router_detections[primary_router_index]["confidence"])
+            if 0 <= primary_router_index < len(router_detections)
+            else 0.0
+        )
+        raw_record = detection_dict(promoted)
+        raw_record.update(
+            {
+                "router_region_index": primary_router_index,
+                "router_region_indices": list(entry["router_region_indices"]),
+                "router_bbox_xyxy": [round(float(v), 3) for v in primary_router_box],
+                "router_filter_bbox_xyxy": [round(float(v), 3) for v in entry["filter_boxes"][0]],
+                "router_confidence": primary_router_conf,
+                "router_class_name": entry["source_router_class"],
+                "detector_input_shape": list(image.shape),
+                "region_transport": "full_image_filter",
+                "is_fallback": bool(entry["is_fallback"]),
+                "fallback_reasons": list(entry["fallback_reasons"]),
+                "task_kinds": list(entry["task_kinds"]),
+                "min_confidence_floor": float(entry["min_confidence"]),
+            }
+        )
+        raw_crack_records.append(raw_record)
+        if entry["is_fallback"]:
+            fallback_count += 1
+            for reason in entry["fallback_reasons"]:
+                family = reason.split(":", 1)[0] if reason else "unknown"
+                fallback_reasons_summary[family] = fallback_reasons_summary.get(family, 0) + 1
+
+    if fallback_count:
+        warnings.append(f"fallback_detections:{fallback_count}")
+        for family, count in sorted(fallback_reasons_summary.items()):
+            warnings.append(f"fallback_trigger:{family}:{count}")
+
+    return all_cracks, raw_crack_records, warnings
+
+
+def _max_main_conf_per_region(
+    aggregated: dict[tuple[str, int], dict[str, Any]],
+    router_detections: list[dict[str, Any]],
+) -> dict[int, float]:
+    out: dict[int, float] = {i: 0.0 for i in range(len(router_detections))}
+    for entry in aggregated.values():
+        if entry.get("is_fallback"):
+            continue
+        det: Detection = entry["detection"]
+        conf = float(det.confidence)
+        for idx in entry["router_region_indices"]:
+            if idx < 0 or idx >= len(router_detections):
+                continue
+            if conf > out.get(idx, 0.0):
+                out[idx] = conf
+    return out
 
 
 def save_visualization(image_path: Path, result: dict[str, Any], out_path: Path) -> None:

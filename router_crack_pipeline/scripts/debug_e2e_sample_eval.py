@@ -141,9 +141,15 @@ def evaluate_one(row: dict[str, str], result: dict[str, Any], iou_threshold: flo
     router_classes = [d.get("class_name") for d in (result.get("router") or {}).get("detections", [])]
     raw = result.get("raw_crack_detections", [])
     main_preds = [d for d in raw if d.get("source_model") == main_model]
+    main_preds_fallback = [d for d in main_preds if bool(d.get("is_fallback"))]
+    main_preds_primary = [d for d in main_preds if not bool(d.get("is_fallback"))]
     secondary_preds = [d for d in raw if d.get("source_model") != main_model]
+    secondary_preds_fallback = [d for d in secondary_preds if bool(d.get("is_fallback"))]
     matches = match_predictions(gt, main_preds, iou_threshold)
+    matches_primary = match_predictions(gt, main_preds_primary, iou_threshold)
     fn_count = max(0, len(gt) - len(matches))
+    fn_count_primary = max(0, len(gt) - len(matches_primary))
+    fallback_rescued = max(0, fn_count_primary - fn_count)
     router_hit = int(expected_router in router_classes)
     fn_router_miss = fn_count if not router_hit else 0
     fn_no_main_output = fn_count if router_hit and not main_preds else 0
@@ -160,13 +166,20 @@ def evaluate_one(row: dict[str, str], result: dict[str, Any], iou_threshold: flo
         "gt_boxes": len(gt),
         "raw_predictions": len(raw),
         "main_predictions": len(main_preds),
+        "main_predictions_primary": len(main_preds_primary),
+        "main_predictions_fallback": len(main_preds_fallback),
         "secondary_predictions": len(secondary_preds),
+        "secondary_predictions_fallback": len(secondary_preds_fallback),
         "main_matches_iou50": len(matches),
+        "main_matches_primary": len(matches_primary),
+        "fallback_rescued_matches": fallback_rescued,
         "main_false_negative": fn_count,
+        "main_false_negative_no_fallback": fn_count_primary,
         "fn_router_miss": fn_router_miss,
         "fn_no_main_output": fn_no_main_output,
         "fn_iou_miss": fn_iou_miss,
         "main_false_positive": max(0, len(main_preds) - len(matches)),
+        "main_false_positive_fallback_share": max(0, len(main_preds_fallback) - max(0, len(matches) - len(matches_primary))),
         "matched_grade_ok": matched_grade_ok,
         "matched_grade_mismatch": max(0, len(matches) - matched_grade_ok),
         "warnings": "|".join(result.get("warnings", [])),
@@ -264,28 +277,44 @@ def normalize_grade(value: str) -> str:
 
 
 def summarize(image_rows: list[dict[str, Any]], wall_pairs: list[dict[str, Any]], per_class: int) -> dict[str, Any]:
+    keys_sum = [
+        "router_hit",
+        "gt_boxes",
+        "main_predictions",
+        "main_predictions_primary",
+        "main_predictions_fallback",
+        "secondary_predictions",
+        "secondary_predictions_fallback",
+        "main_matches_iou50",
+        "main_matches_primary",
+        "fallback_rescued_matches",
+        "main_false_negative",
+        "main_false_negative_no_fallback",
+        "fn_router_miss",
+        "fn_no_main_output",
+        "fn_iou_miss",
+        "main_false_positive",
+        "main_false_positive_fallback_share",
+        "matched_grade_ok",
+        "matched_grade_mismatch",
+    ]
     by_class = {}
     for class_key in ["tenjo", "inner_wall", "rc_wall", "rc_column"]:
         rows = [r for r in image_rows if r["class_key"] == class_key]
-        by_class[class_key] = {
-            "images": len(rows),
-            "router_hit": sum(int(r["router_hit"]) for r in rows),
-            "gt_boxes": sum(int(r["gt_boxes"]) for r in rows),
-            "main_predictions": sum(int(r["main_predictions"]) for r in rows),
-            "secondary_predictions": sum(int(r["secondary_predictions"]) for r in rows),
-            "main_matches_iou50": sum(int(r["main_matches_iou50"]) for r in rows),
-            "main_false_negative": sum(int(r["main_false_negative"]) for r in rows),
-            "fn_router_miss": sum(int(r["fn_router_miss"]) for r in rows),
-            "fn_no_main_output": sum(int(r["fn_no_main_output"]) for r in rows),
-            "fn_iou_miss": sum(int(r["fn_iou_miss"]) for r in rows),
-            "main_false_positive": sum(int(r["main_false_positive"]) for r in rows),
-            "matched_grade_ok": sum(int(r["matched_grade_ok"]) for r in rows),
-            "matched_grade_mismatch": sum(int(r["matched_grade_mismatch"]) for r in rows),
-        }
+        entry: dict[str, Any] = {"images": len(rows)}
+        for key in keys_sum:
+            entry[key] = sum(int(r.get(key, 0)) for r in rows)
+        by_class[class_key] = entry
+
+    totals: dict[str, int] = {"images": len(image_rows)}
+    for key in keys_sum:
+        totals[key] = sum(int(r.get(key, 0)) for r in image_rows)
+
     deltas = Counter(int(p["grade_delta_rc_minus_inner"]) for p in wall_pairs)
     return {
         "images": len(image_rows),
         "per_class": per_class,
+        "totals": totals,
         "by_class": by_class,
         "wall_grade_shift_pairs": len(wall_pairs),
         "wall_grade_delta_rc_minus_inner": dict(sorted(deltas.items())),

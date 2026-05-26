@@ -142,10 +142,21 @@ def _merge_levels_within_model(detections: list[Detection], ioa_threshold: float
 
 
 def _merge_across_models(detections: list[Detection], iou_threshold: float) -> list[Detection]:
+    """Cross-model merge with strict class-isolation.
+
+    Detections only cluster together when they share the same
+    ``source_router_class``. Different classes carry different damage-grade
+    semantics (e.g. "壁类 D" ≠ "RC柱 D"), so mixing them under one merged
+    box would silently corrupt the per-class grading rubric. Cross-class
+    spatial overlap must be reconciled at the display layer (see
+    ``build_ambiguity_candidate_groups``), never at the merge layer.
+    """
     remaining = sorted(detections, key=lambda d: d.confidence, reverse=True)
     clusters: list[list[Detection]] = []
     for det in remaining:
         for cluster in clusters:
+            if cluster[0].source_router_class != det.source_router_class:
+                continue
             if any(iou_xyxy(det.xyxy, other.xyxy) >= iou_threshold for other in cluster):
                 cluster.append(det)
                 break

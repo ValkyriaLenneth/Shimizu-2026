@@ -1,4 +1,5 @@
 import argparse
+import csv
 import math
 import os
 import random
@@ -93,7 +94,7 @@ def train(hyp, opt, device, callbacks):  # hyp is path/to/hyp.yaml or hyp dictio
     init_seeds(opt.seed + 1 + RANK, deterministic=True)
     with torch_distributed_zero_first(LOCAL_RANK):
         data_dict = data_dict or check_dataset(data)  # check if None
-    train_path, val_path = data_dict['train'], data_dict['val']
+    train_path, val_path, test_path = data_dict['train'], data_dict['val'], data_dict.get('test')
     nc = 1 if single_cls else int(data_dict['nc'])  # number of classes
     names = {0: 'item'} if single_cls and len(data_dict['names']) != 1 else data_dict['names']  # class names
     #is_coco = isinstance(val_path, str) and val_path.endswith('coco/val2017.txt')  # COCO dataset
@@ -209,6 +210,20 @@ def train(hyp, opt, device, callbacks):  # hyp is path/to/hyp.yaml or hyp dictio
                                        workers=workers * 2,
                                        pad=0.5,
                                        prefix=colorstr('val: '))[0]
+        test_loader = None
+        if opt.test_every_epoch and test_path:
+            test_loader = create_dataloader(test_path,
+                                            imgsz,
+                                            batch_size // WORLD_SIZE * 2,
+                                            gs,
+                                            single_cls,
+                                            hyp=hyp,
+                                            cache=None,
+                                            rect=True,
+                                            rank=-1,
+                                            workers=workers * 2,
+                                            pad=0.5,
+                                            prefix=colorstr('test: '))[0]
 
         if not resume:
             # if not opt.noautoanchor:
@@ -353,6 +368,28 @@ def train(hyp, opt, device, callbacks):  # hyp is path/to/hyp.yaml or hyp dictio
                                                 plots=False,
                                                 callbacks=callbacks,
                                                 compute_loss=compute_loss)
+            if opt.test_every_epoch and test_loader is not None:
+                test_results, _, _ = validate.run(data_dict,
+                                                  batch_size=batch_size // WORLD_SIZE * 2,
+                                                  imgsz=imgsz,
+                                                  half=amp,
+                                                  model=ema.ema,
+                                                  single_cls=single_cls,
+                                                  dataloader=test_loader,
+                                                  save_dir=save_dir / 'test_epoch_eval',
+                                                  plots=False,
+                                                  callbacks=callbacks,
+                                                  compute_loss=None)
+                test_csv = save_dir / 'test_results.csv'
+                write_header = not test_csv.exists()
+                with test_csv.open('a', newline='') as f:
+                    writer = csv.writer(f)
+                    if write_header:
+                        writer.writerow(['epoch', 'precision', 'recall', 'map50', 'map50_95',
+                                         'val_box_loss', 'val_obj_loss', 'val_cls_loss'])
+                    writer.writerow([epoch, *[float(x) for x in test_results]])
+                LOGGER.info(('%11s' + '%11.4g' * 4) %
+                            ('test', test_results[0], test_results[1], test_results[2], test_results[3]))
 
             # Update best mAP
             fi = fitness(np.array(results).reshape(1, -1))  # weighted combination of [P, R, mAP@.5, mAP@.5-.95]
@@ -469,6 +506,7 @@ def parse_opt(known=False):
     parser.add_argument('--local_rank', type=int, default=-1, help='Automatic DDP Multi-GPU argument, do not modify')
     parser.add_argument('--min-items', type=int, default=0, help='Experimental')
     parser.add_argument('--close-mosaic', type=int, default=0, help='Experimental')
+    parser.add_argument('--test-every-epoch', action='store_true', help='also evaluate the test split every epoch')
 
     # Logger arguments
     parser.add_argument('--entity', default=None, help='Entity')

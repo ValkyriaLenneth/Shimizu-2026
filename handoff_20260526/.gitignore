@@ -1,0 +1,3 @@
+*.tar.zst
+SHA256SUMS.txt
+staging/
