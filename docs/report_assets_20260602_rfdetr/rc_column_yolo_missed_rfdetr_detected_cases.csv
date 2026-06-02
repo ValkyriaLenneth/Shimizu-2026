@@ -1,0 +1,6 @@
+image,gt_cls,yolo_preds,yolo_best_iou,rfdetr_cls,rfdetr_conf,rfdetr_iou,case,asset
+data_add100__4-D-00168.jpg,2,0,0,2,0.9681337475776672,0.84613794,1,docs/report_assets_20260602_rfdetr/rc_column_yolo_missed_rfdetr_detected_01_data_add100__4-D-00168.jpg
+data_add100__4-B-00118.jpg,0,0,0,0,0.9345542788505554,0.6708852,2,docs/report_assets_20260602_rfdetr/rc_column_yolo_missed_rfdetr_detected_02_data_add100__4-B-00118.jpg
+data_add100__d-10.jpg,1,0,0,1,0.8869275450706482,0.66190684,3,docs/report_assets_20260602_rfdetr/rc_column_yolo_missed_rfdetr_detected_03_data_add100__d-10.jpg
+data_add100__d-191.jpg,0,0,0,0,0.8188419342041016,0.52421856,4,docs/report_assets_20260602_rfdetr/rc_column_yolo_missed_rfdetr_detected_04_data_add100__d-191.jpg
+data_add100__d-40019.jpg,0,0,0,0,0.688481330871582,0.5954668,5,docs/report_assets_20260602_rfdetr/rc_column_yolo_missed_rfdetr_detected_05_data_add100__d-40019.jpg

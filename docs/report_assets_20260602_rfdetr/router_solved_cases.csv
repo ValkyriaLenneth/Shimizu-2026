@@ -1,0 +1,9 @@
+case,image,old_type,old_gt,old_pred,old_conf,rfdetr_pred,rfdetr_conf,iou,asset
+1,RC壁_c-199_03206.jpg,misclass,RC column,Wall,0.746173,RC column,0.3359213173389435,0.93153095,docs/report_assets_20260602_rfdetr/router_solved_case_01_RC壁_c-199_03206.jpg
+2,RC壁_c-40017_03381.jpg,misclass,RC column,Wall,0.357404,RC column,0.9460671544075012,0.8671591,docs/report_assets_20260602_rfdetr/router_solved_case_02_RC壁_c-40017_03381.jpg
+3,RC壁_c-40477_03184.jpg,misclass,RC column,Wall,0.309475,RC column,0.47111332416534424,0.97926915,docs/report_assets_20260602_rfdetr/router_solved_case_03_RC壁_c-40477_03184.jpg
+4,RC壁_c-40616_03440.jpg,misclass,Wall,RC column,0.421618,Wall,0.6332717537879944,0.955867,docs/report_assets_20260602_rfdetr/router_solved_case_04_RC壁_c-40616_03440.jpg
+5,RC壁_c-40634_03446.jpg,misclass,Wall,RC column,0.87592,Wall,0.4305073618888855,0.7333679,docs/report_assets_20260602_rfdetr/router_solved_case_05_RC壁_c-40634_03446.jpg
+6,RC壁_ｃ-10117_03195.jpg,misclass,RC column,Wall,0.931686,RC column,0.510077178478241,0.9690966,docs/report_assets_20260602_rfdetr/router_solved_case_06_RC壁_ｃ-10117_03195.jpg
+7,RC柱_4-B-00234_03324.jpg,misclass,RC column,Wall,0.709493,RC column,0.9197144508361816,0.97639084,docs/report_assets_20260602_rfdetr/router_solved_case_07_RC柱_4-B-00234_03324.jpg
+8,RC柱_d-40027_03307.jpg,misclass,RC column,Wall,0.698743,RC column,0.8108342885971069,0.9369594,docs/report_assets_20260602_rfdetr/router_solved_case_08_RC柱_d-40027_03307.jpg

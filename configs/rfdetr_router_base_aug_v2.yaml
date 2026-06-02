@@ -1,0 +1,45 @@
+dataset:
+  name: rfdetr_router_base_aug_v2
+  dir: data/rfdetr_router_base_aug_v2
+  source_yolo_dataset: handoff_20260519/shimizu_20260519_minimal_repro_package/coarse_router_yolov9/datasets/coarse_router_3class_cleaned_merged_4219_rc_os900_aug_v2
+  note: RF-DETR-compatible symlink view over the real-data aug_v2 router dataset.
+
+classes:
+  0: 天井
+  1: 壁类
+  2: RC柱
+
+selection_policy:
+  primary_metric: precision
+  target_precision: 0.90
+  guardrail_metrics:
+    - recall
+    - per_class_precision
+    - wall_rc_column_confusion
+    - t4_latency
+
+training_defaults:
+  epochs: 50
+  num_workers: 8
+  eval_interval: 1
+  checkpoint_interval: 1
+  tensorboard: true
+  wandb: false
+  run_test: true
+  test_each_epoch: false
+  save_epoch_pth: true
+  trainer_precision: 16-mixed
+
+experiments:
+  small:
+    model_size: small
+    batch_size: 8
+    grad_accum_steps: 2
+    lr: 0.0001
+    output_dir: outputs/rfdetr_router/small_base_aug_v2
+  medium:
+    model_size: medium
+    batch_size: 28
+    grad_accum_steps: 1
+    lr: 0.0001
+    output_dir: outputs/rfdetr_router/medium_base_aug_v2

@@ -1,0 +1,46 @@
+dataset:
+  name: rfdetr_rc_column_baseline
+  dir: handoff_20260519/shimizu_20260519_minimal_repro_package/data/final_crack_yolo_20260519/split/rc_column
+  source_yolo_dataset: handoff_20260519/shimizu_20260519_minimal_repro_package/data/final_crack_yolo_20260519/split/rc_column
+  note: RC column single-component crack/damage B/C/D dataset.
+
+classes:
+  0: RC柱の損傷程度B
+  1: RC柱の損傷程度C
+  2: RC柱の損傷程度D
+
+selection_policy:
+  primary_metric: test/recall
+  guardrail_metrics:
+    - test/mAP_50
+    - test/mAP_50_95
+    - test/precision
+    - per_class_B_recall
+    - per_class_C_recall
+    - false_negative_count
+
+training_defaults:
+  epochs: 80
+  num_workers: 8
+  eval_interval: 1
+  checkpoint_interval: 1
+  tensorboard: true
+  wandb: false
+  run_test: true
+  test_each_epoch: false
+  save_epoch_pth: true
+  trainer_precision: 16-mixed
+
+experiments:
+  small:
+    model_size: small
+    batch_size: 8
+    grad_accum_steps: 2
+    lr: 0.0001
+    output_dir: outputs/rfdetr_single_crack/rc_column_small_baseline
+  medium:
+    model_size: medium
+    batch_size: 28
+    grad_accum_steps: 1
+    lr: 0.0001
+    output_dir: outputs/rfdetr_single_crack/rc_column_medium_baseline

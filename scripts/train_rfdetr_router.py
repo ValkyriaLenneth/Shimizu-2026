@@ -1,0 +1,183 @@
+#!/usr/bin/env python3
+"""Train an RF-DETR model for the 3-class building-element router."""
+
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+from datetime import UTC, datetime
+from pathlib import Path
+from typing import Any
+
+import yaml
+
+
+MODEL_CLASSES = {
+    "nano": "RFDETRNano",
+    "small": "RFDETRSmall",
+    "medium": "RFDETRMedium",
+    "large": "RFDETRLarge",
+}
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--config", default="configs/rfdetr_router_base_aug_v2.yaml")
+    parser.add_argument("--experiment", choices=["small", "medium"], default="small")
+    parser.add_argument("--dataset-dir", default="")
+    parser.add_argument("--output-dir", default="")
+    parser.add_argument("--model-size", choices=sorted(MODEL_CLASSES), default="")
+    parser.add_argument("--device", default="cuda:0")
+    parser.add_argument("--epochs", type=int, default=0)
+    parser.add_argument("--batch-size", default="", help="positive integer or 'auto'")
+    parser.add_argument("--grad-accum-steps", type=int, default=0)
+    parser.add_argument("--lr", type=float, default=0.0)
+    parser.add_argument("--num-workers", type=int, default=-1)
+    parser.add_argument("--resolution", type=int, default=0)
+    parser.add_argument("--trainer-precision", default="")
+    parser.add_argument("--seed", type=int, default=20260602)
+    parser.add_argument("--run-test", dest="run_test", action="store_true", default=None)
+    parser.add_argument("--no-run-test", dest="run_test", action="store_false")
+    parser.add_argument("--test-each-epoch", dest="test_each_epoch", action="store_true", default=None)
+    parser.add_argument("--no-test-each-epoch", dest="test_each_epoch", action="store_false")
+    parser.add_argument("--save-epoch-pth", dest="save_epoch_pth", action="store_true", default=None)
+    parser.add_argument("--no-save-epoch-pth", dest="save_epoch_pth", action="store_false")
+    parser.add_argument("--tensorboard", dest="tensorboard", action="store_true", default=None)
+    parser.add_argument("--no-tensorboard", dest="tensorboard", action="store_false")
+    parser.add_argument("--dry-run", action="store_true")
+    return parser.parse_args()
+
+
+def load_config(path: Path) -> dict[str, Any]:
+    data = yaml.safe_load(path.read_text(encoding="utf-8"))
+    if not isinstance(data, dict):
+        raise ValueError(f"expected mapping in {path}")
+    return data
+
+
+def resolve_path(value: str | Path, repo: Path) -> Path:
+    path = Path(value)
+    return path if path.is_absolute() else (repo / path).resolve()
+
+
+def build_train_options(args: argparse.Namespace, repo: Path) -> dict[str, Any]:
+    cfg = load_config(resolve_path(args.config, repo))
+    defaults = cfg.get("training_defaults", {}) or {}
+    exp = (cfg.get("experiments", {}) or {}).get(args.experiment, {})
+    dataset_cfg = cfg.get("dataset", {}) or {}
+
+    dataset_dir = args.dataset_dir or dataset_cfg.get("dir")
+    if not dataset_dir:
+        raise ValueError("dataset dir is required")
+    output_dir = args.output_dir or exp.get("output_dir") or f"outputs/rfdetr_router/{args.experiment}"
+    model_size = args.model_size or exp.get("model_size") or args.experiment
+    batch_size: int | str
+    if args.batch_size:
+        batch_size = "auto" if args.batch_size == "auto" else int(args.batch_size)
+    else:
+        batch_size = exp.get("batch_size", 4)
+
+    options: dict[str, Any] = {
+        "model_size": model_size,
+        "dataset_dir": str(resolve_path(dataset_dir, repo)),
+        "output_dir": str(resolve_path(output_dir, repo)),
+        "epochs": args.epochs or int(defaults.get("epochs", 50)),
+        "batch_size": batch_size,
+        "grad_accum_steps": args.grad_accum_steps or int(exp.get("grad_accum_steps", 4)),
+        "lr": args.lr or float(exp.get("lr", 1e-4)),
+        "num_workers": args.num_workers if args.num_workers >= 0 else int(defaults.get("num_workers", 8)),
+        "device": args.device,
+        "dataset_file": "yolo",
+        "eval_interval": int(defaults.get("eval_interval", 1)),
+        "checkpoint_interval": int(defaults.get("checkpoint_interval", 1)),
+        "tensorboard": bool(defaults.get("tensorboard", True)) if args.tensorboard is None else args.tensorboard,
+        "wandb": bool(defaults.get("wandb", False)),
+        "run_test": bool(defaults.get("run_test", True)) if args.run_test is None else args.run_test,
+        "test_each_epoch": (
+            bool(defaults.get("test_each_epoch", True)) if args.test_each_epoch is None else args.test_each_epoch
+        ),
+        "save_epoch_pth": (
+            bool(defaults.get("save_epoch_pth", True)) if args.save_epoch_pth is None else args.save_epoch_pth
+        ),
+        "trainer_precision": args.trainer_precision or str(defaults.get("trainer_precision", "")),
+        "seed": args.seed,
+        "notes": {
+            "run_id": datetime.now(UTC).strftime("%Y%m%d_%H%M%S"),
+            "task": "shimizu_router_rfdetr",
+            "config": str(resolve_path(args.config, repo)),
+            "experiment": args.experiment,
+            "selection_policy": cfg.get("selection_policy", {}),
+        },
+    }
+    if args.resolution:
+        options["resolution"] = args.resolution
+    return options
+
+
+def validate_dataset(dataset_dir: Path) -> None:
+    required = [
+        dataset_dir / "data.yaml",
+        dataset_dir / "train" / "images",
+        dataset_dir / "train" / "labels",
+        dataset_dir / "valid" / "images",
+        dataset_dir / "valid" / "labels",
+        dataset_dir / "test" / "images",
+        dataset_dir / "test" / "labels",
+    ]
+    missing = [str(path) for path in required if not path.exists()]
+    if missing:
+        raise FileNotFoundError("RF-DETR YOLO dataset view is incomplete: " + ", ".join(missing))
+
+
+def build_model(model_size: str) -> Any:
+    try:
+        import rfdetr
+    except ModuleNotFoundError as exc:
+        raise SystemExit(
+            "RF-DETR is not installed. Install it with: "
+            "python -m pip install -r requirements-rfdetr.txt"
+        ) from exc
+
+    class_name = MODEL_CLASSES[model_size]
+    model_class = getattr(rfdetr, class_name)
+    return model_class()
+
+
+def main() -> int:
+    args = parse_args()
+    repo = Path.cwd()
+    if str(repo) not in sys.path:
+        sys.path.insert(0, str(repo))
+    options = build_train_options(args, repo)
+    validate_dataset(Path(options["dataset_dir"]))
+
+    Path(options["output_dir"]).mkdir(parents=True, exist_ok=True)
+    option_path = Path(options["output_dir"]) / "train_options.json"
+    option_path.write_text(json.dumps(options, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    print(json.dumps(options, ensure_ascii=False, indent=2))
+
+    if args.dry_run:
+        print(f"[DRY-RUN] wrote {option_path}")
+        return 0
+
+    test_each_epoch = bool(options.pop("test_each_epoch"))
+    save_epoch_pth = bool(options.pop("save_epoch_pth"))
+    trainer_precision = str(options.pop("trainer_precision") or "")
+    if test_each_epoch or save_epoch_pth or trainer_precision:
+        from scripts.rfdetr_router_callbacks import install_router_trainer_patch
+
+        install_router_trainer_patch(
+            save_epoch_pth=save_epoch_pth,
+            test_each_epoch=test_each_epoch,
+            trainer_precision=trainer_precision or None,
+        )
+
+    model_size = str(options.pop("model_size"))
+    model = build_model(model_size)
+    model.train(**options)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
