@@ -1,0 +1,14 @@
+HorizontalFlip:
+  p: 0.5
+RandomBrightnessContrast:
+  brightness_limit: 0.12
+  contrast_limit: 0.12
+  p: 0.4
+GaussianBlur:
+  blur_limit: 3
+  p: 0.15
+GaussNoise:
+  std_range:
+    - 0.005
+    - 0.03
+  p: 0.2

@@ -35,12 +35,23 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--lr", type=float, default=0.0)
     parser.add_argument("--num-workers", type=int, default=-1)
     parser.add_argument("--resolution", type=int, default=0)
+    parser.add_argument("--num-queries", type=int, default=0)
+    parser.add_argument("--focal-alpha", type=float, default=-1.0)
+    parser.add_argument("--set-cost-class", type=float, default=-1.0)
+    parser.add_argument("--set-cost-bbox", type=float, default=-1.0)
+    parser.add_argument("--set-cost-giou", type=float, default=-1.0)
+    parser.add_argument("--use-varifocal-loss", action="store_true")
+    parser.add_argument("--checkpoint", default="", help="RF-DETR .pth checkpoint to initialize from")
+    parser.add_argument("--checkpoint-interval", type=int, default=0)
     parser.add_argument("--trainer-precision", default="")
+    parser.add_argument("--aug-config", default="", help="augmentation preset name or YAML/JSON file")
     parser.add_argument("--seed", type=int, default=20260602)
     parser.add_argument("--run-test", dest="run_test", action="store_true", default=None)
     parser.add_argument("--no-run-test", dest="run_test", action="store_false")
     parser.add_argument("--test-each-epoch", dest="test_each_epoch", action="store_true", default=None)
     parser.add_argument("--no-test-each-epoch", dest="test_each_epoch", action="store_false")
+    parser.add_argument("--external-eval-profiles", dest="external_eval_profiles", action="store_true", default=None)
+    parser.add_argument("--no-external-eval-profiles", dest="external_eval_profiles", action="store_false")
     parser.add_argument("--save-epoch-pth", dest="save_epoch_pth", action="store_true", default=None)
     parser.add_argument("--no-save-epoch-pth", dest="save_epoch_pth", action="store_false")
     parser.add_argument("--tensorboard", dest="tensorboard", action="store_true", default=None)
@@ -89,13 +100,21 @@ def build_train_options(args: argparse.Namespace, repo: Path) -> dict[str, Any]:
         "num_workers": args.num_workers if args.num_workers >= 0 else int(defaults.get("num_workers", 8)),
         "device": args.device,
         "dataset_file": "yolo",
+        "official_eval_dataset_dir": str(resolve_path(dataset_cfg.get("dir", dataset_dir), repo)),
         "eval_interval": int(defaults.get("eval_interval", 1)),
-        "checkpoint_interval": int(defaults.get("checkpoint_interval", 1)),
+        "checkpoint_interval": (
+            args.checkpoint_interval if args.checkpoint_interval > 0 else int(defaults.get("checkpoint_interval", 1))
+        ),
         "tensorboard": bool(defaults.get("tensorboard", True)) if args.tensorboard is None else args.tensorboard,
         "wandb": bool(defaults.get("wandb", False)),
         "run_test": bool(defaults.get("run_test", True)) if args.run_test is None else args.run_test,
         "test_each_epoch": (
             bool(defaults.get("test_each_epoch", True)) if args.test_each_epoch is None else args.test_each_epoch
+        ),
+        "external_eval_profiles": (
+            list(defaults.get("external_eval_profiles", []) or [])
+            if args.external_eval_profiles is not False
+            else []
         ),
         "save_epoch_pth": (
             bool(defaults.get("save_epoch_pth", True)) if args.save_epoch_pth is None else args.save_epoch_pth
@@ -112,7 +131,44 @@ def build_train_options(args: argparse.Namespace, repo: Path) -> dict[str, Any]:
     }
     if args.resolution:
         options["resolution"] = args.resolution
+    if args.num_queries:
+        options["num_queries"] = args.num_queries
+    if args.focal_alpha >= 0:
+        options["focal_alpha"] = args.focal_alpha
+    if args.set_cost_class >= 0:
+        options["set_cost_class"] = args.set_cost_class
+    if args.set_cost_bbox >= 0:
+        options["set_cost_bbox"] = args.set_cost_bbox
+    if args.set_cost_giou >= 0:
+        options["set_cost_giou"] = args.set_cost_giou
+    if args.use_varifocal_loss:
+        options["use_varifocal_loss"] = True
+    if args.aug_config:
+        options["aug_config"] = load_aug_config(args.aug_config, repo)
+    if args.checkpoint:
+        options["checkpoint"] = str(resolve_path(args.checkpoint, repo))
     return options
+
+
+def load_aug_config(value: str, repo: Path) -> Any:
+    presets = {
+        "default": "AUG_CONFIG",
+        "conservative": "AUG_CONSERVATIVE",
+        "aggressive": "AUG_AGGRESSIVE",
+        "aerial": "AUG_AERIAL",
+        "industrial": "AUG_INDUSTRIAL",
+    }
+    key = value.lower()
+    if key in presets:
+        from rfdetr.datasets import aug_config
+
+        return getattr(aug_config, presets[key])
+
+    path = resolve_path(value, repo)
+    data = yaml.safe_load(path.read_text(encoding="utf-8"))
+    if data is None:
+        return {}
+    return data
 
 
 def validate_dataset(dataset_dir: Path) -> None:
@@ -130,7 +186,7 @@ def validate_dataset(dataset_dir: Path) -> None:
         raise FileNotFoundError("RF-DETR YOLO dataset view is incomplete: " + ", ".join(missing))
 
 
-def build_model(model_size: str) -> Any:
+def build_model(model_size: str, checkpoint: str = "", model_kwargs: dict[str, Any] | None = None) -> Any:
     try:
         import rfdetr
     except ModuleNotFoundError as exc:
@@ -139,9 +195,13 @@ def build_model(model_size: str) -> Any:
             "python -m pip install -r requirements-rfdetr.txt"
         ) from exc
 
+    model_kwargs = model_kwargs or {}
+    if checkpoint:
+        return rfdetr.from_checkpoint(checkpoint, **model_kwargs)
+
     class_name = MODEL_CLASSES[model_size]
     model_class = getattr(rfdetr, class_name)
-    return model_class()
+    return model_class(**model_kwargs)
 
 
 def main() -> int:
@@ -162,19 +222,28 @@ def main() -> int:
         return 0
 
     test_each_epoch = bool(options.pop("test_each_epoch"))
+    external_eval_profiles = list(options.pop("external_eval_profiles", []) or [])
+    official_eval_dataset_dir = str(options.pop("official_eval_dataset_dir"))
     save_epoch_pth = bool(options.pop("save_epoch_pth"))
     trainer_precision = str(options.pop("trainer_precision") or "")
-    if test_each_epoch or save_epoch_pth or trainer_precision:
+    if test_each_epoch or save_epoch_pth or trainer_precision or external_eval_profiles:
         from scripts.rfdetr_router_callbacks import install_router_trainer_patch
 
         install_router_trainer_patch(
             save_epoch_pth=save_epoch_pth,
             test_each_epoch=test_each_epoch,
             trainer_precision=trainer_precision or None,
+            external_eval_profiles=external_eval_profiles,
+            official_eval_dataset_dir=official_eval_dataset_dir,
+            eval_device="cpu",
         )
 
     model_size = str(options.pop("model_size"))
-    model = build_model(model_size)
+    checkpoint = str(options.pop("checkpoint", ""))
+    model_kwargs: dict[str, Any] = {}
+    if "num_queries" in options:
+        model_kwargs["num_queries"] = int(options["num_queries"])
+    model = build_model(model_size, checkpoint, model_kwargs)
     model.train(**options)
     return 0
 

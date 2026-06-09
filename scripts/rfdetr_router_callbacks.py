@@ -8,6 +8,9 @@ the upstream package remains reproducible from pip.
 from __future__ import annotations
 
 import csv
+import os
+import subprocess
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -24,11 +27,17 @@ class RouterPerEpochEvalCallback(Callback):
         save_epoch_pth: bool = True,
         test_each_epoch: bool = True,
         metric_csv_name: str = "test_results.csv",
+        external_eval_profiles: list[dict[str, Any]] | None = None,
+        official_eval_dataset_dir: str = "",
+        eval_device: str = "cpu",
     ) -> None:
         super().__init__()
         self.save_epoch_pth = save_epoch_pth
         self.test_each_epoch = test_each_epoch
         self.metric_csv_name = metric_csv_name
+        self.external_eval_profiles = external_eval_profiles or []
+        self.official_eval_dataset_dir = official_eval_dataset_dir
+        self.eval_device = eval_device
         self._running_test = False
 
     def on_validation_end(self, trainer: Trainer, pl_module: LightningModule) -> None:
@@ -38,20 +47,24 @@ class RouterPerEpochEvalCallback(Callback):
             return
 
         epoch = int(trainer.current_epoch)
+        checkpoint_path: Path | None = None
         if self.save_epoch_pth:
-            self._save_epoch_pth(trainer, pl_module, epoch)
+            checkpoint_path = self._save_epoch_pth(trainer, pl_module, epoch)
         if self.test_each_epoch:
             self._run_test_and_record(trainer, pl_module, epoch)
+        if self.external_eval_profiles and trainer.is_global_zero:
+            if checkpoint_path is None:
+                checkpoint_path = self._epoch_pth_path(pl_module, epoch)
+            self._run_external_eval_profiles(pl_module, checkpoint_path, epoch)
 
-    def _save_epoch_pth(self, trainer: Trainer, pl_module: LightningModule, epoch: int) -> None:
+    def _save_epoch_pth(self, trainer: Trainer, pl_module: LightningModule, epoch: int) -> Path | None:
         if not trainer.is_global_zero:
-            return
+            return None
 
         from rfdetr.training.callbacks.best_model import BestModelCallback
 
-        output_dir = Path(pl_module.train_config.output_dir)
-        epoch_dir = output_dir / "epoch_pth"
-        epoch_dir.mkdir(parents=True, exist_ok=True)
+        path = self._epoch_pth_path(pl_module, epoch)
+        path.parent.mkdir(parents=True, exist_ok=True)
 
         model_state_dict = self._get_preferred_state_dict(trainer, pl_module)
         train_config = self._train_config_with_class_names(trainer, pl_module)
@@ -63,7 +76,8 @@ class RouterPerEpochEvalCallback(Callback):
             trainer,
             model_name=model_name,
         )
-        torch.save(payload, epoch_dir / f"checkpoint_epoch_{epoch:03d}.pth")
+        torch.save(payload, path)
+        return path
 
     def _run_test_and_record(self, trainer: Trainer, pl_module: LightningModule, epoch: int) -> None:
         if not trainer.is_global_zero:
@@ -83,6 +97,82 @@ class RouterPerEpochEvalCallback(Callback):
         metrics: dict[str, Any] = dict(results[0]) if results else {}
         metrics["epoch"] = epoch
         self._append_metrics(Path(pl_module.train_config.output_dir) / self.metric_csv_name, metrics)
+
+    def _run_external_eval_profiles(
+        self,
+        pl_module: LightningModule,
+        checkpoint_path: Path,
+        epoch: int,
+    ) -> None:
+        if not checkpoint_path.exists():
+            print(f"[external-eval] skip epoch {epoch}: missing checkpoint {checkpoint_path}", flush=True)
+            return
+
+        output_dir = Path(pl_module.train_config.output_dir)
+        for profile in self.external_eval_profiles:
+            name = str(profile.get("name", "")).strip()
+            if not name:
+                raise ValueError("external eval profile is missing a non-empty name")
+            thresholds = str(profile.get("thresholds", "")).strip()
+            if not thresholds:
+                raise ValueError(f"external eval profile {name!r} is missing thresholds")
+            dataset_dir = str(profile.get("dataset_dir") or self.official_eval_dataset_dir).strip()
+            if not dataset_dir:
+                raise ValueError(f"external eval profile {name!r} is missing dataset_dir")
+            split = str(profile.get("split", "test"))
+            iou_threshold = str(profile.get("iou_threshold", 0.5))
+            device = str(profile.get("device", self.eval_device))
+            num_classes = str(profile.get("num_classes", 3))
+
+            sweep_dir = output_dir / "external_eval" / name
+            sweep_csv = sweep_dir / f"epoch_{epoch:03d}.csv"
+            cmd = [
+                sys.executable,
+                "scripts/evaluate_rfdetr_threshold_sweep.py",
+                "--checkpoint",
+                str(checkpoint_path),
+                "--dataset-dir",
+                dataset_dir,
+                "--split",
+                split,
+                "--thresholds",
+                thresholds,
+                "--iou-threshold",
+                iou_threshold,
+                "--num-classes",
+                num_classes,
+                "--output-csv",
+                str(sweep_csv),
+                "--device",
+                device,
+            ]
+            print(
+                f"[external-eval] epoch {epoch} profile={name} "
+                f"thresholds={thresholds} match_iou={iou_threshold}",
+                flush=True,
+            )
+            env = os.environ.copy()
+            if device == "cpu":
+                env["CUDA_VISIBLE_DEVICES"] = ""
+            subprocess.run(cmd, check=True, env=env)
+            self._append_profile_rows(
+                output_dir / f"test_results_{name}.csv",
+                sweep_csv,
+                profile=profile,
+                epoch=epoch,
+                checkpoint_path=checkpoint_path,
+            )
+            self._append_profile_summary(
+                output_dir / "test_results_profiles_summary.csv",
+                sweep_csv,
+                profile=profile,
+                epoch=epoch,
+                checkpoint_path=checkpoint_path,
+            )
+
+    @staticmethod
+    def _epoch_pth_path(pl_module: LightningModule, epoch: int) -> Path:
+        return Path(pl_module.train_config.output_dir) / "epoch_pth" / f"checkpoint_epoch_{epoch:03d}.pth"
 
     @staticmethod
     def _get_preferred_state_dict(trainer: Trainer, pl_module: LightningModule) -> dict[str, torch.Tensor]:
@@ -158,12 +248,93 @@ class RouterPerEpochEvalCallback(Callback):
             writer.writeheader()
             writer.writerows(rows)
 
+    @classmethod
+    def _append_profile_rows(
+        cls,
+        path: Path,
+        sweep_csv: Path,
+        *,
+        profile: dict[str, Any],
+        epoch: int,
+        checkpoint_path: Path,
+    ) -> None:
+        rows = cls._read_sweep_rows(sweep_csv)
+        profile_name = str(profile["name"])
+        match_iou = profile.get("iou_threshold", 0.5)
+        for row in rows:
+            row["epoch"] = epoch
+            row["profile"] = profile_name
+            row["match_iou_threshold"] = match_iou
+            row["checkpoint"] = str(checkpoint_path)
+            row["sweep_csv"] = str(sweep_csv)
+            cls._append_metrics(path, row)
+
+    @classmethod
+    def _append_profile_summary(
+        cls,
+        path: Path,
+        sweep_csv: Path,
+        *,
+        profile: dict[str, Any],
+        epoch: int,
+        checkpoint_path: Path,
+    ) -> None:
+        rows = cls._read_sweep_rows(sweep_csv)
+        selected = cls._select_profile_row(rows, profile)
+        selected["epoch"] = epoch
+        selected["profile"] = str(profile["name"])
+        selected["match_iou_threshold"] = profile.get("iou_threshold", 0.5)
+        selected["selection"] = profile.get("selection", "best_f1")
+        selected["checkpoint"] = str(checkpoint_path)
+        selected["sweep_csv"] = str(sweep_csv)
+        cls._append_metrics(path, selected)
+
+    @staticmethod
+    def _read_sweep_rows(path: Path) -> list[dict[str, Any]]:
+        with path.open("r", newline="", encoding="utf-8") as fh:
+            return list(csv.DictReader(fh))
+
+    @staticmethod
+    def _select_profile_row(rows: list[dict[str, Any]], profile: dict[str, Any]) -> dict[str, Any]:
+        if not rows:
+            raise ValueError(f"external eval profile {profile.get('name')!r} produced no rows")
+
+        selection = str(profile.get("selection", "best_f1"))
+        if selection == "threshold":
+            target = float(profile["selected_threshold"])
+            return dict(
+                min(
+                    rows,
+                    key=lambda row: abs(float(row.get("threshold", 0.0)) - target),
+                )
+            )
+        if selection == "best_recall":
+            return dict(
+                max(
+                    rows,
+                    key=lambda row: (
+                        float(row.get("recall", 0.0)),
+                        float(row.get("precision", 0.0)),
+                    ),
+                )
+            )
+        if selection == "best_precision_at_min_recall":
+            min_recall = float(profile["min_recall"])
+            eligible = [row for row in rows if float(row.get("recall", 0.0)) >= min_recall]
+            if not eligible:
+                return dict(max(rows, key=lambda row: float(row.get("recall", 0.0))))
+            return dict(max(eligible, key=lambda row: float(row.get("precision", 0.0))))
+        return dict(max(rows, key=lambda row: float(row.get("f1", 0.0))))
+
 
 def install_router_trainer_patch(
     *,
     save_epoch_pth: bool,
     test_each_epoch: bool,
     trainer_precision: str | None = None,
+    external_eval_profiles: list[dict[str, Any]] | None = None,
+    official_eval_dataset_dir: str = "",
+    eval_device: str = "cpu",
 ) -> None:
     """Append router callbacks to RF-DETR's built Trainer at runtime."""
 
@@ -182,6 +353,9 @@ def install_router_trainer_patch(
             RouterPerEpochEvalCallback(
                 save_epoch_pth=save_epoch_pth,
                 test_each_epoch=test_each_epoch,
+                external_eval_profiles=external_eval_profiles,
+                official_eval_dataset_dir=official_eval_dataset_dir,
+                eval_device=eval_device,
             )
         )
         return trainer

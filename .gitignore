@@ -10,6 +10,7 @@ data/processed/
 data/zip/
 data/shimizu-split/
 data/final_crack_yolo_20260519/
+data/rfdetr_*/
 additional_data_2026-05-19/
 external/
 
@@ -20,11 +21,21 @@ data/manifests/
 
 # Training outputs and archives
 outputs/
+logs/
+downloads/
 *.zip
 *.pth
 *.pt
 *.ckpt
+*.tar.zst
+*.tar.zst.sha256
 artifacts/
+rfdetr_model_candidates_*/
+rfdetr_threshold_tuned_models_*/
+rfdetr_inner_wall_rc_wall_single_models_*/
+rfdetr_downstream_expansion_report_*/
+final_download_20260526/
+final_download_20260526.tar.zst
 *.bundle
 handoff_20260519/SHA256SUMS.txt
 docs/review.txt

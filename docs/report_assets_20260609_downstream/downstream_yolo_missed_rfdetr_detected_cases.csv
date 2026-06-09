@@ -1,0 +1,7 @@
+component,case,image,rescued_grades,rfdetr_max_conf,asset
+tenjo,1,data_add100__1-B-10086.jpg,B,0.322,tenjo_case_1_data_add100__1-B-10086.jpg
+tenjo,2,data_add100__1-B-30003.jpg,B,0.803,tenjo_case_2_data_add100__1-B-30003.jpg
+rc_wall,1,data_add100__3-B-00009.jpg,B,0.282,rc_wall_case_1_data_add100__3-B-00009.jpg
+rc_wall,2,data_add100__3-C-00073.jpg,C,0.591,rc_wall_case_2_data_add100__3-C-00073.jpg
+inner_wall,1,data_add100__2-B-10056.jpg,B,0.829,inner_wall_case_1_data_add100__2-B-10056.jpg
+inner_wall,2,data_add100__b-40341.jpg,B,0.799,inner_wall_case_2_data_add100__b-40341.jpg

@@ -1,0 +1,96 @@
+pipeline:
+  router_weights: ../../coarse_router_yolov9/runs/train/gelan_c_router_3class_merged4219_ft_from_d900_imgw_rc_os900_e50_ddp/weights/best.pt
+  router_data_yaml: /workspace/Shimizu-2026/handoff_20260519/shimizu_20260519_minimal_repro_package/coarse_router_yolov9/datasets/coarse_router_3class_cleaned_merged_4219_rc_os900/data.yaml
+  router_conf_threshold: 0.25
+  router_low_conf_threshold: 0.10
+  router_iou_threshold: 0.45
+  router_overlap_policy: keep_all
+  region_transport: full_image_filter
+  region_padding_ratio: 0.10
+  region_filter_mode: center_or_ioa
+  region_filter_ioa_threshold: 0.50
+  use_full_image_if_area_ratio_ge: 0.85
+  save_debug_crops: false
+
+classes:
+  router:
+    0: 天井
+    1: 壁类
+    2: RC柱
+
+crack_models:
+  ceiling: ../../downloads/previous_phase_gpl_model_unpacked/infer_models/TIANJING.pt
+  inner_wall: ../../downloads/previous_phase_gpl_model_unpacked/infer_models/NEIBI.pt
+  rc_wall: ../../downloads/previous_phase_gpl_model_unpacked/infer_models/RCBI.pt
+  rc_column: ../../downloads/previous_phase_gpl_model_unpacked/infer_models/RCZHU.pt
+  wall_merged: null
+
+wall_strategy:
+  mode: wall_parallel_debug
+  fallback: wall_parallel_debug
+
+low_confidence_policy:
+  mode: todo
+  candidate_multi_model_fallback: true
+
+# Engineering fallback - 受控触发器，仅在 router 输出携带可疑信号时才追加
+# 跨类 detector，且兜底输出永远不和主分支跨类合并。
+fallback_policy:
+  enabled: true
+  main_min_confidence: 0.0   # 主任务按 detector 自身门限
+
+  # Trigger A: 形态异常 -> 小且低 conf 的壁类 box，疑似是 RC柱
+  trigger_morphology:
+    enabled: true
+    wall_area_ratio_max: 0.05
+    wall_confidence_max: 0.50
+    rescue_min_confidence: 0.20
+    region_padding_ratio: 0.05
+
+  # Trigger B: 主 detector 在该 router region 集体哑火 -> 启动 sister detector
+  trigger_main_dropout:
+    enabled: true
+    max_main_confidence: 0.15
+    rescue_min_confidence: 0.20
+    region_padding_ratio: 0.05
+
+  # Trigger C: 并排相似壁类 -> 疑似两根柱
+  trigger_parallel_walls:
+    enabled: true
+    min_wall_count: 2
+    conf_ratio_max: 1.20
+    aspect_ratio_min: 1.50
+    rescue_min_confidence: 0.20
+    region_padding_ratio: 0.05
+
+  # 全图 fallback 只在 router 自身已经放弃判定时触发
+  trigger_low_confidence_router:
+    enabled: true
+    rescue_min_confidence: 0.30
+  trigger_empty_router:
+    enabled: true
+    rescue_min_confidence: 0.30
+
+# 跨类歧义候选展示（不在 merge 层做跨类合并；overlap 时同时展示两个候选）
+ambiguity_display:
+  iou_threshold: 0.50
+
+crack_merge:
+  mode: prod_like
+  same_model_ioa_threshold: 0.70
+  cross_model_iou_threshold: 0.55
+  keep_conflicts_in_debug: true
+
+outputs:
+  root: ../../outputs/pipeline
+  save_jsonl: true
+  save_visualizations: true
+  save_audit_log: true
+
+yolo_root: ../../coarse_router_yolov9/yolov9
+yolo_data_yaml: /workspace/Shimizu-2026/handoff_20260519/shimizu_20260519_minimal_repro_package/coarse_router_yolov9/datasets/coarse_router_3class_cleaned_merged_4219_rc_os900/data.yaml
+
+# Match previous prod API crack-model inference defaults.
+imgsz: 960
+conf_threshold: 0.01
+iou_threshold: 0.45
