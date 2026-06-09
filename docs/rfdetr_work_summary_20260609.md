@@ -54,6 +54,11 @@ The selected threshold-tuned model package is:
 
 `rfdetr_threshold_tuned_models_20260609/`
 
+The regenerated package now keeps both the recommended deployment checkpoints and additional reference checkpoints:
+
+- recommended: tenjo e009, RC壁 e009, 内壁 e026.
+- alternatives/reference: tenjo baseline e006, tenjo standard resume e029, tenjo improved initial e007, tenjo improved resume e044, RC壁 e063 original fine-tune e003, RC壁 e063 D-oriented e002.
+
 Final selected rows:
 
 | component | P | R | F1 | B R | C R | D R | note |
