@@ -113,9 +113,7 @@ class RouterPerEpochEvalCallback(Callback):
             name = str(profile.get("name", "")).strip()
             if not name:
                 raise ValueError("external eval profile is missing a non-empty name")
-            thresholds = str(profile.get("thresholds", "")).strip()
-            if not thresholds:
-                raise ValueError(f"external eval profile {name!r} is missing thresholds")
+            evaluator = str(profile.get("evaluator", "threshold_sweep")).strip()
             dataset_dir = str(profile.get("dataset_dir") or self.official_eval_dataset_dir).strip()
             if not dataset_dir:
                 raise ValueError(f"external eval profile {name!r} is missing dataset_dir")
@@ -126,29 +124,61 @@ class RouterPerEpochEvalCallback(Callback):
 
             sweep_dir = output_dir / "external_eval" / name
             sweep_csv = sweep_dir / f"epoch_{epoch:03d}.csv"
-            cmd = [
-                sys.executable,
-                "scripts/evaluate_rfdetr_threshold_sweep.py",
-                "--checkpoint",
-                str(checkpoint_path),
-                "--dataset-dir",
-                dataset_dir,
-                "--split",
-                split,
-                "--thresholds",
-                thresholds,
-                "--iou-threshold",
-                iou_threshold,
-                "--num-classes",
-                num_classes,
-                "--output-csv",
-                str(sweep_csv),
-                "--device",
-                device,
-            ]
+            if evaluator == "class_threshold_grid":
+                threshold_grid = str(profile.get("threshold_grid", profile.get("thresholds", ""))).strip()
+                if not threshold_grid:
+                    raise ValueError(f"external eval profile {name!r} is missing threshold_grid")
+                cmd = [
+                    sys.executable,
+                    "scripts/evaluate_rfdetr_class_threshold_grid.py",
+                    "--checkpoint",
+                    str(checkpoint_path),
+                    "--dataset-dir",
+                    dataset_dir,
+                    "--split",
+                    split,
+                    "--threshold-grid",
+                    threshold_grid,
+                    "--iou-threshold",
+                    iou_threshold,
+                    "--num-classes",
+                    num_classes,
+                    "--output-csv",
+                    str(sweep_csv),
+                    "--device",
+                    device,
+                ]
+                eval_desc = f"class_threshold_grid={threshold_grid}"
+            elif evaluator == "threshold_sweep":
+                thresholds = str(profile.get("thresholds", "")).strip()
+                if not thresholds:
+                    raise ValueError(f"external eval profile {name!r} is missing thresholds")
+                cmd = [
+                    sys.executable,
+                    "scripts/evaluate_rfdetr_threshold_sweep.py",
+                    "--checkpoint",
+                    str(checkpoint_path),
+                    "--dataset-dir",
+                    dataset_dir,
+                    "--split",
+                    split,
+                    "--thresholds",
+                    thresholds,
+                    "--iou-threshold",
+                    iou_threshold,
+                    "--num-classes",
+                    num_classes,
+                    "--output-csv",
+                    str(sweep_csv),
+                    "--device",
+                    device,
+                ]
+                eval_desc = f"thresholds={thresholds}"
+            else:
+                raise ValueError(f"unknown external eval evaluator {evaluator!r}")
             print(
                 f"[external-eval] epoch {epoch} profile={name} "
-                f"thresholds={thresholds} match_iou={iou_threshold}",
+                f"{eval_desc} match_iou={iou_threshold}",
                 flush=True,
             )
             env = os.environ.copy()
@@ -306,6 +336,19 @@ class RouterPerEpochEvalCallback(Callback):
                 min(
                     rows,
                     key=lambda row: abs(float(row.get("threshold", 0.0)) - target),
+                )
+            )
+        if selection == "class_thresholds":
+            targets = [float(item) for item in profile["selected_thresholds"]]
+            if len(targets) != 3:
+                raise ValueError("selected_thresholds must contain B/C/D thresholds")
+            return dict(
+                min(
+                    rows,
+                    key=lambda row: sum(
+                        abs(float(row.get(f"threshold_class_{idx}", 0.0)) - target)
+                        for idx, target in enumerate(targets)
+                    ),
                 )
             )
         if selection == "best_recall":

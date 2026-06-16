@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from copy import deepcopy
 from typing import Any
 
 from .result_merge import grade_level, ioa_min_xyxy, iou_xyxy
@@ -30,7 +31,7 @@ def build_wall_candidate_display(
     iou_threshold: float = 0.50,
     ioa_threshold: float = 0.70,
     min_single_confidence: float = 0.05,
-    max_single_groups_per_model: int = 1,
+    max_single_groups_per_model: int = 4,
 ) -> dict[str, Any]:
     """Build one-photo wall display groups from raw wall model outputs.
 
@@ -70,12 +71,12 @@ def build_wall_candidate_display(
         if index not in used_rc and float(record.get("confidence") or 0.0) >= min_single_confidence
     ]
 
-    for record in sorted(remaining_inner, key=_confidence, reverse=True)[:max_single_groups_per_model]:
+    for record in sorted(remaining_inner, key=_single_priority, reverse=True)[:max_single_groups_per_model]:
         group = _single_group(record, len(groups))
         groups.append(group)
         display_detections.extend(group["display_detections"])
 
-    for record in sorted(remaining_rc, key=_confidence, reverse=True)[:max_single_groups_per_model]:
+    for record in sorted(remaining_rc, key=_single_priority, reverse=True)[:max_single_groups_per_model]:
         group = _single_group(record, len(groups))
         groups.append(group)
         display_detections.extend(group["display_detections"])
@@ -139,9 +140,10 @@ def _paired_group(
     candidates = [_candidate(inner_record), _candidate(rc_record)]
     display_grade = wall_display_grade(inner_grade, rc_grade)
     representative = representative_record_for_display(inner_record, rc_record, display_grade)
+    display_record = display_record_for_pair(inner_record, rc_record, representative)
     display = [
         _display_detection(
-            representative,
+            display_record,
             group_index,
             "wall_rule_merged",
             "壁類",
@@ -207,7 +209,7 @@ def _display_detection(
     reason: str,
     candidates: list[dict[str, Any]],
 ) -> dict[str, Any]:
-    return {
+    output = {
         "group_index": group_index,
         "status": status,
         "structure_type": structure_type,
@@ -220,6 +222,9 @@ def _display_detection(
         "reason": reason,
         "candidates": candidates,
     }
+    if "display_bbox_source" in record:
+        output["display_bbox_source"] = record["display_bbox_source"]
+    return output
 
 
 def wall_display_grade(inner_grade: str, rc_grade: str) -> str:
@@ -240,6 +245,31 @@ def representative_record_for_display(
     return rc_record
 
 
+def display_record_for_pair(
+    inner_record: dict[str, Any],
+    rc_record: dict[str, Any],
+    representative: dict[str, Any],
+) -> dict[str, Any]:
+    """Keep business grade provenance but use the paired wall geometry.
+
+    A low-confidence/high-grade candidate can correctly decide the final wall
+    grade, but its box is often a small fragment inside a better wall candidate.
+    The customer-facing rectangle should cover the paired wall evidence rather
+    than shrink to that fragment.
+    """
+    record = deepcopy(representative)
+    inner_box = _box(inner_record)
+    rc_box = _box(rc_record)
+    record["bbox_xyxy"] = [
+        round(min(inner_box[0], rc_box[0]), 3),
+        round(min(inner_box[1], rc_box[1]), 3),
+        round(max(inner_box[2], rc_box[2]), 3),
+        round(max(inner_box[3], rc_box[3]), 3),
+    ]
+    record["display_bbox_source"] = "paired_wall_union"
+    return record
+
+
 def wall_display_reason(inner_grade: str, rc_grade: str, display_grade: str) -> str:
     if (inner_grade, rc_grade) == ("C", "B"):
         return "内壁=C、RC壁=B の例外ルールにより、PC上は 壁-B として表示します。"
@@ -255,6 +285,12 @@ def higher_grade(left: str, right: str) -> str:
 
 def _confidence(record: dict[str, Any]) -> float:
     return float(record.get("confidence") or 0.0)
+
+
+def _single_priority(record: dict[str, Any]) -> tuple[float, float]:
+    box = _box(record)
+    area = max(0.0, box[2] - box[0]) * max(0.0, box[3] - box[1])
+    return (area, _confidence(record))
 
 
 def _box(record: dict[str, Any]) -> tuple[float, float, float, float]:

@@ -16,6 +16,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 from .ambiguity_display import build_ambiguity_candidate_groups
 from .crack_detector_registry import build_detector_registry
+from .display_merge import suppress_overlapping_display_detections
 from .fallback_policy import (
     Task,
     plan_dynamic_fallback_tasks,
@@ -236,7 +237,7 @@ def run_one(image_path: Path, router: RouterInfer, registry: dict[str, Any], con
         iou_threshold=float(wall_display_cfg.get("pair_iou_threshold", merge_cfg.get("cross_model_iou_threshold", 0.55))),
         ioa_threshold=float(wall_display_cfg.get("pair_ioa_threshold", 0.70)),
         min_single_confidence=float(wall_display_cfg.get("min_single_confidence", 0.05)),
-        max_single_groups_per_model=int(wall_display_cfg.get("max_single_groups_per_model", 1)),
+        max_single_groups_per_model=int(wall_display_cfg.get("max_single_groups_per_model", 4)),
     )
     if router_result["route_decision"]["status"] == "low_confidence":
         warnings.append("router_low_confidence_multi_model_fallback_todo")
@@ -251,6 +252,16 @@ def run_one(image_path: Path, router: RouterInfer, registry: dict[str, Any], con
         wall_display=wall_candidate_display["display_detections"],
         ambiguity_display=ambiguity_display,
     )
+    display_merge_cfg = config.get("display_merge", {}) or {}
+    if bool(display_merge_cfg.get("enabled", True)):
+        display_items, suppressed_display_items = suppress_overlapping_display_detections(
+            display_items,
+            iou_threshold=float(display_merge_cfg.get("iou_threshold", 0.45)),
+            ioa_threshold=float(display_merge_cfg.get("ioa_threshold", 0.70)),
+            cross_class_ioa_threshold=float(display_merge_cfg.get("cross_class_ioa_threshold", 0.75)),
+        )
+    else:
+        suppressed_display_items = []
 
     return {
         "image": str(image_path),
@@ -260,6 +271,7 @@ def run_one(image_path: Path, router: RouterInfer, registry: dict[str, Any], con
         "raw_crack_detections": raw_crack_records,
         "crack_detections": [detection_dict(d) for d in merged],
         "display_crack_detections": display_items,
+        "suppressed_display_crack_detections": suppressed_display_items,
         "wall_candidate_display": wall_candidate_display,
         "ambiguity_candidate_groups": ambiguity_groups,
         "warnings": warnings,

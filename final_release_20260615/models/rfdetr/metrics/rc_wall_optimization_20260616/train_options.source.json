@@ -1,0 +1,100 @@
+{
+  "model_size": "medium",
+  "dataset_dir": "/workspace/Shimizu-2026/data/rfdetr_rc_wall_all_non_legacy_test_v1_c_crop_aug",
+  "output_dir": "/workspace/Shimizu-2026/outputs/rfdetr_single_crack/rc_wall_best_c_crop_aug_lr2e6_res896_b16ga2_5ep",
+  "epochs": 5,
+  "batch_size": 16,
+  "grad_accum_steps": 2,
+  "lr": 2e-06,
+  "num_workers": 8,
+  "device": "cuda:1",
+  "dataset_file": "yolo",
+  "official_eval_dataset_dir": "/workspace/Shimizu-2026/data/rfdetr_rc_wall_all_non_legacy_test_v1",
+  "eval_interval": 1,
+  "checkpoint_interval": 1,
+  "tensorboard": true,
+  "wandb": false,
+  "run_test": false,
+  "test_each_epoch": false,
+  "external_eval_profiles": [
+    {
+      "name": "report_current_thresholds",
+      "evaluator": "class_threshold_grid",
+      "threshold_grid": "0.22,0.25,0.28,0.30,0.35,0.40,0.45,0.50",
+      "selected_thresholds": [
+        0.28,
+        0.45,
+        0.25
+      ],
+      "selection": "class_thresholds",
+      "iou_threshold": 0.229,
+      "device": "cpu",
+      "split": "test",
+      "num_classes": 3
+    },
+    {
+      "name": "report_recall_priority_thresholds",
+      "evaluator": "class_threshold_grid",
+      "threshold_grid": "0.18,0.20,0.22,0.25,0.28,0.30,0.35,0.40,0.45,0.50",
+      "selected_thresholds": [
+        0.28,
+        0.45,
+        0.22
+      ],
+      "selection": "class_thresholds",
+      "iou_threshold": 0.229,
+      "device": "cpu",
+      "split": "test",
+      "num_classes": 3
+    },
+    {
+      "name": "report_grid",
+      "evaluator": "class_threshold_grid",
+      "threshold_grid": "0.10,0.12,0.15,0.18,0.20,0.22,0.25,0.28,0.30,0.35,0.40,0.45,0.50",
+      "selection": "best_f1",
+      "iou_threshold": 0.229,
+      "device": "cpu",
+      "split": "test",
+      "num_classes": 3
+    }
+  ],
+  "save_epoch_pth": true,
+  "trainer_precision": "16-mixed",
+  "seed": 20260602,
+  "notes": {
+    "run_id": "20260616_070036",
+    "task": "shimizu_router_rfdetr",
+    "config": "/workspace/Shimizu-2026/configs/rfdetr_rc_wall_report_finetune.yaml",
+    "experiment": "medium",
+    "selection_policy": {
+      "primary_metric": "report_grid / fixed-threshold report metrics under checkpoint reload",
+      "official_targets": {
+        "precision": 0.632,
+        "overall_recall": 0.75,
+        "B_recall": 0.857,
+        "C_recall": 0.5,
+        "D_recall": 0.875
+      },
+      "yolo_reference": {
+        "precision": 0.585,
+        "overall_recall": 0.72,
+        "B_recall": 0.739,
+        "C_recall": 0.68,
+        "D_recall": 0.667
+      },
+      "match_iou": 0.229,
+      "report_reference": {
+        "checkpoint": "final_release_20260615/models/rfdetr/downstream/rc_wall/rc_wall_checkpoint_epoch_009.pth",
+        "thresholds_B_C_D": [
+          0.28,
+          0.45,
+          0.25
+        ],
+        "precision": 0.632,
+        "recall": 0.75
+      }
+    }
+  },
+  "resolution": 896,
+  "checkpoint": "/workspace/Shimizu-2026/outputs/rfdetr_single_crack/rc_wall_report_best_dos2_e001_p0650_r0812/checkpoint_epoch_001.pth"
+}

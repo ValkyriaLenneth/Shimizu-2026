@@ -1,0 +1,138 @@
+image,case_type,gt_class,pred_class,pred_conf,iou,gt_xyxy,pred_xyxy,low_same_class_conf,low_same_class_iou,reason
+data_add100__3-B-00010.jpg,false_negative,0,1,0.613409,0.245746,"568.2,470.4,1146.8,758.5","307.1,229.5,1535.5,781.7",0.013676,0.884206,matched only below threshold
+data_add100__3-B-00010.jpg,false_positive,0,1,0.613409,0.245746,"568.2,470.4,1146.8,758.5","307.1,229.5,1535.5,781.7",,,duplicate/wrong localization/class
+data_add100__3-B-00019.jpg,false_positive,0,0,0.461757,0.502418,"322.6,27.5,524.9,648.6","319.4,23.8,641.4,800.5",,,duplicate/wrong localization/class
+data_add100__3-B-00023.jpg,false_positive,,0,0.624039,0.000000,,"191.0,94.3,720.3,463.9",,,background
+data_add100__3-B-00029.jpg,false_positive,0,0,0.516685,0.000000,"127.8,123.9,524.3,576.2","694.3,133.7,1162.5,704.6",,,duplicate/wrong localization/class
+data_add100__3-B-00030.jpg,false_positive,,0,0.527648,0.000000,,"147.6,209.9,994.4,610.5",,,background
+data_add100__3-B-00051.jpg,false_positive,0,1,0.544273,0.000000,"215.2,121.3,441.9,351.0","1.1,195.2,77.8,293.6",,,duplicate/wrong localization/class
+data_add100__3-B-00061.jpg,false_positive,0,0,0.559002,0.000000,"69.5,274.0,192.6,385.2","419.0,287.5,567.4,396.2",,,duplicate/wrong localization/class
+data_add100__3-B-00070.jpg,false_positive,0,0,0.677947,0.000000,"62.0,234.0,204.9,370.4","63.3,47.0,227.5,199.7",,,duplicate/wrong localization/class
+data_add100__3-B-00084.jpg,false_positive,0,0,0.646897,0.000000,"107.9,75.1,182.6,215.2","271.2,75.9,346.5,212.0",,,duplicate/wrong localization/class
+data_add100__3-B-00099.jpg,false_positive,0,0,0.579075,0.081114,"197.3,231.9,337.4,332.0","275.0,112.5,416.1,276.6",,,duplicate/wrong localization/class
+data_add100__3-B-00104.jpg,false_positive,0,0,0.656307,0.009054,"306.8,267.0,495.2,365.4","136.7,10.2,314.3,366.9",,,duplicate/wrong localization/class
+data_add100__3-B-00109.jpg,false_negative,0,1,0.599523,0.002998,"163.0,4.1,297.0,221.8","72.9,217.1,195.5,393.2",0.340816,0.984017,matched only below threshold
+data_add100__3-B-00109.jpg,false_positive,0,1,0.599523,0.002998,"163.0,4.1,297.0,221.8","72.9,217.1,195.5,393.2",,,duplicate/wrong localization/class
+data_add100__3-C-00011.jpg,false_positive,1,1,0.650261,0.020813,"278.5,51.1,515.2,310.4","86.4,79.7,291.7,219.0",,,duplicate/wrong localization/class
+data_add100__3-C-00014.jpg,false_positive,1,1,0.475941,0.000000,"272.1,192.5,436.0,262.7","120.3,155.9,187.5,197.5",,,duplicate/wrong localization/class
+data_add100__3-C-00032.jpg,false_positive,1,1,0.570714,0.000000,"639.7,403.0,683.6,443.0","422.0,388.4,471.6,438.7",,,duplicate/wrong localization/class
+data_add100__3-C-00034.jpg,false_negative,1,,,0.000000,"225.2,140.8,277.2,199.3",,0.414967,0.821284,matched only below threshold
+data_add100__3-C-00034.jpg,false_positive,1,1,0.576495,0.141025,"225.2,140.8,277.2,199.3","114.6,98.6,267.0,191.7",,,duplicate/wrong localization/class
+data_add100__3-C-00035.jpg,false_positive,1,1,0.686833,0.000000,"153.5,111.8,246.6,152.9","69.4,88.9,107.2,112.9",,,duplicate/wrong localization/class
+data_add100__3-C-00036.jpg,false_positive,1,1,0.494587,0.587290,"38.2,61.6,281.5,125.8","35.1,63.9,360.8,141.0",,,duplicate/wrong localization/class
+data_add100__3-C-00054.jpg,false_positive,1,1,0.575091,0.000000,"420.5,267.9,447.5,294.2","278.3,255.0,312.8,290.2",,,duplicate/wrong localization/class
+data_add100__3-C-00164.jpg,false_negative,2,1,0.477190,0.977368,"386.3,194.9,559.3,571.4","387.8,194.9,561.1,569.9",0.352009,0.977368,matched only below threshold
+data_add100__3-C-00164.jpg,false_positive,2,1,0.477190,0.977368,"386.3,194.9,559.3,571.4","387.8,194.9,561.1,569.9",,,duplicate/wrong localization/class
+data_add100__3-C-00178.jpg,false_negative,2,1,0.557445,0.862228,"195.7,146.5,338.0,302.6","188.9,144.2,334.1,293.1",0.252416,0.862228,matched only below threshold
+data_add100__3-C-00178.jpg,false_positive,2,1,0.557445,0.862228,"195.7,146.5,338.0,302.6","188.9,144.2,334.1,293.1",,,duplicate/wrong localization/class
+data_add100__3-C-10046.jpg,false_positive,1,1,0.570257,0.000000,"866.7,107.8,1180.3,516.2","755.7,795.9,1196.8,1249.4",,,duplicate/wrong localization/class
+data_add100__3-C-10049.jpg,false_positive,1,1,0.508747,0.000000,"1252.8,601.3,1505.1,1054.4","1703.7,946.8,1972.6,1324.3",,,duplicate/wrong localization/class
+data_add100__3-C-40130.jpg,false_positive,1,1,0.498186,0.551835,"555.8,646.9,1545.2,1022.8","397.0,468.4,1563.5,1046.2",,,duplicate/wrong localization/class
+data_add100__3-D-00006.jpg,false_negative,2,1,0.778202,0.912081,"99.0,91.8,300.2,196.4","100.2,90.7,301.1,204.2",0.212205,0.912081,matched only below threshold
+data_add100__3-D-00006.jpg,false_positive,2,1,0.778202,0.912081,"99.0,91.8,300.2,196.4","100.2,90.7,301.1,204.2",,,duplicate/wrong localization/class
+data_add100__3-D-00012.jpg,false_positive,2,2,0.673371,0.000000,"65.3,86.5,210.3,148.2","84.5,299.5,352.8,371.9",,,duplicate/wrong localization/class
+data_add100__3-D-00176.jpg,false_negative,2,,,0.000000,"336.0,135.0,405.7,204.7",,0.217213,0.842776,matched only below threshold
+data_add100__3-D-00176.jpg,false_positive,2,2,0.530519,0.086564,"336.0,135.0,405.7,204.7","273.6,92.4,430.5,450.5",,,duplicate/wrong localization/class
+data_add100__3-D-10032.jpg,false_negative,2,,,0.000000,"1136.2,708.5,1369.5,959.1",,0.362047,0.792295,matched only below threshold
+data_add100__3-D-10032.jpg,false_positive,2,2,0.501703,0.036210,"1136.2,708.5,1369.5,959.1","794.8,185.5,1909.5,1633.6",,,duplicate/wrong localization/class
+data_add100__3-D-40758.jpg,false_negative,2,,,0.000000,"708.6,221.9,905.4,425.6",,0.282679,0.888096,matched only below threshold
+data_add100__3-D-40764.jpg,false_negative,2,,,0.000000,"315.9,891.9,382.6,961.5",,0.380543,0.867311,matched only below threshold
+data_add100__3-D-40765.jpg,false_positive,2,2,0.503942,0.000000,"1141.0,438.7,1207.7,508.3","505.8,425.2,598.0,537.0",,,duplicate/wrong localization/class
+data_add100__3-D-40767.jpg,false_positive,2,2,0.456718,0.000000,"287.0,295.3,488.3,639.7","1106.5,568.5,1220.8,651.7",,,duplicate/wrong localization/class
+data_add100__3-D-40769.jpg,false_negative,2,,,0.000000,"542.2,390.9,660.1,546.6",,0.053629,0.785283,matched only below threshold
+data_add100__3-D-40773.jpg,false_negative,2,,,0.000000,"590.2,315.7,811.1,635.7",,0.046966,0.841796,matched only below threshold
+data_add100__c-10054.jpg,false_negative,0,,,0.000000,"1197.6,897.3,1888.4,1830.9",,0.010850,0.090860,no same-class IoU match
+data_add100__c-10054.jpg,false_positive,0,0,0.600093,0.017393,"1197.6,897.3,1888.4,1830.9","1259.4,473.0,2450.7,929.6",,,duplicate/wrong localization/class
+data_add100__c-141.jpg,false_positive,0,1,0.452867,0.925529,"42.0,4.0,395.0,388.9","26.7,2.1,386.6,386.4",,,duplicate/wrong localization/class
+data_add100__c-40025.jpg,false_negative,0,1,0.539936,0.000000,"1275.7,282.2,1527.3,539.6","191.5,241.8,776.9,529.0",0.014141,0.510885,matched only below threshold
+data_add100__c-40025.jpg,false_positive,0,1,0.539936,0.000000,"1275.7,282.2,1527.3,539.6","191.5,241.8,776.9,529.0",,,duplicate/wrong localization/class
+data_add100__c-40398.jpg,false_positive,0,1,0.708288,0.931432,"403.3,203.0,1015.5,679.9","393.9,207.9,996.3,686.7",,,duplicate/wrong localization/class
+data_add100__c-40769.jpg,false_negative,2,,,0.000000,"276.7,414.3,447.2,773.2",,0.419522,0.978974,matched only below threshold
+data_add100__c-40769.jpg,false_negative,2,,,0.000000,"514.6,362.0,685.1,605.5",,0.397080,0.821021,matched only below threshold
+data_add100__c-40779.jpg,false_negative,2,,,0.000000,"926.1,431.3,1196.8,680.0",,0.357476,0.885700,matched only below threshold
+data_add100__c-99.jpg,false_negative,0,,,0.000000,"148.0,68.0,210.0,246.0",,0.341626,0.952164,matched only below threshold
+labels_20251107__c-10035.jpg,false_negative,2,,,0.000000,"376.7,315.4,1809.2,1915.4",,0.319489,0.932802,matched only below threshold
+labels_20251107__c-10035.jpg,false_positive,2,2,0.503807,0.052917,"376.7,315.4,1809.2,1915.4","1419.8,1059.2,1752.3,1424.1",,,duplicate/wrong localization/class
+labels_20251107__c-10051.jpg,false_positive,0,0,0.460142,0.000000,"848.1,1011.9,1151.7,1558.3","366.9,1373.1,593.0,1855.1",,,duplicate/wrong localization/class
+labels_20251107__c-10060.jpg,false_negative,2,,,0.000000,"1237.3,1395.0,2942.7,2886.0",,0.083521,0.294479,matched only below threshold
+labels_20251107__c-10060.jpg,false_positive,2,2,0.471039,0.128835,"1237.3,1395.0,2942.7,2886.0","20.7,919.8,1945.5,2202.7",,,duplicate/wrong localization/class
+labels_20251107__c-10060.jpg,false_positive,2,2,0.452139,0.087543,"1237.3,1395.0,2942.7,2886.0","149.7,958.1,1907.0,1899.5",,,duplicate/wrong localization/class
+labels_20251107__c-105.jpg,false_negative,0,,,0.000000,"459.0,240.0,522.0,387.0",,0.271229,0.911477,matched only below threshold
+labels_20251107__c-106.jpg,false_negative,0,1,0.469608,0.951668,"78.0,49.0,403.0,308.0","70.9,49.4,398.8,311.5",0.017181,0.971241,matched only below threshold
+labels_20251107__c-106.jpg,false_positive,0,1,0.469608,0.951668,"78.0,49.0,403.0,308.0","70.9,49.4,398.8,311.5",,,duplicate/wrong localization/class
+labels_20251107__c-108.jpg,false_negative,0,1,0.743890,0.923858,"80.0,33.0,443.0,374.0","83.5,43.4,446.5,364.4",0.240967,0.923858,matched only below threshold
+labels_20251107__c-108.jpg,false_positive,0,1,0.743890,0.923858,"80.0,33.0,443.0,374.0","83.5,43.4,446.5,364.4",,,duplicate/wrong localization/class
+labels_20251107__c-166.jpg,false_negative,1,2,0.572301,0.906425,"247.0,363.0,640.0,760.0","261.1,360.8,626.8,751.7",0.289042,0.906425,matched only below threshold
+labels_20251107__c-166.jpg,false_positive,1,2,0.572301,0.906425,"247.0,363.0,640.0,760.0","261.1,360.8,626.8,751.7",,,duplicate/wrong localization/class
+labels_20251107__c-19.jpg,false_positive,0,0,0.461757,0.938695,"313.0,36.0,641.3,779.3","319.4,23.8,641.4,800.5",,,duplicate/wrong localization/class
+labels_20251107__c-20015.jpg,false_negative,0,,,0.000000,"1777.3,474.0,3890.7,1436.5",,0.064039,0.551165,matched only below threshold
+labels_20251107__c-30007.jpg,false_negative,0,,,0.000000,"637.3,640.7,2269.3,2065.9",,0.036436,0.462769,matched only below threshold
+labels_20251107__c-30007.jpg,false_negative,0,,,0.000000,"2644.3,391.3,3629.6,1255.3",,0.026241,0.303592,matched only below threshold
+labels_20251107__c-30007.jpg,false_positive,0,0,0.713843,0.129864,"637.3,640.7,2269.3,2065.9","463.2,284.6,1672.7,994.2",,,duplicate/wrong localization/class
+labels_20251107__c-30007.jpg,false_positive,0,0,0.665197,0.210726,"637.3,640.7,2269.3,2065.9","611.0,1549.0,2788.8,2706.5",,,duplicate/wrong localization/class
+labels_20251107__c-30009.jpg,false_negative,0,,,0.000000,"27.3,587.5,1409.1,953.8",,0.012446,0.152611,no same-class IoU match
+labels_20251107__c-30009.jpg,false_positive,0,0,0.545508,0.000000,"27.3,587.5,1409.1,953.8","287.4,1124.3,905.7,1387.8",,,duplicate/wrong localization/class
+labels_20251107__c-34.jpg,false_negative,1,,,0.000000,"321.3,131.2,374.7,191.4",,0.397936,0.845149,matched only below threshold
+labels_20251107__c-36.jpg,false_positive,1,1,0.494587,0.946975,"39.0,63.0,360.0,143.3","35.1,63.9,360.8,141.0",,,duplicate/wrong localization/class
+labels_20251107__c-40050.jpg,false_negative,0,,,0.000000,"587.8,5.4,916.4,399.5",,0.012583,0.279468,matched only below threshold
+labels_20251107__c-40066.jpg,false_negative,0,,,0.000000,"589.0,465.8,1010.4,705.8",,0.427195,0.853561,matched only below threshold
+labels_20251107__c-40066.jpg,false_positive,0,0,0.461121,0.198959,"589.0,465.8,1010.4,705.8","592.5,5.3,1304.6,712.1",,,duplicate/wrong localization/class
+labels_20251107__c-40103.jpg,false_negative,0,,,0.000000,"271.4,295.6,877.4,1071.4",,0.334694,0.884153,matched only below threshold
+labels_20251107__c-40110.jpg,false_negative,0,,,0.000000,"609.5,77.3,1028.4,730.8",,0.857005,0.045567,no same-class IoU match
+labels_20251107__c-40110.jpg,false_positive,0,0,0.857005,0.045567,"609.5,77.3,1028.4,730.8","223.8,663.9,980.4,1054.7",,,duplicate/wrong localization/class
+labels_20251107__c-40130.jpg,false_positive,1,1,0.498186,0.904498,"374.2,456.3,1530.7,1027.5","397.0,468.4,1563.5,1046.2",,,duplicate/wrong localization/class
+labels_20251107__c-40152.jpg,false_negative,1,,,0.000000,"464.0,398.2,629.3,477.7",,0.259289,0.000000,no same-class IoU match
+labels_20251107__c-40157.jpg,false_positive,0,1,0.539693,0.981721,"256.3,40.2,428.1,311.0","254.0,39.8,427.9,310.4",,,duplicate/wrong localization/class
+labels_20251107__c-40159.jpg,false_negative,0,,,0.000000,"364.7,69.3,405.2,113.6",,0.013032,0.022303,no same-class IoU match
+labels_20251107__c-40160.jpg,false_negative,0,,,0.000000,"234.0,329.5,360.4,459.9",,0.857995,0.000000,no same-class IoU match
+labels_20251107__c-40160.jpg,false_negative,0,,,0.000000,"302.7,82.5,357.4,134.0",,0.857995,0.000000,no same-class IoU match
+labels_20251107__c-40160.jpg,false_positive,0,0,0.857995,0.000000,"234.0,329.5,360.4,459.9","434.7,203.5,598.7,304.9",,,duplicate/wrong localization/class
+labels_20251107__c-40160.jpg,false_positive,0,0,0.681642,0.000000,"234.0,329.5,360.4,459.9","90.2,195.5,198.2,266.0",,,duplicate/wrong localization/class
+labels_20251107__c-40161.jpg,false_negative,0,,,0.000000,"300.0,45.8,368.0,117.8",,0.845528,0.000000,no same-class IoU match
+labels_20251107__c-40161.jpg,false_negative,0,,,0.000000,"183.9,300.7,342.5,443.0",,0.011270,0.107808,no same-class IoU match
+labels_20251107__c-40161.jpg,false_positive,0,0,0.845528,0.000000,"300.0,45.8,368.0,117.8","407.1,223.7,570.3,323.3",,,duplicate/wrong localization/class
+labels_20251107__c-40161.jpg,false_positive,0,0,0.475980,0.000000,"300.0,45.8,368.0,117.8","78.4,203.5,175.4,273.9",,,duplicate/wrong localization/class
+labels_20251107__c-40214.jpg,false_positive,0,0,0.460543,0.905131,"6.0,357.0,2634.0,1112.0","5.6,391.3,2511.0,1108.3",,,duplicate/wrong localization/class
+labels_20251107__c-40270.jpg,false_positive,1,1,0.554179,0.000000,"203.5,68.8,351.1,470.9","486.2,62.8,638.6,472.3",,,duplicate/wrong localization/class
+labels_20251107__c-40355.jpg,false_negative,0,,,0.000000,"304.3,241.8,800.4,338.5",,0.310063,0.714662,matched only below threshold
+labels_20251107__c-40355.jpg,false_positive,0,0,0.651482,0.134717,"304.3,241.8,800.4,338.5","327.8,-0.1,796.1,711.6",,,duplicate/wrong localization/class
+labels_20251107__c-40362.jpg,false_negative,0,,,0.000000,"182.0,5.0,302.0,416.0",,0.433191,0.603959,matched only below threshold
+labels_20251107__c-40421.jpg,false_negative,2,,,0.000000,"324.5,3.8,406.9,327.2",,0.366917,0.930120,matched only below threshold
+labels_20251107__c-40427.jpg,false_negative,0,,,0.000000,"585.7,683.4,896.3,744.4",,0.013484,0.461876,matched only below threshold
+labels_20251107__c-40427.jpg,false_negative,0,,,0.000000,"181.8,173.4,492.4,364.8",,0.015645,0.115035,no same-class IoU match
+labels_20251107__c-40427.jpg,false_positive,0,0,0.825580,0.000000,"585.7,683.4,896.3,744.4","548.6,137.8,875.2,514.7",,,duplicate/wrong localization/class
+labels_20251107__c-40479.jpg,false_positive,0,1,0.499160,0.853548,"261.4,64.6,430.0,395.3","275.7,74.7,433.6,401.9",,,duplicate/wrong localization/class
+labels_20251107__c-40503.jpg,false_negative,0,,,0.000000,"348.2,0.7,385.8,144.2",,0.185785,0.880990,matched only below threshold
+labels_20251107__c-40503.jpg,false_negative,0,,,0.000000,"0.0,189.7,343.8,226.7",,0.021328,0.919342,matched only below threshold
+labels_20251107__c-40508.jpg,false_positive,0,0,0.544420,0.000000,"571.0,107.0,640.0,240.0","150.8,20.7,415.1,336.9",,,duplicate/wrong localization/class
+labels_20251107__c-40519.jpg,false_negative,0,,,0.000000,"279.1,-0.0,479.0,420.9",,0.349699,0.914749,matched only below threshold
+labels_20251107__c-40558.jpg,false_positive,0,0,0.513235,0.000000,"409.0,144.4,451.0,430.0","95.6,14.0,176.0,160.5",,,duplicate/wrong localization/class
+labels_20251107__c-40593.jpg,false_negative,0,1,0.580358,0.658312,"73.0,214.0,173.0,380.0","59.3,174.4,177.3,388.0",0.214204,0.839278,matched only below threshold
+labels_20251107__c-40593.jpg,false_positive,0,1,0.580358,0.658312,"73.0,214.0,173.0,380.0","59.3,174.4,177.3,388.0",,,duplicate/wrong localization/class
+labels_20251107__c-40605.jpg,false_negative,2,,,0.000000,"70.4,82.0,918.4,785.2",,0.346228,0.946266,matched only below threshold
+labels_20251107__c-40605.jpg,false_positive,2,2,0.558840,0.174577,"70.4,82.0,918.4,785.2","362.6,82.7,727.2,368.3",,,duplicate/wrong localization/class
+labels_20251107__c-40623.jpg,false_positive,0,1,0.556774,0.891904,"297.8,402.8,445.3,492.4","297.1,400.5,448.0,498.7",,,duplicate/wrong localization/class
+labels_20251107__c-40758.jpg,false_negative,2,,,0.000000,"432.8,114.7,1460.0,913.3",,0.013228,0.551545,matched only below threshold
+labels_20251107__c-40765.jpg,false_negative,2,,,0.000000,"533.6,273.3,606.6,378.5",,0.383692,0.757571,matched only below threshold
+labels_20251107__c-40765.jpg,false_negative,2,,,0.000000,"694.4,490.1,767.4,599.3",,0.422589,0.811378,matched only below threshold
+labels_20251107__c-40765.jpg,false_negative,2,,,0.000000,"703.6,304.9,776.6,375.9",,0.189717,0.798571,matched only below threshold
+labels_20251107__c-40765.jpg,false_negative,2,,,0.000000,"865.7,546.1,1001.3,637.5",,0.357562,0.784863,matched only below threshold
+labels_20251107__c-40765.jpg,false_negative,2,,,0.000000,"878.2,350.4,999.4,491.2",,0.447130,0.899112,matched only below threshold
+labels_20251107__c-40765.jpg,false_negative,2,,,0.000000,"898.0,254.2,985.5,295.5",,0.276944,0.649723,matched only below threshold
+labels_20251107__c-40765.jpg,false_negative,2,,,0.000000,"1128.7,222.1,1201.7,328.5",,0.406631,0.778266,matched only below threshold
+labels_20251107__c-40765.jpg,false_negative,2,,,0.000000,"1126.3,47.3,1199.3,154.9",,0.347666,0.835543,matched only below threshold
+labels_20251107__c-40765.jpg,false_negative,2,,,0.000000,"124.4,443.3,197.4,514.3",,0.401189,0.784149,matched only below threshold
+labels_20251107__c-40765.jpg,false_negative,2,,,0.000000,"104.6,585.6,177.6,656.6",,0.415779,0.791581,matched only below threshold
+labels_20251107__c-40765.jpg,false_negative,2,,,0.000000,"227.2,479.5,300.2,571.0",,0.386151,0.787367,matched only below threshold
+labels_20251107__c-40765.jpg,false_negative,2,,,0.000000,"214.7,619.9,287.7,690.9",,0.384467,0.774621,matched only below threshold
+labels_20251107__c-40765.jpg,false_negative,2,,,0.000000,"368.9,393.2,441.9,464.2",,0.384996,0.838777,matched only below threshold
+labels_20251107__c-40765.jpg,false_negative,2,,,0.000000,"377.5,254.8,450.5,325.8",,0.401554,0.720568,matched only below threshold
+labels_20251107__c-40765.jpg,false_negative,2,,,0.000000,"355.7,549.4,428.7,620.4",,0.429602,0.844569,matched only below threshold
+labels_20251107__c-40765.jpg,false_negative,2,,,0.000000,"495.4,597.5,586.2,671.8",,0.386157,0.711396,matched only below threshold
+labels_20251107__c-40766.jpg,false_positive,2,2,0.563820,0.000000,"879.0,751.9,1079.3,920.5","1189.2,295.0,1246.0,414.0",,,duplicate/wrong localization/class
+labels_20251107__c-40767.jpg,false_negative,2,,,0.000000,"758.3,223.0,1097.6,596.0",,0.282426,0.929625,matched only below threshold
+labels_20251107__c-40773.jpg,false_negative,2,,,0.000000,"587.0,328.0,1014.7,662.6",,0.401707,0.956063,matched only below threshold
+labels_20251107__c-72.jpg,false_negative,0,1,0.569941,0.727913,"128.2,87.5,397.8,383.0","127.5,89.5,387.9,313.2",0.294895,0.955324,matched only below threshold
+labels_20251107__c-72.jpg,false_positive,0,1,0.569941,0.727913,"128.2,87.5,397.8,383.0","127.5,89.5,387.9,313.2",,,duplicate/wrong localization/class
+labels_20251107__c-95.jpg,false_negative,0,1,0.576568,0.946828,"103.0,97.0,182.0,134.0","102.5,96.3,182.6,133.2",0.013820,0.964231,matched only below threshold
+labels_20251107__c-95.jpg,false_positive,0,1,0.576568,0.946828,"103.0,97.0,182.0,134.0","102.5,96.3,182.6,133.2",,,duplicate/wrong localization/class

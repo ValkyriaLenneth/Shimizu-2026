@@ -1,0 +1,17 @@
+image,case_type,gt_class,pred_class,pred_conf,iou,gt_xyxy,pred_xyxy,low_same_class_conf,low_same_class_iou,reason
+data_add100__3-B-00058.jpg,false_negative,0,1,0.918255,0.792489,"205.0,244.6,481.2,334.8","225.5,243.8,486.5,348.2",0.028456,0.792489,matched only below threshold
+data_add100__3-B-00058.jpg,false_positive,0,1,0.918255,0.792489,"205.0,244.6,481.2,334.8","225.5,243.8,486.5,348.2",,,duplicate/wrong localization/class
+data_add100__3-C-00021.jpg,false_negative,1,,,0.000000,"385.2,160.8,551.9,270.0",,0.908055,0.221810,no same-class IoU match
+data_add100__3-C-00021.jpg,false_positive,1,1,0.908055,0.221810,"385.2,160.8,551.9,270.0","341.0,125.5,582.2,465.6",,,duplicate/wrong localization/class
+data_add100__3-C-00028.jpg,false_negative,1,,,0.000000,"238.4,386.4,306.0,445.2",,0.044101,0.212895,no same-class IoU match
+data_add100__3-C-00028.jpg,false_positive,1,1,0.861976,0.096086,"238.4,386.4,306.0,445.2","60.1,337.5,339.9,485.2",,,duplicate/wrong localization/class
+data_add100__3-C-00073.jpg,false_positive,1,1,0.904930,0.000000,"147.0,139.6,203.3,295.3","460.3,93.6,521.9,219.4",,,duplicate/wrong localization/class
+data_add100__3-C-00073.jpg,false_positive,1,0,0.470616,0.000000,"147.0,139.6,203.3,295.3","-0.1,259.1,38.1,324.3",,,duplicate/wrong localization/class
+data_add100__3-C-00181.jpg,false_positive,1,1,0.902656,0.000000,"84.0,255.5,212.3,386.1","196.6,92.6,517.8,227.0",,,duplicate/wrong localization/class
+data_add100__3-C-40152.jpg,false_negative,1,,,0.000000,"322.0,527.0,459.0,628.7",,0.086101,0.556605,matched only below threshold
+data_add100__3-D-40770.jpg,false_positive,2,2,0.875126,0.000000,"926.2,272.4,1364.5,636.5","89.8,274.4,546.3,911.8",,,duplicate/wrong localization/class
+data_add100__3-D-40771.jpg,false_positive,2,2,0.721422,0.000000,"559.2,194.0,951.7,680.6","63.9,493.1,225.4,809.4",,,duplicate/wrong localization/class
+data_add100__c-10021.jpg,false_negative,0,,,0.000000,"122.0,0.0,1093.6,824.9",,0.282270,0.876769,matched only below threshold
+data_add100__c-40537.jpg,false_negative,1,,,0.000000,"119.4,172.7,161.9,194.6",,0.243435,0.883026,matched only below threshold
+data_add100__c-43.jpg,false_negative,0,,,0.000000,"393.3,31.1,667.3,139.1",,0.010208,0.382523,matched only below threshold
+data_add100__c-43.jpg,false_positive,0,0,0.649564,0.076704,"393.3,31.1,667.3,139.1","372.5,92.3,444.2,145.8",,,duplicate/wrong localization/class

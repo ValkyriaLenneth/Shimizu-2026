@@ -36,6 +36,7 @@ rfdetr_inner_wall_rc_wall_single_models_*/
 rfdetr_downstream_expansion_report_*/
 final_download_20260526/
 final_download_20260526.tar.zst
+final_release_20260615/data/
 *.bundle
 handoff_20260519/SHA256SUMS.txt
 docs/review.txt
