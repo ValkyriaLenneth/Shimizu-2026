@@ -29,7 +29,7 @@ final_release_20260615/data/final_download_20260526/.../coarse_router_yolov9/run
 Docs:
 
 ```text
-docs/router_3class_data_cleaning_2026-05-19.md
-docs/router_3class_training_preparation_2026-05-19.md
-docs/router_tuning_b_c_results_20260519.md
+docs/development_records/2026-05-19-yolo-router/router_3class_data_cleaning_2026-05-19.md
+docs/development_records/2026-05-19-yolo-router/router_3class_training_preparation_2026-05-19.md
+docs/development_records/2026-05-19-yolo-router/router_tuning_b_c_results_20260519.md
 ```

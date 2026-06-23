@@ -70,12 +70,12 @@ scripts/select_and_cleanup_rfdetr_checkpoints.py
 Important docs:
 
 ```text
-docs/rfdetr_router_training_20260602.md
-docs/rfdetr_single_crack_training_20260602.md
-docs/rfdetr_work_summary_20260609.md
-docs/rfdetr_downstream_progress_20260608.md
-docs/today_rc_wall_optimization_handoff_20260616.md
-docs/tenjo_rfdetr_report_optimization_20260616.md
+docs/development_records/2026-06-02-rfdetr-migration/rfdetr_router_training_20260602.md
+docs/development_records/2026-06-02-rfdetr-migration/rfdetr_single_crack_training_20260602.md
+docs/development_records/2026-06-08-09-rfdetr-downstream/rfdetr_work_summary_20260609.md
+docs/development_records/2026-06-08-09-rfdetr-downstream/rfdetr_downstream_progress_20260608.md
+docs/handoff_records/2026-06-16/today_rc_wall_optimization_handoff_20260616.md
+docs/development_records/2026-06-15-16-final-release/tenjo_rfdetr_report_optimization_20260616.md
 ```
 
 Detailed indexes:

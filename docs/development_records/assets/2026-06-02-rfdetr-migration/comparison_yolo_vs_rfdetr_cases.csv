@@ -1,0 +1,6 @@
+case,image,old_gt,yolo_pred,yolo_conf,rfdetr_pred,rfdetr_conf,rfdetr_iou,asset
+1,RC壁_c-40017_03381.jpg,RC column,Wall,0.357404,RC column,0.9460671544075012,0.8671591,docs/development_records/assets/2026-06-02-rfdetr-migration/comparison_yolo_vs_rfdetr_01_RC壁_c-40017_03381.jpg
+2,RC柱_4-B-00234_03324.jpg,RC column,Wall,0.709493,RC column,0.9197144508361816,0.97639084,docs/development_records/assets/2026-06-02-rfdetr-migration/comparison_yolo_vs_rfdetr_02_RC柱_4-B-00234_03324.jpg
+3,RC柱_d-40027_03307.jpg,RC column,Wall,0.698743,RC column,0.8108342885971069,0.9369594,docs/development_records/assets/2026-06-02-rfdetr-migration/comparison_yolo_vs_rfdetr_03_RC柱_d-40027_03307.jpg
+4,RC壁_c-199_03206.jpg,RC column,Wall,0.746173,RC column,0.3359213173389435,0.93153095,docs/development_records/assets/2026-06-02-rfdetr-migration/comparison_yolo_vs_rfdetr_04_RC壁_c-199_03206.jpg
+5,RC壁_c-40616_03440.jpg,Wall,RC column,0.421618,Wall,0.6332717537879944,0.955867,docs/development_records/assets/2026-06-02-rfdetr-migration/comparison_yolo_vs_rfdetr_05_RC壁_c-40616_03440.jpg

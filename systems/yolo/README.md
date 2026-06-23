@@ -28,11 +28,11 @@ coarse_router_yolov9/scripts/check_router_3class_training_ready.py
 Important docs:
 
 ```text
-docs/router_3class_data_cleaning_2026-05-19.md
-docs/router_3class_training_preparation_2026-05-19.md
-docs/router_tuning_b_c_results_20260519.md
-docs/client_report_yolo_coarse_router.md
-docs/yolo9_single_crack_model_baseline_20260602.md
+docs/development_records/2026-05-19-yolo-router/router_3class_data_cleaning_2026-05-19.md
+docs/development_records/2026-05-19-yolo-router/router_3class_training_preparation_2026-05-19.md
+docs/development_records/2026-05-19-yolo-router/router_tuning_b_c_results_20260519.md
+docs/development_records/2026-05-19-yolo-router/client_report_yolo_coarse_router.md
+docs/development_records/2026-06-02-rfdetr-migration/yolo9_single_crack_model_baseline_20260602.md
 ```
 
 Final release package also contains the retained YOLO router weight:
@@ -66,9 +66,9 @@ metrics and failure cases are still used as baselines.
 Relevant historical data and docs:
 
 ```text
-docs/final_crack_dataset_20260519.md
-docs/report_story_router_e2e_20260519.md
-docs/original_prod_vs_router_e2e_20260519.md
+docs/development_records/2026-05-19-yolo-router/final_crack_dataset_20260519.md
+docs/development_records/2026-05-19-yolo-router/report_story_router_e2e_20260519.md
+docs/development_records/2026-05-19-yolo-router/original_prod_vs_router_e2e_20260519.md
 router_crack_pipeline/
 ```
 

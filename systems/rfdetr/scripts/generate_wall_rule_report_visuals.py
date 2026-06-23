@@ -13,7 +13,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 REPO = Path(__file__).resolve().parents[1]
 RESULTS = REPO / "outputs/rfdetr_prod_pipeline/report_wall_rule_rc_wall_batch/results.jsonl"
-OUT_DIR = REPO / "docs/report_assets_20260609_downstream"
+OUT_DIR = REPO / "docs/development_records/assets/2026-06-09-rfdetr-downstream"
 
 FONT_PATHS = [
     "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",

@@ -1,4 +1,0 @@
-class,image,rfdetr_conf,iou,asset
-RC column B,data_add100__4-B-00066.jpg,0.9454525113105774,0.8079649,docs/report_assets_20260602_rfdetr/rc_column_correct_0_data_add100__4-B-00066.jpg
-RC column C,data_add100__4-C-00026.jpg,0.759471595287323,0.5872152,docs/report_assets_20260602_rfdetr/rc_column_correct_1_data_add100__4-C-00026.jpg
-RC column D,data_add100__4-D-00095.jpg,0.9439980387687683,0.9290554,docs/report_assets_20260602_rfdetr/rc_column_correct_2_data_add100__4-D-00095.jpg

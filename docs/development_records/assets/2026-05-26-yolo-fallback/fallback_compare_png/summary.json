@@ -1,0 +1,38 @@
+[
+  {
+    "sample": "3-C-00039.jpg",
+    "png": "docs/development_records/assets/2026-05-26-yolo-fallback/fallback_compare_png/01_3-C-00039_comparison.png",
+    "baseline_fn": 1,
+    "after_fn": 0,
+    "baseline_main_predictions": 0,
+    "after_main_predictions": 1,
+    "fallback_rescued_matches": 1
+  },
+  {
+    "sample": "d-173.jpg",
+    "png": "docs/development_records/assets/2026-05-26-yolo-fallback/fallback_compare_png/02_d-173_comparison.png",
+    "baseline_fn": 2,
+    "after_fn": 1,
+    "baseline_main_predictions": 0,
+    "after_main_predictions": 1,
+    "fallback_rescued_matches": 1
+  },
+  {
+    "sample": "d-40044.JPG",
+    "png": "docs/development_records/assets/2026-05-26-yolo-fallback/fallback_compare_png/03_d-40044_comparison.png",
+    "baseline_fn": 1,
+    "after_fn": 0,
+    "baseline_main_predictions": 0,
+    "after_main_predictions": 1,
+    "fallback_rescued_matches": 1
+  },
+  {
+    "sample": "4-C-00022.jpg",
+    "png": "docs/development_records/assets/2026-05-26-yolo-fallback/fallback_compare_png/04_4-C-00022_comparison.png",
+    "baseline_fn": 1,
+    "after_fn": 0,
+    "baseline_main_predictions": 0,
+    "after_main_predictions": 1,
+    "fallback_rescued_matches": 1
+  }
+]

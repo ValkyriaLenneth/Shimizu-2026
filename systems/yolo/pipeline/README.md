@@ -21,8 +21,8 @@ production work should start from rfdetr_prod_pipeline/.
 Docs:
 
 ```text
-docs/full_pipeline_detailed_outline_2026-05-19.md
-docs/original_prod_vs_router_e2e_20260519.md
-docs/e2e_issue_visual_review_20260519.md
-docs/engineering_fallback_eval_20260526.md
+docs/development_records/2026-05-19-yolo-router/full_pipeline_detailed_outline_2026-05-19.md
+docs/development_records/2026-05-19-yolo-router/original_prod_vs_router_e2e_20260519.md
+docs/development_records/2026-05-19-yolo-router/e2e_issue_visual_review_20260519.md
+docs/development_records/2026-05-26-yolo-fallback/engineering_fallback_eval_20260526.md
 ```

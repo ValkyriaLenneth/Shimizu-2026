@@ -33,7 +33,7 @@ rc_column/
 ```
 
 Large data, checkpoints, and compressed releases are not stored through this
-index. See [Repository Organization](../docs/repo_organization_20260623.md).
+index. See [Repository Organization](../docs/development_records/repo_organization_20260623.md).
 
 Concrete navigation tree:
 

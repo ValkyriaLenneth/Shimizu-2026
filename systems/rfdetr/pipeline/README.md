@@ -23,8 +23,8 @@ systems/rfdetr/pipeline/rfdetr_prod_pipeline/configs/pipeline.rfdetr_prod.local.
 Important docs:
 
 ```text
-docs/pipeline_eval_20260615.md
-docs/pipeline_visual_error_analysis_20260616.md
+docs/development_records/2026-06-15-16-final-release/pipeline_eval_20260615.md
+docs/development_records/2026-06-15-16-final-release/pipeline_visual_error_analysis_20260616.md
 final_release_20260615/MANIFEST.md
 ```
 

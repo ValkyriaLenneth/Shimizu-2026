@@ -26,9 +26,10 @@ systems/
 See:
 
 ```text
+docs/README.md
 systems/README.md
-docs/repo_organization_20260623.md
-docs/handoffs/README.md
+docs/development_records/repo_organization_20260623.md
+docs/handoff_records/README.md
 ```
 
 ## Current Repo Layout
@@ -41,7 +42,7 @@ docs/handoffs/README.md
 | `systems/yolo/router/coarse_router_yolov9/` | legacy YOLO9 router training/source reference |
 | `systems/yolo/pipeline/router_crack_pipeline/` | legacy router + crack pipeline |
 | `systems/*/*/configs/` | configs grouped by model family, role, and category |
-| `docs/` | handoff notes, reports, progress summaries, and visual analysis |
+| `docs/` | documentation outline split into development records, handoff records, and meeting notes |
 | `final_release_20260615/` | git-tracked release docs, metrics, manifests, and checksums |
 | `.local_artifacts/` | ignored local datasets, handoff archives, extracted packages, and old results |
 
@@ -66,7 +67,7 @@ large material is grouped under:
 The complete final release archive currently known locally is:
 
 ```text
-/Users/len/Downloads/final_release_20260615.tar.zst
+.local_artifacts/releases/final_release_20260615.tar.zst
 sha256: 1daed69947449dd852873aabbed1c8413581c6bfb8651944ddb0228d47828820
 ```
 

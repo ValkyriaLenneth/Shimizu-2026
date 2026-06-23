@@ -151,7 +151,7 @@ outputs/rfdetr_prod_pipeline/eval_official_plus_20260615_baseline/
 Report:
 
 ```text
-docs/pipeline_eval_20260615.md
+docs/development_records/2026-06-15-16-final-release/pipeline_eval_20260615.md
 ```
 
 ## RF-DETR Models

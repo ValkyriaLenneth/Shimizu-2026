@@ -65,7 +65,10 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--baseline-dir", default="outputs/e2e_old_d900_baseline_v2")
     parser.add_argument("--after-dir", default="outputs/e2e_old_d900_fallback_per20")
-    parser.add_argument("--output-dir", default="docs/report_assets_20260526/fallback_compare_png")
+    parser.add_argument(
+        "--output-dir",
+        default="docs/development_records/assets/2026-05-26-yolo-fallback/fallback_compare_png",
+    )
     parser.add_argument(
         "--samples",
         nargs="*",

@@ -26,6 +26,6 @@ Report protocol result: P=0.722, R=0.812, B/C/D recall=0.857/0.600/1.000.
 Docs:
 
 ```text
-docs/today_rc_wall_optimization_handoff_20260616.md
+docs/handoff_records/2026-06-16/today_rc_wall_optimization_handoff_20260616.md
 final_release_20260615/docs/rc_wall_optimization_20260616.md
 ```

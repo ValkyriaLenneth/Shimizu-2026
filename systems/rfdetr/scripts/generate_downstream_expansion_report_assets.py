@@ -231,7 +231,7 @@ def make_metric_charts(output_dir: Path) -> None:
 
 def main() -> int:
     os.environ.setdefault("CUDA_VISIBLE_DEVICES", "")
-    output_dir = Path("docs/report_assets_20260609_downstream")
+    output_dir = Path("docs/development_records/assets/2026-06-09-rfdetr-downstream")
     output_dir.mkdir(parents=True, exist_ok=True)
     make_metric_charts(output_dir)
 

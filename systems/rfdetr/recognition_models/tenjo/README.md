@@ -25,6 +25,6 @@ the report evaluator before replacing the release checkpoint.
 Docs:
 
 ```text
-docs/tenjo_rfdetr_failure_analysis_20260608.md
-docs/tenjo_rfdetr_report_optimization_20260616.md
+docs/development_records/2026-06-08-09-rfdetr-downstream/tenjo_rfdetr_failure_analysis_20260608.md
+docs/development_records/2026-06-15-16-final-release/tenjo_rfdetr_report_optimization_20260616.md
 ```

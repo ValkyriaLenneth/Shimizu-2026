@@ -23,6 +23,6 @@ Current release downstream model.
 Docs:
 
 ```text
-docs/rfdetr_downstream_progress_20260608.md
-docs/rfdetr_work_summary_20260609.md
+docs/development_records/2026-06-08-09-rfdetr-downstream/rfdetr_downstream_progress_20260608.md
+docs/development_records/2026-06-08-09-rfdetr-downstream/rfdetr_work_summary_20260609.md
 ```
