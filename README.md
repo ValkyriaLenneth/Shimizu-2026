@@ -28,6 +28,7 @@ See:
 ```text
 systems/README.md
 docs/repo_organization_20260623.md
+docs/handoffs/README.md
 ```
 
 ## Current Repo Layout
@@ -42,6 +43,7 @@ docs/repo_organization_20260623.md
 | `systems/*/*/configs/` | configs grouped by model family, role, and category |
 | `docs/` | handoff notes, reports, progress summaries, and visual analysis |
 | `final_release_20260615/` | git-tracked release docs, metrics, manifests, and checksums |
+| `.local_artifacts/` | ignored local datasets, handoff archives, extracted packages, and old results |
 
 Compatibility links are kept at the old root paths:
 
@@ -53,8 +55,13 @@ scripts/*.py -> systems/<area>/scripts/*.py
 configs/*.yaml -> systems/<area>/configs/*.yaml
 ```
 
-Large datasets, checkpoints, training outputs, and compressed final releases are
-kept outside git.
+Large datasets, checkpoints, training outputs, compressed final releases, and
+weekly handoff payloads are kept outside git. In this local checkout, recovered
+large material is grouped under:
+
+```text
+.local_artifacts/
+```
 
 The complete final release archive currently known locally is:
 
@@ -103,10 +110,10 @@ split. That work is retained for reference below.
 
 ## Dataset
 
-Raw data is expected under:
+Raw data for legacy workflows is expected under:
 
 ```text
-data/unzip
+.local_artifacts/data/unzip
 ```
 
 Class mapping:
@@ -118,16 +125,16 @@ c.RC壁  -> RC壁
 d.RC柱  -> RC柱
 ```
 
-Prepared ImageFolder data is written to:
+Prepared ImageFolder data is written to an ignored local data directory:
 
 ```text
-data/processed/building_cls_v1
+.local_artifacts/data/processed/building_cls_v1
 ```
 
 Fixed split manifests are written to:
 
 ```text
-data/manifests
+.local_artifacts/data/manifests
 ```
 
 ## Environment

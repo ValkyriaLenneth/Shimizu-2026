@@ -24,6 +24,7 @@ data/manifests/
 outputs/
 logs/
 downloads/
+.local_artifacts/
 *.zip
 *.pth
 *.pt
