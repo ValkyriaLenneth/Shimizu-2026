@@ -1,0 +1,36 @@
+run_name: resnet34
+dataset:
+  processed_root: data/processed/building_cls_v1
+  manifest_dir: data/manifests
+  class_to_idx: data/manifests/class_to_idx.json
+
+output_root: outputs/runs
+seed: 20260425
+
+model:
+  name: resnet34.a1_in1k
+  pretrained: true
+  num_classes: 4
+  img_size: 224
+  drop_rate: 0.0
+  drop_path_rate: 0.0
+
+train:
+  epochs: 40
+  batch_size: 64
+  num_workers: 4
+  optimizer: adamw
+  lr: 0.0002
+  weight_decay: 0.0001
+  scheduler: cosine
+  warmup_epochs: 3
+  label_smoothing: 0.05
+  class_weighted_loss: true
+  amp: true
+  early_stopping_patience: 8
+  best_metric: macro_f1
+
+augment:
+  auto_augment: rand-m7-mstd0.5-inc1
+  color_jitter: 0.2
+  random_erasing: 0.10

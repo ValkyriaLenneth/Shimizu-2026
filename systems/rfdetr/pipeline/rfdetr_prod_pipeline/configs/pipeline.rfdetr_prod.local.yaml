@@ -1,0 +1,61 @@
+pipeline:
+  router_backend: rfdetr
+  router_checkpoint: ../../../../../rfdetr_model_candidates_20260602/router_epoch23/checkpoint_epoch_023.pth
+  router_conf_threshold: 0.25
+  router_low_conf_threshold: 0.10
+  router_overlap_policy: keep_all
+  router_max_det: 20
+  region_transport: ndarray_slice
+  region_padding_ratio: 0.10
+  use_full_image_if_area_ratio_ge: 0.85
+  save_debug_crops: false
+
+classes:
+  router:
+    0: 天井
+    1: 壁类
+    2: RC柱
+
+crack_models:
+  ceiling:
+    backend: rfdetr
+    checkpoint: ../../../../../rfdetr_threshold_tuned_models_20260609/checkpoints/tenjo_standard_orig_checkpoint_epoch_009.pth
+    thresholds: [0.25, 0.35, 0.35]
+  inner_wall:
+    backend: rfdetr
+    checkpoint: ../../../../../rfdetr_threshold_tuned_models_20260609/checkpoints/inner_wall_checkpoint_epoch_026.pth
+    thresholds: [0.40, 0.40, 0.40]
+  rc_wall:
+    backend: rfdetr
+    checkpoint: ../../../../../rfdetr_threshold_tuned_models_20260609/checkpoints/rc_wall_checkpoint_epoch_009.pth
+    thresholds: [0.28, 0.45, 0.25]
+  rc_column:
+    backend: rfdetr
+    checkpoint: ../../../../../rfdetr_model_candidates_20260602/rc_column_epoch47/checkpoint_epoch_047.pth
+    thresholds: [0.20, 0.20, 0.20]
+  wall_merged: null
+
+wall_strategy:
+  mode: context_select
+  fallback: wall_parallel_debug
+
+low_confidence_policy:
+  mode: todo
+  candidate_multi_model_fallback: true
+  note: 中低置信度是否同时调用多个判别模型，待后续确认。
+
+crack_merge:
+  mode: nms
+  same_grade_iou_threshold: 0.50
+  cross_grade_iou_threshold: 0.60
+  prefer_higher_grade: true
+  keep_conflicts_in_debug: true
+
+outputs:
+  root: ../../../../../outputs/rfdetr_prod_pipeline
+  save_jsonl: true
+  save_visualizations: true
+  save_audit_log: true
+
+conf_threshold: 0.25
+iou_threshold: 0.45

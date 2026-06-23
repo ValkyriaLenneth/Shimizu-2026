@@ -1,0 +1,1 @@
+../../../../yolo/router/coarse_router_yolov9/scripts/check_router_3class_training_ready.py

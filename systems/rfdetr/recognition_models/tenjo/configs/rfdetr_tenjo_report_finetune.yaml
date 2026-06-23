@@ -1,0 +1,83 @@
+dataset:
+  name: rfdetr_tenjo_report_finetune
+  dir: data/rfdetr_tenjo_all_non_legacy_test_v1
+  source_yolo_dataset: final_release_20260615/data/final_download_20260526/handoff_20260519/shimizu_20260519_minimal_repro_package/data/final_crack_yolo_20260519/split/tenjo
+  note: Tenjo report-protocol fine-tuning view. Test is fixed from data_split.json official ceiling/test stems.
+
+classes:
+  0: 天井の損傷程度B
+  1: 天井の損傷程度C
+  2: 天井の損傷程度D
+
+selection_policy:
+  primary_metric: report_grid recall under checkpoint reload
+  official_targets:
+    overall_recall: 0.845
+    B_recall: 0.750
+    C_recall: 0.826
+    D_recall: 1.000
+  match_iou: 0.229
+  report_reference:
+    checkpoint: final_release_20260615/models/rfdetr/downstream/tenjo/tenjo_standard_orig_checkpoint_epoch_009.pth
+    thresholds_B_C_D: [0.25, 0.35, 0.35]
+    precision: 0.650
+    recall: 0.812
+  recall_priority_reference:
+    checkpoint: final_release_20260615/models/rfdetr/downstream/tenjo/tenjo_standard_orig_checkpoint_epoch_009.pth
+    thresholds_B_C_D: [0.20, 0.35, 0.35]
+    precision: 0.614
+    recall: 0.844
+
+training_defaults:
+  epochs: 20
+  num_workers: 8
+  eval_interval: 1
+  checkpoint_interval: 1
+  tensorboard: true
+  wandb: false
+  run_test: false
+  test_each_epoch: false
+  save_epoch_pth: true
+  trainer_precision: 16-mixed
+  external_eval_profiles:
+    - name: report_current_thresholds
+      evaluator: class_threshold_grid
+      threshold_grid: "0.20,0.25,0.35"
+      selected_thresholds: [0.25, 0.35, 0.35]
+      selection: class_thresholds
+      iou_threshold: 0.229
+      device: cpu
+      split: test
+      num_classes: 3
+    - name: report_recall_priority_thresholds
+      evaluator: class_threshold_grid
+      threshold_grid: "0.20,0.25,0.35"
+      selected_thresholds: [0.20, 0.35, 0.35]
+      selection: class_thresholds
+      iou_threshold: 0.229
+      device: cpu
+      split: test
+      num_classes: 3
+    - name: report_grid
+      evaluator: class_threshold_grid
+      threshold_grid: "0.12,0.15,0.18,0.20,0.22,0.25,0.30,0.35,0.40"
+      selection: best_precision_at_min_recall
+      min_recall: 0.846
+      iou_threshold: 0.229
+      device: cpu
+      split: test
+      num_classes: 3
+
+experiments:
+  medium:
+    model_size: medium
+    batch_size: 28
+    grad_accum_steps: 1
+    lr: 0.000005
+    output_dir: outputs/rfdetr_single_crack/tenjo_report_e009_ft_lr5e6_res896_20ep
+  small:
+    model_size: medium
+    batch_size: 28
+    grad_accum_steps: 1
+    lr: 0.0001
+    output_dir: outputs/rfdetr_single_crack/tenjo_report_scratch_res896_20ep

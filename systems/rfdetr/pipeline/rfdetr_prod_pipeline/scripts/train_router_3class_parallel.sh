@@ -1,0 +1,1 @@
+../../../../yolo/router/coarse_router_yolov9/scripts/train_router_3class_parallel.sh
