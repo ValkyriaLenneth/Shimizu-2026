@@ -1,0 +1,107 @@
+pipeline:
+  router_backend: rfdetr
+  router_checkpoint: ../../../../../final_release_20260615/models/rfdetr/router/checkpoint_epoch_023.pth
+  router_conf_threshold: 0.10
+  router_low_conf_threshold: 0.03
+  router_overlap_policy: keep_all
+  router_max_det: 12
+  router_min_region_confidence: 0.08
+  router_max_regions: 4
+  router_rescue_top_k_if_empty: 1
+  dominant_router_class_policy:
+    enabled: true
+    classes: ["天井"]
+    min_confidence: 0.92
+    min_area_ratio: 0.38
+    min_confidence_margin: 0.10
+  region_transport: ndarray_slice
+  region_padding_ratio: 0.12
+  use_full_image_if_area_ratio_ge: 0.85
+  save_debug_crops: false
+
+full_image_rescue:
+  enabled: true
+  router_classes: ["壁类"]
+  region_padding_ratio: 0.12
+  min_confidence: 0.0
+  duplicate_iou_threshold: 0.85
+  max_existing_confidence: 0.85
+
+classes:
+  router:
+    0: 天井
+    1: 壁类
+    2: RC柱
+
+crack_models:
+  ceiling:
+    backend: rfdetr
+    checkpoint: ../../../../../final_release_20260615/models/rfdetr/downstream/tenjo/tenjo_standard_orig_checkpoint_epoch_009.pth
+    thresholds: [0.30, 0.40, 0.40]
+  inner_wall:
+    backend: rfdetr
+    checkpoint: ../../../../../final_release_20260615/models/rfdetr/downstream/inner_wall/inner_wall_checkpoint_epoch_026.pth
+    thresholds: [0.45, 0.45, 0.45]
+  rc_wall:
+    backend: rfdetr
+    checkpoint: ../../../../../final_release_20260615/models/rfdetr/downstream/rc_wall/rc_wall_checkpoint_epoch_009.pth
+    thresholds: [0.30, 0.45, 0.35]
+  rc_column:
+    backend: rfdetr
+    checkpoint: ../../../../../final_release_20260615/models/rfdetr/downstream/rc_column/checkpoint_epoch_047.pth
+    thresholds: [0.50, 0.50, 0.50]
+  wall_merged: null
+
+wall_strategy:
+  mode: context_select
+  fallback: wall_parallel_debug
+
+low_confidence_policy:
+  mode: recall_first
+  candidate_multi_model_fallback: false
+  note: Recall-first postprocess profile; tolerate extra candidates to avoid misses.
+
+crack_merge:
+  mode: nms
+  same_grade_iou_threshold: 0.75
+  cross_grade_iou_threshold: 0.85
+  prefer_higher_grade: true
+  keep_conflicts_in_debug: true
+
+display_merge:
+  enabled: false
+
+wall_display:
+  pair_iou_threshold: 0.60
+  pair_ioa_threshold: 0.98
+  min_single_confidence: 0.30
+  min_single_confidence_by_model:
+    inner_wall: 0.30
+    rc_wall: 0.20
+  max_single_groups_per_model: 4
+  use_union_bbox_for_pairs: false
+
+final_output_fallback:
+  enabled: true
+  restore_suppressed: true
+  rebuild_wall_display_if_empty: true
+  relaxed_wall_pair_iou_threshold: 0.60
+  relaxed_wall_pair_ioa_threshold: 0.98
+  relaxed_min_single_confidence: 0.20
+  relaxed_min_single_confidence_by_model:
+    inner_wall: 0.20
+    rc_wall: 0.10
+  relaxed_max_single_groups_per_model: 6
+  relaxed_use_union_bbox_for_pairs: false
+  include_merged_candidates: true
+  include_raw_candidates: true
+  max_outputs: 8
+
+outputs:
+  root: ../../../../../outputs/rfdetr_prod_pipeline
+  save_jsonl: true
+  save_visualizations: true
+  save_audit_log: true
+
+conf_threshold: 0.30
+iou_threshold: 0.45

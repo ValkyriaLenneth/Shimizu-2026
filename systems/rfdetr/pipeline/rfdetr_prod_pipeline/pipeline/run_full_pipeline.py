@@ -25,7 +25,7 @@ from .fallback_policy import (
 )
 from .rfdetr_router_infer import RfdetrRouterConfig, RfdetrRouterInfer
 from .region_view import make_region_view, map_region_xyxy_to_original, padded_xyxy
-from .result_merge import Detection, center_in_xyxy, ioa_over_first_xyxy, nms_detections, prod_like_merge_detections
+from .result_merge import Detection, center_in_xyxy, grade_level, ioa_min_xyxy, ioa_over_first_xyxy, iou_xyxy, nms_detections, prod_like_merge_detections
 from .router_infer import RouterConfig, RouterInfer
 from .wall_candidate_display import build_wall_candidate_display
 
@@ -150,11 +150,77 @@ def run_one_safe(image_path: Path, router: RouterInfer, registry: dict[str, Any]
     return result
 
 
+def apply_router_selection_policy(router_result: dict[str, Any], pipeline_cfg: dict[str, Any]) -> dict[str, Any]:
+    """Apply conservative router-region pruning before downstream detectors run."""
+    original_detections = list(router_result.get("detections") or [])
+    detections = list(original_detections)
+    min_confidence = pipeline_cfg.get("router_min_region_confidence")
+    if min_confidence is not None:
+        threshold = float(min_confidence)
+        detections = [
+            det
+            for det in detections
+            if float(det.get("confidence") or 0.0) >= threshold
+        ]
+    max_regions = int(pipeline_cfg.get("router_max_regions") or 0)
+    if max_regions > 0:
+        detections = detections[:max_regions]
+
+    rescue_top_k = int(pipeline_cfg.get("router_rescue_top_k_if_empty") or 0)
+    rescued = False
+    if not detections and rescue_top_k > 0 and original_detections:
+        detections = original_detections[:rescue_top_k]
+        rescued = True
+
+    dominant_cfg = pipeline_cfg.get("dominant_router_class_policy", {}) or {}
+    dominant_applied = False
+    if detections and bool(dominant_cfg.get("enabled", False)):
+        primary = detections[0]
+        primary_class = str(primary.get("class_name", ""))
+        allowed_classes = {str(v) for v in dominant_cfg.get("classes", [])}
+        applies_to_class = not allowed_classes or primary_class in allowed_classes
+        primary_conf = float(primary.get("confidence") or 0.0)
+        primary_area = float(primary.get("area_ratio") or 0.0)
+        min_conf = float(dominant_cfg.get("min_confidence", 0.90))
+        min_area = float(dominant_cfg.get("min_area_ratio", 0.45))
+        min_margin = float(dominant_cfg.get("min_confidence_margin", 0.0))
+        next_other_conf = max(
+            [float(det.get("confidence") or 0.0) for det in detections[1:] if str(det.get("class_name", "")) != primary_class],
+            default=0.0,
+        )
+        if applies_to_class and primary_conf >= min_conf and primary_area >= min_area and primary_conf - next_other_conf >= min_margin:
+            detections = [det for det in detections if str(det.get("class_name", "")) == primary_class]
+            dominant_applied = True
+
+    router_result = dict(router_result)
+    router_result["detections"] = detections
+    decision = dict(router_result.get("route_decision") or {})
+    policy_parts = []
+    if min_confidence is not None:
+        policy_parts.append(f"min_confidence>={float(min_confidence):.2f}")
+    if max_regions > 0:
+        policy_parts.append(f"max_regions={max_regions}")
+    if dominant_applied:
+        policy_parts.append("dominant_class_only")
+    if policy_parts:
+        decision["strategy"] = "keep_all_router_boxes|" + "|".join(policy_parts)
+        decision["primary_class"] = detections[0]["class_name"] if detections else None
+        if not detections:
+            decision["status"] = "unknown"
+        elif rescued:
+            decision["status"] = "low_confidence_rescue"
+            decision["low_confidence_fallback_todo"] = True
+            decision["router_selection_rescue"] = f"top{rescue_top_k}_if_empty"
+    router_result["route_decision"] = decision
+    return router_result
+
+
 def run_one(image_path: Path, router: RouterInfer, registry: dict[str, Any], config: dict[str, Any]) -> dict[str, Any]:
     image = cv2.imread(str(image_path), cv2.IMREAD_COLOR)
     if image is None:
         return {"image": str(image_path), "error": "image_unreadable", "router": None, "raw_crack_detections": [], "crack_detections": [], "warnings": ["image_unreadable"]}
     router_result = router.predict(image)
+    router_result = apply_router_selection_policy(router_result, config["pipeline"])
     all_cracks: list[Detection] = []
     raw_crack_records: list[dict[str, Any]] = []
     region_cfg = config["pipeline"]
@@ -185,6 +251,14 @@ def run_one(image_path: Path, router: RouterInfer, registry: dict[str, Any], con
                 except Exception as exc:
                     warnings.append(f"detector_exception:{getattr(detector, 'name', 'unknown')}:{type(exc).__name__}")
                     continue
+                detector_outputs, detector_warnings = _apply_empty_detector_fallback(
+                    detector=detector,
+                    detector_outputs=detector_outputs,
+                    image_bgr=region.image,
+                    source_router_class=router_class,
+                    config=config,
+                )
+                warnings.extend(detector_warnings)
                 for det in detector_outputs:
                     mapped = map_region_xyxy_to_original(det.xyxy, region)
                     mapped_detection = Detection(
@@ -207,6 +281,16 @@ def run_one(image_path: Path, router: RouterInfer, registry: dict[str, Any], con
                         }
                     )
                     raw_crack_records.append(raw_record)
+        rescue_cracks, rescue_records, rescue_warnings = _run_full_image_rescue(
+            image=image,
+            router_result=router_result,
+            registry=registry,
+            config=config,
+            existing=all_cracks,
+        )
+        all_cracks.extend(rescue_cracks)
+        raw_crack_records.extend(rescue_records)
+        warnings.extend(rescue_warnings)
 
     merge_cfg = config.get("crack_merge", {})
     if str(merge_cfg.get("mode", "nms")) == "prod_like":
@@ -237,7 +321,17 @@ def run_one(image_path: Path, router: RouterInfer, registry: dict[str, Any], con
         iou_threshold=float(wall_display_cfg.get("pair_iou_threshold", merge_cfg.get("cross_model_iou_threshold", 0.55))),
         ioa_threshold=float(wall_display_cfg.get("pair_ioa_threshold", 0.70)),
         min_single_confidence=float(wall_display_cfg.get("min_single_confidence", 0.05)),
+        min_single_confidence_by_model={
+            str(key): float(value)
+            for key, value in (wall_display_cfg.get("min_single_confidence_by_model", {}) or {}).items()
+        },
         max_single_groups_per_model=int(wall_display_cfg.get("max_single_groups_per_model", 4)),
+        use_union_bbox_for_pairs=bool(wall_display_cfg.get("use_union_bbox_for_pairs", True)),
+    )
+    wall_display_items = select_wall_display_items(
+        wall_records=wall_records_for_display,
+        wall_candidate_display=wall_candidate_display,
+        wall_display_cfg=wall_display_cfg,
     )
     if router_result["route_decision"]["status"] == "low_confidence":
         warnings.append("router_low_confidence_multi_model_fallback_todo")
@@ -249,8 +343,13 @@ def run_one(image_path: Path, router: RouterInfer, registry: dict[str, Any], con
     display_items = _compose_display_items(
         merged=merged,
         ambiguity_used_indices=ambiguity_used_indices,
-        wall_display=wall_candidate_display["display_detections"],
+        wall_display=wall_display_items,
         ambiguity_display=ambiguity_display,
+    )
+    display_items = _postprocess_final_display_items(
+        display_items,
+        config.get("final_display_postprocess", {}) or {},
+        router_result=router_result,
     )
     display_merge_cfg = config.get("display_merge", {}) or {}
     if bool(display_merge_cfg.get("enabled", True)):
@@ -262,6 +361,16 @@ def run_one(image_path: Path, router: RouterInfer, registry: dict[str, Any], con
         )
     else:
         suppressed_display_items = []
+    display_items, fallback_warnings = ensure_minimum_display_outputs(
+        display_items=display_items,
+        suppressed_display_items=suppressed_display_items,
+        wall_records=wall_records_for_display,
+        merged=merged,
+        raw_records=raw_crack_records,
+        wall_display_cfg=wall_display_cfg,
+        fallback_cfg=config.get("final_output_fallback", {}) or {},
+    )
+    warnings.extend(fallback_warnings)
 
     return {
         "image": str(image_path),
@@ -300,6 +409,148 @@ def display_crack_detections(merged: list[Detection], wall_display: list[dict[st
     return non_wall + wall_display
 
 
+def select_wall_display_items(
+    wall_records: list[dict[str, Any]],
+    wall_candidate_display: dict[str, Any],
+    wall_display_cfg: dict[str, Any],
+) -> list[dict[str, Any]]:
+    mode = str(wall_display_cfg.get("mode", "rule_merged"))
+    if mode == "raw_all":
+        return build_raw_wall_display_items(wall_records, wall_display_cfg)
+    if mode == "merged_plus_raw":
+        items = list(wall_candidate_display.get("display_detections", []))
+        append_only_uncovered = bool(wall_display_cfg.get("raw_append_if_uncovered", True))
+        raw_covered_ioa_threshold = float(wall_display_cfg.get("raw_covered_ioa_threshold", 0.80))
+        raw_covered_iou_threshold = float(wall_display_cfg.get("raw_covered_iou_threshold", 0.50))
+        for det in build_raw_wall_display_items(wall_records, wall_display_cfg):
+            if append_only_uncovered and _wall_raw_item_is_represented(
+                det,
+                items,
+                ioa_threshold=raw_covered_ioa_threshold,
+                iou_threshold=raw_covered_iou_threshold,
+            ):
+                continue
+            _append_unique_display_candidate(items, det)
+        if bool(wall_display_cfg.get("merge_overlapping_display_items", False)):
+            items = _merge_overlapping_wall_display_items(
+                items,
+                iou_threshold=float(wall_display_cfg.get("display_cluster_iou_threshold", 0.35)),
+                ioa_threshold=float(wall_display_cfg.get("display_cluster_ioa_threshold", 0.70)),
+            )
+        return items
+    return list(wall_candidate_display.get("display_detections", []))
+
+
+def build_raw_wall_display_items(
+    wall_records: list[dict[str, Any]],
+    wall_display_cfg: dict[str, Any],
+) -> list[dict[str, Any]]:
+    allowed_models = {str(v) for v in (wall_display_cfg.get("raw_source_models", []) or [])}
+    per_model_thresholds = {
+        str(key): float(value)
+        for key, value in (wall_display_cfg.get("raw_min_confidence_by_model", {}) or {}).items()
+    }
+    default_threshold = float(wall_display_cfg.get("raw_min_confidence", 0.0))
+    items: list[dict[str, Any]] = []
+    for record in wall_records:
+        model = str(record.get("source_model") or "")
+        if allowed_models and model not in allowed_models:
+            continue
+        threshold = per_model_thresholds.get(model, default_threshold)
+        if float(record.get("confidence") or 0.0) < threshold:
+            continue
+        items.append(_display_item_from_raw_record(record))
+    max_outputs = int(wall_display_cfg.get("raw_max_outputs", 0) or 0)
+    items = sorted(items, key=_fallback_display_priority, reverse=True)
+    return items[:max_outputs] if max_outputs > 0 else items
+
+
+def ensure_minimum_display_outputs(
+    display_items: list[dict[str, Any]],
+    suppressed_display_items: list[dict[str, Any]],
+    wall_records: list[dict[str, Any]],
+    merged: list[Detection],
+    raw_records: list[dict[str, Any]],
+    wall_display_cfg: dict[str, Any],
+    fallback_cfg: dict[str, Any],
+) -> tuple[list[dict[str, Any]], list[str]]:
+    if display_items:
+        return display_items, []
+    if not bool(fallback_cfg.get("enabled", False)):
+        return display_items, []
+
+    candidates: list[dict[str, Any]] = []
+    warnings: list[str] = []
+
+    if bool(fallback_cfg.get("restore_suppressed", True)):
+        for det in suppressed_display_items:
+            _append_unique_display_candidate(candidates, det)
+
+    if bool(fallback_cfg.get("rebuild_wall_display_if_empty", True)) and wall_records:
+        relaxed_wall_display = build_wall_candidate_display(
+            wall_records,
+            iou_threshold=float(
+                fallback_cfg.get(
+                    "relaxed_wall_pair_iou_threshold",
+                    wall_display_cfg.get("pair_iou_threshold", 0.55),
+                )
+            ),
+            ioa_threshold=float(
+                fallback_cfg.get(
+                    "relaxed_wall_pair_ioa_threshold",
+                    wall_display_cfg.get("pair_ioa_threshold", 0.70),
+                )
+            ),
+            min_single_confidence=float(
+                fallback_cfg.get(
+                    "relaxed_min_single_confidence",
+                    wall_display_cfg.get("min_single_confidence", 0.05),
+                )
+            ),
+            min_single_confidence_by_model={
+                str(key): float(value)
+                for key, value in (
+                    fallback_cfg.get("relaxed_min_single_confidence_by_model")
+                    or wall_display_cfg.get("min_single_confidence_by_model", {})
+                    or {}
+                ).items()
+            },
+            max_single_groups_per_model=int(
+                fallback_cfg.get(
+                    "relaxed_max_single_groups_per_model",
+                    wall_display_cfg.get("max_single_groups_per_model", 4),
+                )
+            ),
+            use_union_bbox_for_pairs=bool(
+                fallback_cfg.get(
+                    "relaxed_use_union_bbox_for_pairs",
+                    wall_display_cfg.get("use_union_bbox_for_pairs", True),
+                )
+            ),
+        )
+        for det in relaxed_wall_display["display_detections"]:
+            _append_unique_display_candidate(candidates, det)
+
+    if bool(fallback_cfg.get("include_merged_candidates", True)):
+        for det in merged:
+            _append_unique_display_candidate(candidates, _display_item_from_detection(det))
+
+    if bool(fallback_cfg.get("include_raw_candidates", True)):
+        for record in raw_records:
+            _append_unique_display_candidate(candidates, _display_item_from_raw_record(record))
+
+    candidates = [
+        det for det in sorted(candidates, key=_fallback_display_priority, reverse=True) if _valid_box(det)
+    ]
+    max_outputs = int(fallback_cfg.get("max_outputs", 8))
+    if max_outputs > 0:
+        candidates = candidates[:max_outputs]
+
+    if candidates:
+        warnings.append(f"final_output_fallback_used:{len(candidates)}")
+    return candidates, warnings
+
+
 def _compose_display_items(
     merged: list[Detection],
     ambiguity_used_indices: set[int],
@@ -321,6 +572,559 @@ def _compose_display_items(
         if det.source_router_class != "壁类" and index not in ambiguity_used_indices
     ]
     return non_wall + wall_display + ambiguity_display
+
+
+def _apply_empty_detector_fallback(
+    detector: Any,
+    detector_outputs: list[Detection],
+    image_bgr: Any,
+    source_router_class: str,
+    config: dict[str, Any],
+) -> tuple[list[Detection], list[str]]:
+    if detector_outputs:
+        return detector_outputs, []
+    cfg = config.get("downstream_empty_fallback", {}) or {}
+    if not bool(cfg.get("enabled", False)):
+        return detector_outputs, []
+    thresholds_by_model = cfg.get("thresholds_by_model", {}) or {}
+    detector_name = str(getattr(detector, "name", "unknown"))
+    thresholds = thresholds_by_model.get(detector_name) or cfg.get("thresholds")
+    if not thresholds:
+        return detector_outputs, []
+    backend = getattr(detector, "backend", None)
+    if backend is None or not hasattr(backend, "predict"):
+        return detector_outputs, []
+    grade_names = getattr(detector, "grade_names", {0: "B", 1: "C", 2: "D"})
+    fallback_outputs: list[Detection] = []
+    for raw_det in backend.predict(image_bgr, [float(value) for value in thresholds]):
+        grade = grade_names.get(raw_det.class_id, raw_det.class_name)
+        fallback_outputs.append(
+            Detection(
+                xyxy=raw_det.xyxy,
+                confidence=raw_det.confidence,
+                grade=str(grade),
+                source_model=detector_name,
+                source_router_class=source_router_class,
+            )
+        )
+    if not fallback_outputs:
+        return detector_outputs, []
+    max_outputs = int(cfg.get("max_outputs_per_region", 1) or 0)
+    if max_outputs > 0:
+        fallback_outputs = fallback_outputs[:max_outputs]
+    return fallback_outputs, [f"downstream_empty_fallback:{detector_name}:{len(fallback_outputs)}"]
+
+
+def _postprocess_final_display_items(
+    display_items: list[dict[str, Any]],
+    cfg: dict[str, Any],
+    router_result: dict[str, Any] | None = None,
+) -> list[dict[str, Any]]:
+    if not bool(cfg.get("enabled", False)):
+        return display_items
+    items = list(display_items)
+    ambiguity_cfg = cfg.get("collapse_ambiguity", {}) or {}
+    if bool(ambiguity_cfg.get("enabled", True)):
+        items = _collapse_ambiguity_display_items(items, ambiguity_cfg)
+    cluster_cfg = cfg.get("cluster_same_family", {}) or {}
+    if bool(cluster_cfg.get("enabled", True)):
+        items = _merge_overlapping_display_items_by_family(
+            items,
+            iou_threshold=float(cluster_cfg.get("iou_threshold", 0.35)),
+            ioa_threshold=float(cluster_cfg.get("ioa_threshold", 0.70)),
+        )
+    dominant_cfg = cfg.get("dominant_router_filter", {}) or {}
+    if bool(dominant_cfg.get("enabled", False)) and router_result is not None:
+        items = _filter_display_by_dominant_router(items, router_result, dominant_cfg)
+    return items
+
+
+def _filter_display_by_dominant_router(
+    items: list[dict[str, Any]],
+    router_result: dict[str, Any],
+    cfg: dict[str, Any],
+) -> list[dict[str, Any]]:
+    detections = list(router_result.get("detections") or [])
+    if not detections:
+        return items
+    primary = detections[0]
+    primary_class = str(primary.get("class_name") or "")
+    allowed_classes = {str(value) for value in (cfg.get("classes", []) or [])}
+    if allowed_classes and primary_class not in allowed_classes:
+        return items
+    primary_conf = float(primary.get("confidence") or 0.0)
+    primary_area = float(primary.get("area_ratio") or 0.0)
+    min_conf = float(cfg.get("min_confidence", 0.90))
+    min_area = float(cfg.get("min_area_ratio", 0.0))
+    min_margin = float(cfg.get("min_confidence_margin", 0.25))
+    next_other_conf = max(
+        [
+            float(det.get("confidence") or 0.0)
+            for det in detections[1:]
+            if str(det.get("class_name") or "") != primary_class
+        ],
+        default=0.0,
+    )
+    if primary_conf < min_conf or primary_area < min_area or primary_conf - next_other_conf < min_margin:
+        return items
+    filtered = [item for item in items if _display_item_matches_router_class(item, primary_class)]
+    return filtered or items
+
+
+def _display_item_matches_router_class(item: dict[str, Any], router_class: str) -> bool:
+    if router_class in {"壁类", "壁類"}:
+        return _is_wall_display_item(item)
+    if str(item.get("source_router_class") or "") == router_class:
+        return True
+    if router_class == "天井" and str(item.get("source_model") or "") == "ceiling":
+        return True
+    if router_class == "RC柱" and str(item.get("source_model") or "") == "rc_column":
+        return True
+    return False
+
+
+def _collapse_ambiguity_display_items(
+    items: list[dict[str, Any]],
+    cfg: dict[str, Any],
+) -> list[dict[str, Any]]:
+    prefer_wall = bool(cfg.get("prefer_wall_when_present", True))
+    output: list[dict[str, Any]] = []
+    groups: dict[int, list[dict[str, Any]]] = {}
+    for item in items:
+        if str(item.get("status") or "") != "ambiguous_class_candidate":
+            output.append(item)
+            continue
+        groups.setdefault(int(item.get("group_index", -1)), []).append(item)
+
+    for group_items in groups.values():
+        candidates = _unique_candidate_records(
+            candidate
+            for item in group_items
+            for candidate in (item.get("candidates") or [_display_merge_member(item)])
+        )
+        wall_candidates = [candidate for candidate in candidates if _is_wall_display_item(candidate)]
+        if prefer_wall and wall_candidates:
+            output.append(_display_item_from_candidate_group(
+                wall_candidates,
+                status="wall_ambiguity_resolved",
+                structure_type="壁類",
+                damage_prefix="壁-",
+                reason="跨类别重叠候选中存在壁类模型输出，最终显示按壁大类归并。",
+            ))
+            continue
+        output.append(_display_item_from_candidate_group(
+            candidates,
+            status="ambiguity_resolved_best",
+            structure_type=None,
+            damage_prefix="",
+            reason="跨类别重叠候选已按最终显示优先级收敛为一个候选。",
+        ))
+    return output
+
+
+def _display_item_from_candidate_group(
+    candidates: list[dict[str, Any]],
+    status: str,
+    structure_type: str | None,
+    damage_prefix: str,
+    reason: str,
+) -> dict[str, Any]:
+    representative = max(candidates, key=_fallback_display_priority)
+    boxes = [_box(candidate) for candidate in candidates if _valid_box(candidate)]
+    grade = grade_level(str(representative.get("damage_grade") or representative.get("raw_damage_grade") or ""))
+    return {
+        "group_index": representative.get("group_index", -1),
+        "status": status,
+        "structure_type": structure_type or representative.get("structure_type"),
+        "damage_grade": f"{damage_prefix}{grade}" if damage_prefix else grade,
+        "raw_damage_grade": representative.get("raw_damage_grade") or representative.get("damage_grade"),
+        "confidence": max(float(candidate.get("confidence") or 0.0) for candidate in candidates),
+        "bbox_xyxy": [
+            round(min(box[0] for box in boxes), 3),
+            round(min(box[1] for box in boxes), 3),
+            round(max(box[2] for box in boxes), 3),
+            round(max(box[3] for box in boxes), 3),
+        ],
+        "source_model": representative.get("source_model"),
+        "source_router_class": "壁类" if structure_type in {"壁類", "壁类"} else representative.get("source_router_class"),
+        "reason": reason,
+        "candidates": candidates,
+        "display_bbox_source": "candidate_group_union",
+        "display_suppressed_count": max(0, len(candidates) - 1),
+    }
+
+
+def _unique_candidate_records(candidates: Any) -> list[dict[str, Any]]:
+    output: list[dict[str, Any]] = []
+    for candidate in candidates:
+        _append_unique_display_candidate(output, dict(candidate))
+    return output
+
+
+def _merge_overlapping_display_items_by_family(
+    items: list[dict[str, Any]],
+    iou_threshold: float,
+    ioa_threshold: float,
+) -> list[dict[str, Any]]:
+    if len(items) <= 1:
+        return items
+    groups = _overlapping_display_family_groups(items, iou_threshold, ioa_threshold)
+    merged: list[dict[str, Any]] = []
+    for group in groups:
+        group_items = [items[index] for index in group]
+        if len(group_items) == 1:
+            merged.append(group_items[0])
+        elif all(_is_wall_display_item(item) for item in group_items):
+            merged.append(_merged_wall_display_group(group_items))
+        else:
+            merged.append(_merged_display_group(group_items))
+    return sorted(merged, key=_fallback_display_priority, reverse=True)
+
+
+def _overlapping_display_family_groups(
+    items: list[dict[str, Any]],
+    iou_threshold: float,
+    ioa_threshold: float,
+) -> list[list[int]]:
+    parent = list(range(len(items)))
+
+    def find(index: int) -> int:
+        while parent[index] != index:
+            parent[index] = parent[parent[index]]
+            index = parent[index]
+        return index
+
+    def union(left: int, right: int) -> None:
+        left_root = find(left)
+        right_root = find(right)
+        if left_root != right_root:
+            parent[right_root] = left_root
+
+    for left_index, left in enumerate(items):
+        for right_index in range(left_index + 1, len(items)):
+            right = items[right_index]
+            if _display_family(left) != _display_family(right):
+                continue
+            if not _valid_box(left) or not _valid_box(right):
+                continue
+            left_box = _box(left)
+            right_box = _box(right)
+            if iou_xyxy(left_box, right_box) >= iou_threshold or ioa_min_xyxy(left_box, right_box) >= ioa_threshold:
+                union(left_index, right_index)
+
+    grouped: dict[int, list[int]] = {}
+    for index in range(len(items)):
+        grouped.setdefault(find(index), []).append(index)
+    return list(grouped.values())
+
+
+def _merged_display_group(group_items: list[dict[str, Any]]) -> dict[str, Any]:
+    representative = max(group_items, key=_fallback_display_priority)
+    boxes = [_box(item) for item in group_items if _valid_box(item)]
+    merged = dict(representative)
+    merged["bbox_xyxy"] = [
+        round(min(box[0] for box in boxes), 3),
+        round(min(box[1] for box in boxes), 3),
+        round(max(box[2] for box in boxes), 3),
+        round(max(box[3] for box in boxes), 3),
+    ]
+    merged["confidence"] = max(float(item.get("confidence") or 0.0) for item in group_items)
+    merged["status"] = "display_family_cluster_merged"
+    merged["display_bbox_source"] = "display_family_cluster_union"
+    merged["reason"] = "最终显示中同构件类别的重叠候选已聚类显示，避免重复碎框。"
+    merged["candidates"] = _combined_wall_candidates(group_items)
+    merged["display_merge_members"] = [_display_merge_member(item) for item in group_items]
+    merged["display_suppressed_count"] = len(group_items) - 1
+    return merged
+
+
+def _display_family(item: dict[str, Any]) -> str:
+    if _is_wall_display_item(item):
+        return "wall"
+    router_class = str(item.get("source_router_class") or "")
+    if router_class:
+        return router_class
+    source_model = str(item.get("source_model") or "")
+    if source_model == "ceiling":
+        return "天井"
+    if source_model == "rc_column":
+        return "RC柱"
+    return source_model or str(item.get("structure_type") or "")
+
+
+def _display_item_from_detection(det: Detection) -> dict[str, Any]:
+    base = detection_dict(det)
+    if det.source_router_class != "壁类":
+        base["status"] = "final_output_fallback"
+        base["reason"] = "最终显示为空，回退到 merge 后最高优先级候选。"
+        return base
+    grade = grade_level(str(det.grade))
+    return {
+        "group_index": -1,
+        "status": "final_output_fallback",
+        "structure_type": "壁類",
+        "damage_grade": f"壁-{grade}",
+        "raw_damage_grade": det.grade,
+        "confidence": det.confidence,
+        "bbox_xyxy": [round(v, 3) for v in det.xyxy],
+        "source_model": det.source_model,
+        "source_router_class": det.source_router_class,
+        "reason": "最终显示为空，回退到 merge 后壁类候选。",
+        "candidates": [
+            {
+                "structure_type": "壁類",
+                "source_model": det.source_model,
+                "source_router_class": det.source_router_class,
+                "damage_grade": grade,
+                "raw_damage_grade": det.grade,
+                "confidence": det.confidence,
+                "bbox_xyxy": [round(v, 3) for v in det.xyxy],
+            }
+        ],
+    }
+
+
+def _display_item_from_raw_record(record: dict[str, Any]) -> dict[str, Any]:
+    if str(record.get("source_router_class")) != "壁类":
+        output = dict(record)
+        output["status"] = "final_output_fallback"
+        output["reason"] = "最终显示为空，回退到 raw 候选。"
+        return output
+    grade = grade_level(str(record.get("damage_grade", "")))
+    return {
+        "group_index": -1,
+        "status": "final_output_fallback",
+        "structure_type": "壁類",
+        "damage_grade": f"壁-{grade}",
+        "raw_damage_grade": record.get("damage_grade"),
+        "confidence": record.get("confidence"),
+        "bbox_xyxy": record.get("bbox_xyxy"),
+        "source_model": record.get("source_model"),
+        "source_router_class": record.get("source_router_class"),
+        "reason": "最终显示为空，回退到 raw 壁类候选。",
+        "candidates": [
+            {
+                "structure_type": "壁類",
+                "source_model": record.get("source_model"),
+                "source_router_class": record.get("source_router_class"),
+                "damage_grade": grade,
+                "raw_damage_grade": record.get("damage_grade"),
+                "confidence": record.get("confidence"),
+                "bbox_xyxy": record.get("bbox_xyxy"),
+            }
+        ],
+    }
+
+
+def _append_unique_display_candidate(
+    candidates: list[dict[str, Any]],
+    candidate: dict[str, Any],
+    same_iou_threshold: float = 0.90,
+) -> None:
+    if not _valid_box(candidate):
+        return
+    cand_box = _box(candidate)
+    cand_label = str(candidate.get("damage_grade") or "")
+    cand_source = str(candidate.get("source_model") or "")
+    for existing in candidates:
+        if not _valid_box(existing):
+            continue
+        if cand_label != str(existing.get("damage_grade") or ""):
+            continue
+        if cand_source != str(existing.get("source_model") or ""):
+            continue
+        if iou_xyxy(cand_box, _box(existing)) >= same_iou_threshold:
+            return
+    candidates.append(candidate)
+
+
+def _wall_raw_item_is_represented(
+    raw_item: dict[str, Any],
+    display_items: list[dict[str, Any]],
+    ioa_threshold: float,
+    iou_threshold: float,
+) -> bool:
+    """Return whether a raw wall candidate is already represented in a group.
+
+    `merged_plus_raw` uses raw candidates as a recall-first safety net. Raw
+    boxes that already participate in a wall display group should not be drawn
+    again, otherwise a correctly merged result looks visually unmerged.
+    """
+    if not _valid_box(raw_item):
+        return False
+    raw_box = _box(raw_item)
+    raw_source = str(raw_item.get("source_model") or "")
+    raw_grade = grade_level(str(raw_item.get("damage_grade") or ""))
+
+    for display_item in display_items:
+        for candidate in display_item.get("candidates") or []:
+            if str(candidate.get("source_model") or "") != raw_source:
+                continue
+            candidate_grade = grade_level(str(candidate.get("damage_grade") or ""))
+            if raw_grade and candidate_grade and raw_grade != candidate_grade:
+                continue
+            if _boxes_match_represented_raw(raw_box, candidate, ioa_threshold, iou_threshold):
+                return True
+
+        if str(display_item.get("source_model") or "") != raw_source:
+            continue
+        display_grade = grade_level(str(display_item.get("damage_grade") or ""))
+        if raw_grade and display_grade and raw_grade != display_grade:
+            continue
+        if _boxes_match_represented_raw(raw_box, display_item, ioa_threshold, iou_threshold):
+            return True
+
+    return False
+
+
+def _boxes_match_represented_raw(
+    raw_box: tuple[float, float, float, float],
+    candidate: dict[str, Any],
+    ioa_threshold: float,
+    iou_threshold: float,
+) -> bool:
+    if not _valid_box(candidate):
+        return False
+    candidate_box = _box(candidate)
+    return (
+        ioa_over_first_xyxy(raw_box, candidate_box) >= ioa_threshold
+        or iou_xyxy(raw_box, candidate_box) >= iou_threshold
+    )
+
+
+def _merge_overlapping_wall_display_items(
+    items: list[dict[str, Any]],
+    iou_threshold: float,
+    ioa_threshold: float,
+) -> list[dict[str, Any]]:
+    if len(items) <= 1:
+        return items
+    groups = _overlapping_wall_display_groups(items, iou_threshold, ioa_threshold)
+    merged: list[dict[str, Any]] = []
+    for group in groups:
+        group_items = [items[index] for index in group]
+        if len(group_items) == 1:
+            merged.append(group_items[0])
+            continue
+        merged.append(_merged_wall_display_group(group_items))
+    return sorted(merged, key=_fallback_display_priority, reverse=True)
+
+
+def _overlapping_wall_display_groups(
+    items: list[dict[str, Any]],
+    iou_threshold: float,
+    ioa_threshold: float,
+) -> list[list[int]]:
+    parent = list(range(len(items)))
+
+    def find(index: int) -> int:
+        while parent[index] != index:
+            parent[index] = parent[parent[index]]
+            index = parent[index]
+        return index
+
+    def union(left: int, right: int) -> None:
+        left_root = find(left)
+        right_root = find(right)
+        if left_root != right_root:
+            parent[right_root] = left_root
+
+    for left_index, left in enumerate(items):
+        if not _is_wall_display_item(left):
+            continue
+        for right_index in range(left_index + 1, len(items)):
+            right = items[right_index]
+            if not _is_wall_display_item(right):
+                continue
+            if not _valid_box(left) or not _valid_box(right):
+                continue
+            left_box = _box(left)
+            right_box = _box(right)
+            if iou_xyxy(left_box, right_box) >= iou_threshold or ioa_min_xyxy(left_box, right_box) >= ioa_threshold:
+                union(left_index, right_index)
+
+    grouped: dict[int, list[int]] = {}
+    for index in range(len(items)):
+        grouped.setdefault(find(index), []).append(index)
+    return list(grouped.values())
+
+
+def _merged_wall_display_group(group_items: list[dict[str, Any]]) -> dict[str, Any]:
+    representative = max(group_items, key=_fallback_display_priority)
+    boxes = [_box(item) for item in group_items if _valid_box(item)]
+    merged = dict(representative)
+    merged["bbox_xyxy"] = [
+        round(min(box[0] for box in boxes), 3),
+        round(min(box[1] for box in boxes), 3),
+        round(max(box[2] for box in boxes), 3),
+        round(max(box[3] for box in boxes), 3),
+    ]
+    merged["confidence"] = max(float(item.get("confidence") or 0.0) for item in group_items)
+    merged["status"] = "wall_display_cluster_merged"
+    merged["display_bbox_source"] = "wall_display_cluster_union"
+    merged["reason"] = "重叠的壁类候选已按召回优先策略聚类显示；成员候选保留在 candidates/display_merge_members 中。"
+    merged["candidates"] = _combined_wall_candidates(group_items)
+    merged["display_merge_members"] = [_display_merge_member(item) for item in group_items]
+    merged["display_suppressed_count"] = len(group_items) - 1
+    return merged
+
+
+def _combined_wall_candidates(group_items: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    candidates: list[dict[str, Any]] = []
+    for item in group_items:
+        item_candidates = item.get("candidates") or []
+        if item_candidates:
+            for candidate in item_candidates:
+                _append_unique_display_candidate(candidates, dict(candidate))
+        else:
+            _append_unique_display_candidate(candidates, _display_merge_member(item))
+    return candidates
+
+
+def _display_merge_member(item: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "structure_type": item.get("structure_type"),
+        "damage_grade": item.get("damage_grade"),
+        "raw_damage_grade": item.get("raw_damage_grade"),
+        "confidence": item.get("confidence"),
+        "bbox_xyxy": item.get("bbox_xyxy"),
+        "source_model": item.get("source_model"),
+        "source_router_class": item.get("source_router_class"),
+        "status": item.get("status"),
+    }
+
+
+def _is_wall_display_item(item: dict[str, Any]) -> bool:
+    return (
+        str(item.get("structure_type") or "") in {"壁類", "壁类"}
+        or str(item.get("source_router_class") or "") in {"壁類", "壁类"}
+        or str(item.get("source_model") or "") in {"inner_wall", "rc_wall", "wall_merged"}
+    )
+
+
+def _fallback_display_priority(det: dict[str, Any]) -> tuple[int, float, float]:
+    status = str(det.get("status") or "")
+    status_bonus = 1 if status in {"wall_rule_merged", "single_model", "ambiguous_class_candidate"} else 0
+    grade = _grade_rank_from_display(det)
+    area = (_box(det)[2] - _box(det)[0]) * (_box(det)[3] - _box(det)[1])
+    return (grade + status_bonus, float(det.get("confidence") or 0.0), area)
+
+
+def _grade_rank_from_display(det: dict[str, Any]) -> int:
+    return {"B": 1, "C": 2, "D": 3}.get(grade_level(str(det.get("damage_grade", ""))), 0)
+
+
+def _valid_box(det: dict[str, Any]) -> bool:
+    values = det.get("bbox_xyxy") or []
+    if len(values) != 4:
+        return False
+    x1, y1, x2, y2 = [float(v) for v in values]
+    return x2 > x1 and y2 > y1
+
+
+def _box(det: dict[str, Any]) -> tuple[float, float, float, float]:
+    values = det.get("bbox_xyxy") or [0, 0, 0, 0]
+    return tuple(float(v) for v in values)  # type: ignore[return-value]
 
 
 def _wall_records_excluding_ambiguity(
@@ -380,6 +1184,87 @@ def _flatten_registry(registry: dict[str, list[Any]]) -> dict[str, Any]:
             if name and name not in flat:
                 flat[name] = detector
     return flat
+
+
+def _run_full_image_rescue(
+    image: Any,
+    router_result: dict[str, Any],
+    registry: dict[str, list[Any]],
+    config: dict[str, Any],
+    existing: list[Detection],
+) -> tuple[list[Detection], list[dict[str, Any]], list[str]]:
+    cfg = config.get("full_image_rescue", {}) or {}
+    if not bool(cfg.get("enabled", False)):
+        return [], [], []
+    classes = {str(value) for value in cfg.get("router_classes", [])}
+    padding = float(cfg.get("region_padding_ratio", config["pipeline"].get("region_padding_ratio", 0.10)))
+    duplicate_iou = float(cfg.get("duplicate_iou_threshold", 0.70))
+    min_confidence = float(cfg.get("min_confidence", 0.0))
+    max_existing_confidence = cfg.get("max_existing_confidence")
+    warnings: list[str] = []
+    added: list[Detection] = []
+    records: list[dict[str, Any]] = []
+    detector_cache: dict[str, list[Detection]] = {}
+
+    for router_region_index, router_det in enumerate(router_result.get("detections", [])):
+        router_class = str(router_det.get("class_name", ""))
+        if classes and router_class not in classes:
+            continue
+        filter_box = tuple(
+            float(v) for v in padded_xyxy(router_det["bbox_xyxy"], image.shape, padding_ratio=padding)
+        )
+        if max_existing_confidence is not None:
+            existing_conf = max(
+                [
+                    float(prev.confidence)
+                    for prev in existing
+                    if prev.source_router_class == router_class and detection_in_router_region(prev.xyxy, filter_box, config["pipeline"])
+                ],
+                default=0.0,
+            )
+            if existing_conf >= float(max_existing_confidence):
+                continue
+        for detector in registry.get(router_class, []):
+            detector_name = str(getattr(detector, "name", "unknown"))
+            if detector_name not in detector_cache:
+                try:
+                    detector_cache[detector_name] = detector.predict(image, router_class)
+                except Exception as exc:
+                    warnings.append(f"full_image_rescue_exception:{detector_name}:{type(exc).__name__}")
+                    detector_cache[detector_name] = []
+            for det in detector_cache[detector_name]:
+                if float(det.confidence) < min_confidence:
+                    continue
+                if not detection_in_router_region(det.xyxy, filter_box, config["pipeline"]):
+                    continue
+                if any(iou_xyxy(det.xyxy, prev.xyxy) >= duplicate_iou for prev in existing + added):
+                    continue
+                rescued = Detection(
+                    xyxy=det.xyxy,
+                    confidence=det.confidence,
+                    grade=det.grade,
+                    source_model=det.source_model,
+                    source_router_class=router_class,
+                )
+                added.append(rescued)
+                raw_record = detection_dict(rescued)
+                raw_record.update(
+                    {
+                        "router_region_index": router_region_index,
+                        "router_bbox_xyxy": [round(float(v), 3) for v in router_det["bbox_xyxy"]],
+                        "router_filter_bbox_xyxy": [round(float(v), 3) for v in filter_box],
+                        "router_confidence": router_det["confidence"],
+                        "router_class_name": router_class,
+                        "detector_input_shape": list(image.shape),
+                        "region_transport": "full_image_rescue",
+                        "is_fallback": True,
+                        "fallback_reasons": ["wall_full_image_rescue"],
+                    }
+                )
+                records.append(raw_record)
+    if added:
+        warnings.append(f"full_image_rescue_detections:{len(added)}")
+    return added, records, warnings
 
 
 def _run_full_image_filter_with_fallback(

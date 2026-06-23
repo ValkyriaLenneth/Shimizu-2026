@@ -31,7 +31,9 @@ def build_wall_candidate_display(
     iou_threshold: float = 0.50,
     ioa_threshold: float = 0.70,
     min_single_confidence: float = 0.05,
+    min_single_confidence_by_model: dict[str, float] | None = None,
     max_single_groups_per_model: int = 4,
+    use_union_bbox_for_pairs: bool = True,
 ) -> dict[str, Any]:
     """Build one-photo wall display groups from raw wall model outputs.
 
@@ -56,19 +58,29 @@ def build_wall_candidate_display(
     display_detections: list[dict[str, Any]] = []
 
     for inner_index, rc_index, overlap in pairs:
-        group = _paired_group(inner[inner_index], rc[rc_index], len(groups), overlap)
+        group = _paired_group(
+            inner[inner_index],
+            rc[rc_index],
+            len(groups),
+            overlap,
+            use_union_bbox_for_pairs=use_union_bbox_for_pairs,
+        )
         groups.append(group)
         display_detections.extend(group["display_detections"])
 
     remaining_inner = [
         record
         for index, record in enumerate(inner)
-        if index not in used_inner and float(record.get("confidence") or 0.0) >= min_single_confidence
+        if index not in used_inner
+        and float(record.get("confidence") or 0.0)
+        >= _min_single_confidence(record, min_single_confidence, min_single_confidence_by_model)
     ]
     remaining_rc = [
         record
         for index, record in enumerate(rc)
-        if index not in used_rc and float(record.get("confidence") or 0.0) >= min_single_confidence
+        if index not in used_rc
+        and float(record.get("confidence") or 0.0)
+        >= _min_single_confidence(record, min_single_confidence, min_single_confidence_by_model)
     ]
 
     for record in sorted(remaining_inner, key=_single_priority, reverse=True)[:max_single_groups_per_model]:
@@ -134,13 +146,18 @@ def _paired_group(
     rc_record: dict[str, Any],
     group_index: int,
     overlap: dict[str, float],
+    use_union_bbox_for_pairs: bool = True,
 ) -> dict[str, Any]:
     inner_grade = grade_level(str(inner_record.get("damage_grade", "")))
     rc_grade = grade_level(str(rc_record.get("damage_grade", "")))
     candidates = [_candidate(inner_record), _candidate(rc_record)]
     display_grade = wall_display_grade(inner_grade, rc_grade)
     representative = representative_record_for_display(inner_record, rc_record, display_grade)
-    display_record = display_record_for_pair(inner_record, rc_record, representative)
+    display_record = (
+        display_record_for_pair(inner_record, rc_record, representative)
+        if use_union_bbox_for_pairs
+        else representative
+    )
     display = [
         _display_detection(
             display_record,
@@ -291,6 +308,18 @@ def _single_priority(record: dict[str, Any]) -> tuple[float, float]:
     box = _box(record)
     area = max(0.0, box[2] - box[0]) * max(0.0, box[3] - box[1])
     return (area, _confidence(record))
+
+
+def _min_single_confidence(
+    record: dict[str, Any],
+    default_threshold: float,
+    per_model_thresholds: dict[str, float] | None,
+) -> float:
+    if not per_model_thresholds:
+        return default_threshold
+    model = str(record.get("source_model") or "")
+    value = per_model_thresholds.get(model)
+    return float(value) if value is not None else default_threshold
 
 
 def _box(record: dict[str, Any]) -> tuple[float, float, float, float]:
