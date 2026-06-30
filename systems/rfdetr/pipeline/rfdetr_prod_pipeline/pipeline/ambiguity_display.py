@@ -105,6 +105,18 @@ def _build_group(group_index: int, members: list[Detection]) -> dict[str, Any]:
 
 
 def _candidate(det: Detection) -> dict[str, Any]:
+    if det.source_router_class in {"壁类", "壁類"}:
+        grade = grade_level(str(det.grade))
+        return {
+            "structure_type": "壁類",
+            "source_model": "wall",
+            "raw_source_model": det.source_model,
+            "source_router_class": "壁类",
+            "damage_grade": f"壁-{grade}",
+            "raw_damage_grade": det.grade,
+            "confidence": float(det.confidence),
+            "bbox_xyxy": [round(float(v), 3) for v in det.xyxy],
+        }
     return {
         "structure_type": CLASS_DISPLAY_LABEL.get(det.source_router_class, det.source_router_class),
         "source_model": det.source_model,

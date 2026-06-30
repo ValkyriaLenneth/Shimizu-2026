@@ -586,33 +586,102 @@ def _apply_empty_detector_fallback(
     cfg = config.get("downstream_empty_fallback", {}) or {}
     if not bool(cfg.get("enabled", False)):
         return detector_outputs, []
-    thresholds_by_model = cfg.get("thresholds_by_model", {}) or {}
     detector_name = str(getattr(detector, "name", "unknown"))
-    thresholds = thresholds_by_model.get(detector_name) or cfg.get("thresholds")
-    if not thresholds:
-        return detector_outputs, []
-    backend = getattr(detector, "backend", None)
-    if backend is None or not hasattr(backend, "predict"):
-        return detector_outputs, []
-    grade_names = getattr(detector, "grade_names", {0: "B", 1: "C", 2: "D"})
-    fallback_outputs: list[Detection] = []
-    for raw_det in backend.predict(image_bgr, [float(value) for value in thresholds]):
-        grade = grade_names.get(raw_det.class_id, raw_det.class_name)
-        fallback_outputs.append(
-            Detection(
-                xyxy=raw_det.xyxy,
-                confidence=raw_det.confidence,
-                grade=str(grade),
-                source_model=detector_name,
-                source_router_class=source_router_class,
-            )
-        )
+    fallback_outputs = _dynamic_empty_detector_outputs(
+        detector=detector,
+        image_bgr=image_bgr,
+        source_router_class=source_router_class,
+        cfg=cfg,
+    )
     if not fallback_outputs:
         return detector_outputs, []
     max_outputs = int(cfg.get("max_outputs_per_region", 1) or 0)
     if max_outputs > 0:
         fallback_outputs = fallback_outputs[:max_outputs]
     return fallback_outputs, [f"downstream_empty_fallback:{detector_name}:{len(fallback_outputs)}"]
+
+
+def _dynamic_empty_detector_outputs(
+    detector: Any,
+    image_bgr: Any,
+    source_router_class: str,
+    cfg: dict[str, Any],
+) -> list[Detection]:
+    detector_name = str(getattr(detector, "name", "unknown"))
+    backend = getattr(detector, "backend", None)
+    if backend is None or not hasattr(backend, "predict"):
+        return []
+    grade_names = getattr(detector, "grade_names", {0: "B", 1: "C", 2: "D"})
+    for thresholds in _empty_fallback_threshold_schedule(detector, cfg):
+        outputs: list[Detection] = []
+        for raw_det in backend.predict(image_bgr, thresholds):
+            grade = grade_names.get(raw_det.class_id, raw_det.class_name)
+            outputs.append(
+                Detection(
+                    xyxy=raw_det.xyxy,
+                    confidence=raw_det.confidence,
+                    grade=str(grade),
+                    source_model=detector_name,
+                    source_router_class=source_router_class,
+                )
+            )
+        if outputs:
+            return outputs
+    return []
+
+
+def _empty_fallback_threshold_schedule(detector: Any, cfg: dict[str, Any]) -> list[list[float]]:
+    detector_name = str(getattr(detector, "name", "unknown"))
+    thresholds_by_model = cfg.get("thresholds_by_model", {}) or {}
+    if not bool(cfg.get("dynamic", False)):
+        thresholds = thresholds_by_model.get(detector_name) or cfg.get("thresholds")
+        return [[float(value) for value in thresholds]] if thresholds else []
+
+    base_thresholds = getattr(detector, "thresholds", None)
+    if not base_thresholds:
+        thresholds = thresholds_by_model.get(detector_name) or cfg.get("thresholds")
+        base_thresholds = thresholds
+    if not base_thresholds:
+        return []
+
+    current = [float(value) for value in base_thresholds]
+    min_threshold = float(cfg.get("min_threshold", 0.05))
+    step = max(1e-6, float(cfg.get("step", 0.05)))
+    schedule: list[list[float]] = []
+    while any(value > min_threshold for value in current):
+        current = [max(min_threshold, value - step) for value in current]
+        schedule.append(list(current))
+    return schedule
+
+
+def _dynamic_empty_detector_outputs_for_region(
+    detector: Any,
+    image_bgr: Any,
+    source_router_class: str,
+    cfg: dict[str, Any],
+    filter_box: tuple[float, float, float, float],
+    region_cfg: dict[str, Any],
+) -> list[Detection]:
+    detector_name = str(getattr(detector, "name", "unknown"))
+    backend = getattr(detector, "backend", None)
+    if backend is None or not hasattr(backend, "predict"):
+        return []
+    grade_names = getattr(detector, "grade_names", {0: "B", 1: "C", 2: "D"})
+    for thresholds in _empty_fallback_threshold_schedule(detector, cfg):
+        outputs: list[Detection] = []
+        for raw_det in backend.predict(image_bgr, thresholds):
+            det = Detection(
+                xyxy=raw_det.xyxy,
+                confidence=raw_det.confidence,
+                grade=str(grade_names.get(raw_det.class_id, raw_det.class_name)),
+                source_model=detector_name,
+                source_router_class=source_router_class,
+            )
+            if detection_in_router_region(det.xyxy, filter_box, region_cfg):
+                outputs.append(det)
+        if outputs:
+            return outputs
+    return []
 
 
 def _postprocess_final_display_items(
@@ -1098,7 +1167,7 @@ def _is_wall_display_item(item: dict[str, Any]) -> bool:
     return (
         str(item.get("structure_type") or "") in {"壁類", "壁类"}
         or str(item.get("source_router_class") or "") in {"壁類", "壁类"}
-        or str(item.get("source_model") or "") in {"inner_wall", "rc_wall", "wall_merged"}
+        or str(item.get("source_model") or "") in {"inner_wall", "rc_wall", "wall_merged", "wall"}
     )
 
 
@@ -1321,11 +1390,13 @@ def _run_full_image_filter_with_fallback(
     def _apply_tasks(tasks: list[Task]) -> None:
         for task in tasks:
             outputs = _ensure_outputs(task.detector_name, task.source_router_class)
+            accepted = False
             for det_index, det in enumerate(outputs):
                 if det.confidence < task.min_confidence:
                     continue
                 if not detection_in_router_region(det.xyxy, task.filter_box, region_cfg):
                     continue
+                accepted = True
                 key = (task.detector_name, det_index)
                 entry = aggregated.get(key)
                 if entry is None:
@@ -1355,6 +1426,34 @@ def _run_full_image_filter_with_fallback(
                 else:
                     if task.fallback_reason and task.fallback_reason not in entry["fallback_reasons"]:
                         entry["fallback_reasons"].append(task.fallback_reason)
+            if accepted or task.is_fallback:
+                continue
+            dynamic_outputs = _dynamic_empty_detector_outputs_for_region(
+                detector=flat_registry.get(task.detector_name),
+                image_bgr=image,
+                source_router_class=task.source_router_class,
+                cfg=config.get("downstream_empty_fallback", {}) or {},
+                filter_box=task.filter_box,
+                region_cfg=region_cfg,
+            )
+            dynamic_count = 0
+            max_dynamic = int((config.get("downstream_empty_fallback", {}) or {}).get("max_outputs_per_region", 1) or 0)
+            for det_index, det in enumerate(dynamic_outputs):
+                key = (task.detector_name, -100000 - len(aggregated) - det_index)
+                aggregated[key] = {
+                    "detection": det,
+                    "router_region_indices": list(task.router_region_indices),
+                    "filter_boxes": [list(task.filter_box)],
+                    "task_kinds": ["dynamic_empty_threshold"],
+                    "fallback_reasons": ["dynamic_empty_threshold"],
+                    "source_router_class": task.source_router_class,
+                    "is_fallback": True,
+                    "fallback_reason": "dynamic_empty_threshold",
+                    "min_confidence": float(det.confidence),
+                }
+                dynamic_count += 1
+                if max_dynamic > 0 and dynamic_count >= max_dynamic:
+                    break
 
     main_tasks = plan_main_tasks(
         router_detections=router_detections,

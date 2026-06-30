@@ -5,22 +5,23 @@ pipeline:
   router_low_conf_threshold: 0.03
   router_overlap_policy: keep_all
   router_max_det: 12
-  router_min_region_confidence: 0.08
   router_max_regions: 4
   router_rescue_top_k_if_empty: 1
   dominant_router_class_policy:
-    enabled: true
+    enabled: false
     classes: ["天井"]
     min_confidence: 0.92
     min_area_ratio: 0.38
     min_confidence_margin: 0.10
-  region_transport: ndarray_slice
+  region_transport: full_image_filter
   region_padding_ratio: 0.12
+  region_filter_mode: center_or_ioa
+  region_filter_ioa_threshold: 0.50
   use_full_image_if_area_ratio_ge: 0.85
   save_debug_crops: false
 
 full_image_rescue:
-  enabled: true
+  enabled: false
   router_classes: ["壁类"]
   region_padding_ratio: 0.12
   min_confidence: 0.0
@@ -63,11 +64,9 @@ low_confidence_policy:
 
 downstream_empty_fallback:
   enabled: true
-  thresholds_by_model:
-    ceiling: [0.18, 0.22, 0.22]
-    inner_wall: [0.22, 0.22, 0.22]
-    rc_wall: [0.18, 0.25, 0.22]
-    rc_column: [0.22, 0.22, 0.22]
+  dynamic: true
+  min_threshold: 0.05
+  step: 0.05
   max_outputs_per_region: 1
 
 crack_merge:
@@ -83,7 +82,7 @@ display_merge:
 final_display_postprocess:
   enabled: true
   collapse_ambiguity:
-    enabled: true
+    enabled: false
     prefer_wall_when_present: true
   cluster_same_family:
     enabled: true
@@ -97,10 +96,10 @@ final_display_postprocess:
     min_confidence_margin: 0.25
 
 wall_display:
-  mode: merged_plus_raw
+  mode: rule_merged
   raw_source_models: ["inner_wall", "rc_wall"]
   raw_min_confidence: 0.0
-  raw_append_if_uncovered: true
+  raw_append_if_uncovered: false
   raw_covered_ioa_threshold: 0.80
   raw_covered_iou_threshold: 0.50
   merge_overlapping_display_items: true

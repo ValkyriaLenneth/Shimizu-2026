@@ -208,8 +208,9 @@ def _single_group(record: dict[str, Any], group_index: int) -> dict[str, Any]:
 def _candidate(record: dict[str, Any]) -> dict[str, Any]:
     source_model = str(record.get("source_model"))
     return {
-        "structure_type": WALL_MODEL_LABELS.get(source_model, source_model),
-        "source_model": source_model,
+        "structure_type": "壁類" if source_model in WALL_MODEL_LABELS else source_model,
+        "source_model": "wall" if source_model in WALL_MODEL_LABELS else source_model,
+        "raw_source_model": source_model,
         "damage_grade": grade_level(str(record.get("damage_grade", ""))),
         "raw_damage_grade": record.get("damage_grade"),
         "confidence": record.get("confidence"),
@@ -234,7 +235,8 @@ def _display_detection(
         "raw_damage_grade": record.get("damage_grade"),
         "confidence": record.get("confidence"),
         "bbox_xyxy": record.get("bbox_xyxy"),
-        "source_model": record.get("source_model"),
+        "source_model": "wall" if structure_type in {"壁類", "壁类"} else record.get("source_model"),
+        "raw_source_model": record.get("source_model") if structure_type in {"壁類", "壁类"} else None,
         "source_router_class": record.get("source_router_class"),
         "reason": reason,
         "candidates": candidates,
