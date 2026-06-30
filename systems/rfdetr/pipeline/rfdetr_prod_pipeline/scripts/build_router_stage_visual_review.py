@@ -54,6 +54,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--panel-max-side", type=int, default=1500)
     parser.add_argument("--jpeg-quality", type=int, default=96)
     parser.add_argument("--dpi", type=int, default=300)
+    parser.add_argument("--final-source", choices=["display", "crack"], default="display")
+    parser.add_argument("--focus-gt", action="store_true", help="Keep the boxes most relevant to GT first.")
+    parser.add_argument("--max-boxes-per-panel", type=int, default=0)
     return parser.parse_args()
 
 
@@ -102,6 +105,9 @@ def main() -> int:
             component=str(row.get("component", "")),
             metrics=row,
             max_side=args.panel_max_side,
+            final_source=args.final_source,
+            focus_gt=args.focus_gt,
+            max_boxes_per_panel=args.max_boxes_per_panel,
         )
         out_name = f"{index:02d}_{row.get('component','unknown')}__{name}"
         out_path = image_dir / out_name
@@ -202,8 +208,19 @@ def build_stage_canvas(
     component: str,
     metrics: dict[str, str],
     max_side: int,
+    final_source: str,
+    focus_gt: bool,
+    max_boxes_per_panel: int,
 ) -> Image.Image:
     image = Image.fromarray(cv2.cvtColor(image_bgr, cv2.COLOR_BGR2RGB))
+    raw_boxes = detection_boxes(result.get("raw_crack_detections", []), raw=True)
+    final_items = result.get("display_crack_detections") or result.get("crack_detections") or []
+    if final_source == "crack":
+        final_items = result.get("crack_detections") or []
+    final_boxes = detection_boxes(final_items, raw=False)
+    if focus_gt:
+        raw_boxes = focus_boxes(raw_boxes, gt, max_boxes_per_panel)
+        final_boxes = focus_boxes(final_boxes, gt, max_boxes_per_panel)
     panels = [
         draw_panel(
             image,
@@ -224,17 +241,17 @@ def build_stage_canvas(
         draw_panel(
             image,
             title="損傷判別結果",
-            subtitle=f"raw={len(result.get('raw_crack_detections', []))}",
+            subtitle=f"raw={len(result.get('raw_crack_detections', []))} shown={len(raw_boxes)}",
             gt=gt,
-            boxes=detection_boxes(result.get("raw_crack_detections", []), raw=True),
+            boxes=raw_boxes,
             max_side=max_side,
         ),
         draw_panel(
             image,
             title="後処理後の最終表示",
-            subtitle=f"TP/FP/FN={metrics.get('strict_tp')}/{metrics.get('strict_fp')}/{metrics.get('strict_fn')}",
+            subtitle=f"{final_source} shown={len(final_boxes)} TP/FP/FN={metrics.get('strict_tp')}/{metrics.get('strict_fp')}/{metrics.get('strict_fn')}",
             gt=gt,
-            boxes=detection_boxes(result.get("display_crack_detections") or result.get("crack_detections") or [], raw=False),
+            boxes=final_boxes,
             max_side=max_side,
         ),
     ]
@@ -268,10 +285,10 @@ def draw_panel(
     font_sub = font(22)
     draw.text((18, 12), title, font=font_title, fill=(15, 15, 15))
     draw.text((18, 58), subtitle, font=font_sub, fill=(70, 70, 70))
-    for item in gt:
-        draw_box(draw, item["bbox_xyxy"], scale, header_h, (230, 40, 40), f"GT-{item['grade']}", width=5)
     for item in boxes:
         draw_box(draw, item["bbox_xyxy"], scale, header_h, item["color"], item["label"], width=item.get("width", 4))
+    for item in gt:
+        draw_box(draw, item["bbox_xyxy"], scale, header_h, (230, 40, 40), f"GT-{item['grade']}", width=5)
     return panel
 
 
@@ -304,9 +321,37 @@ def detection_boxes(items: list[dict[str, Any]], raw: bool) -> list[dict[str, An
                 "label": f"{prefix}-{grade} {model} {conf:.2f}{suffix}",
                 "color": color,
                 "width": 4,
+                "confidence": conf,
             }
         )
     return out
+
+
+def focus_boxes(boxes: list[dict[str, Any]], gt: list[dict[str, Any]], limit: int) -> list[dict[str, Any]]:
+    if limit <= 0 or len(boxes) <= limit:
+        return boxes
+    gt_boxes = [item["bbox_xyxy"] for item in gt]
+    ranked = sorted(
+        boxes,
+        key=lambda item: (
+            max((iou_xyxy(item["bbox_xyxy"], gt_box) for gt_box in gt_boxes), default=0.0),
+            float(item.get("confidence") or 0.0),
+        ),
+        reverse=True,
+    )
+    return ranked[:limit]
+
+
+def iou_xyxy(a: list[float], b: list[float]) -> float:
+    ax1, ay1, ax2, ay2 = [float(v) for v in a]
+    bx1, by1, bx2, by2 = [float(v) for v in b]
+    ix1, iy1 = max(ax1, bx1), max(ay1, by1)
+    ix2, iy2 = min(ax2, bx2), min(ay2, by2)
+    inter = max(0.0, ix2 - ix1) * max(0.0, iy2 - iy1)
+    area_a = max(0.0, ax2 - ax1) * max(0.0, ay2 - ay1)
+    area_b = max(0.0, bx2 - bx1) * max(0.0, by2 - by1)
+    denom = area_a + area_b - inter
+    return 0.0 if denom <= 0 else inter / denom
 
 
 def draw_box(

@@ -153,11 +153,7 @@ def _paired_group(
     candidates = [_candidate(inner_record), _candidate(rc_record)]
     display_grade = wall_display_grade(inner_grade, rc_grade)
     representative = representative_record_for_display(inner_record, rc_record, display_grade)
-    display_record = (
-        display_record_for_pair(inner_record, rc_record, representative)
-        if use_union_bbox_for_pairs
-        else representative
-    )
+    display_record = display_record_for_pair(inner_record, rc_record, representative)
     display = [
         _display_detection(
             display_record,
@@ -269,13 +265,7 @@ def display_record_for_pair(
     rc_record: dict[str, Any],
     representative: dict[str, Any],
 ) -> dict[str, Any]:
-    """Keep business grade provenance but use the paired wall geometry.
-
-    A low-confidence/high-grade candidate can correctly decide the final wall
-    grade, but its box is often a small fragment inside a better wall candidate.
-    The customer-facing rectangle should cover the paired wall evidence rather
-    than shrink to that fragment.
-    """
+    """Keep business grade provenance but merge paired wall geometry."""
     record = deepcopy(representative)
     inner_box = _box(inner_record)
     rc_box = _box(rc_record)

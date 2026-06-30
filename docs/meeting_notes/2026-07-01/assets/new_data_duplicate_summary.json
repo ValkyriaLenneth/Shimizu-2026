@@ -1,0 +1,20 @@
+[
+  {
+    "class": "ブレース",
+    "old_batch_images": 108,
+    "new_batch_images": 381,
+    "new_batch_duplicates_of_old": 113,
+    "new_batch_unique_content": 268,
+    "unique_hashes_all_batches": 362,
+    "duplicate_files_all_batches": 127
+  },
+  {
+    "class": "柱脚",
+    "old_batch_images": 82,
+    "new_batch_images": 328,
+    "new_batch_duplicates_of_old": 82,
+    "new_batch_unique_content": 246,
+    "unique_hashes_all_batches": 323,
+    "duplicate_files_all_batches": 87
+  }
+]

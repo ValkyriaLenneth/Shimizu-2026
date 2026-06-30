@@ -1,10 +1,10 @@
 """Cross-class ambiguity display groups.
 
 When a fallback detection (e.g. RC柱) spatially overlaps a main-branch
-detection of a different router class (e.g. 壁类), the two answers must be
-shown to the auditor as *coexisting candidates*, never merged. Different
-classes use different damage-grade rubrics; silently picking one would
-corrupt the safety-critical semantics.
+detection of a different router class (e.g. 壁类), the geometry is merged
+into one display box while the class/grade alternatives are preserved as
+coexisting candidates. Different classes use different damage-grade rubrics;
+silently picking one would corrupt the safety-critical semantics.
 
 This module identifies such cross-class overlaps after merging and groups
 them into ``ambiguous_class_candidate`` records that the display layer
@@ -76,22 +76,7 @@ def _build_group(group_index: int, members: list[Detection]) -> dict[str, Any]:
         "请人工确认实际构件类别。"
     )
     bbox = _representative_bbox(members)
-    display_detections = [
-        {
-            "group_index": group_index,
-            "status": "ambiguous_class_candidate",
-            "structure_type": CLASS_DISPLAY_LABEL.get(cand["source_router_class"], cand["source_router_class"]),
-            "damage_grade": cand["damage_grade"],
-            "raw_damage_grade": cand["raw_damage_grade"],
-            "confidence": cand["confidence"],
-            "bbox_xyxy": cand["bbox_xyxy"],
-            "source_model": cand["source_model"],
-            "source_router_class": cand["source_router_class"],
-            "reason": reason,
-            "candidates": candidates,
-        }
-        for cand in candidates
-    ]
+    display_detections = [_display_detection_for_group(group_index, candidates, bbox, reason)]
     return {
         "group_index": group_index,
         "status": "ambiguous_class_candidate",
@@ -102,6 +87,37 @@ def _build_group(group_index: int, members: list[Detection]) -> dict[str, Any]:
         "bbox_xyxy": bbox,
         "classes": classes_present,
     }
+
+
+def _display_detection_for_group(
+    group_index: int,
+    candidates: list[dict[str, Any]],
+    bbox: list[float],
+    reason: str,
+) -> dict[str, Any]:
+    labels = [_candidate_display_label(candidate) for candidate in candidates]
+    confidence = max(float(candidate.get("confidence") or 0.0) for candidate in candidates)
+    return {
+        "group_index": group_index,
+        "status": "ambiguous_class_candidate",
+        "structure_type": " / ".join(labels),
+        "damage_grade": " / ".join(str(candidate["damage_grade"]) for candidate in candidates),
+        "raw_damage_grade": " / ".join(str(candidate["raw_damage_grade"]) for candidate in candidates),
+        "confidence": confidence,
+        "bbox_xyxy": bbox,
+        "source_model": "ambiguous",
+        "source_router_class": " / ".join(str(candidate["source_router_class"]) for candidate in candidates),
+        "reason": reason,
+        "candidates": candidates,
+        "display_bbox_source": "ambiguous_class_union",
+        "display_suppressed_count": max(0, len(candidates) - 1),
+        "display_labels": labels,
+    }
+
+
+def _candidate_display_label(candidate: dict[str, Any]) -> str:
+    structure = CLASS_DISPLAY_LABEL.get(str(candidate["source_router_class"]), str(candidate["source_router_class"]))
+    return f"{structure}-{candidate['damage_grade']}"
 
 
 def _candidate(det: Detection) -> dict[str, Any]:

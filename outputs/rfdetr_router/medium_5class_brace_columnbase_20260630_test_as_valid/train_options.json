@@ -1,0 +1,40 @@
+{
+  "model_size": "medium",
+  "dataset_dir": "/workspace/Shimizu-2026/data/rfdetr_router_5class_brace_columnbase_20260630_test_as_valid",
+  "output_dir": "/workspace/Shimizu-2026/outputs/rfdetr_router/medium_5class_brace_columnbase_20260630_test_as_valid",
+  "epochs": 50,
+  "batch_size": 28,
+  "grad_accum_steps": 1,
+  "lr": 0.0001,
+  "num_workers": 8,
+  "device": "cuda:0",
+  "dataset_file": "yolo",
+  "official_eval_dataset_dir": "/workspace/Shimizu-2026/data/rfdetr_router_5class_brace_columnbase_20260630_test_as_valid",
+  "eval_interval": 1,
+  "checkpoint_interval": 1,
+  "tensorboard": true,
+  "wandb": false,
+  "run_test": true,
+  "test_each_epoch": false,
+  "external_eval_profiles": [],
+  "save_epoch_pth": true,
+  "trainer_precision": "16-mixed",
+  "seed": 20260602,
+  "notes": {
+    "run_id": "20260630_062419",
+    "task": "shimizu_router_rfdetr",
+    "config": "/workspace/Shimizu-2026/systems/rfdetr/router/configs/rfdetr_router_5class_brace_columnbase_20260630_test_as_valid.yaml",
+    "experiment": "medium",
+    "selection_policy": {
+      "primary_metric": "precision",
+      "target_precision": 0.9,
+      "guardrail_metrics": [
+        "recall",
+        "per_class_precision",
+        "old_class_regression",
+        "new_class_precision",
+        "t4_latency"
+      ]
+    }
+  }
+}

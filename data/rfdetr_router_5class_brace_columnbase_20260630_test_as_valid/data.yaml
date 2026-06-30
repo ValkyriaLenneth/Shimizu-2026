@@ -1,0 +1,11 @@
+path: /workspace/Shimizu-2026/data/rfdetr_router_5class_brace_columnbase_20260630_test_as_valid
+train: train/images
+val: valid/images
+test: test/images
+nc: 5
+names:
+  0: 天井
+  1: 壁类
+  2: RC柱
+  3: ブレース
+  4: 柱脚

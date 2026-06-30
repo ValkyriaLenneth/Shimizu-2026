@@ -1,0 +1,97 @@
+{
+  "output_dir": "data/rfdetr_router_5class_brace_columnbase_20260630_test_as_valid",
+  "base_yolo_dir": "final_release_20260615/data/final_download_20260526/handoff_20260519/shimizu_20260519_minimal_repro_package/coarse_router_yolov9/datasets/coarse_router_3class_cleaned_merged_4219_rc_os900_aug_v2",
+  "gemini_results": "outputs/gemini_new_router_classes_20260630/results.jsonl",
+  "names": {
+    "0": "天井",
+    "1": "壁类",
+    "2": "RC柱",
+    "3": "ブレース",
+    "4": "柱脚"
+  },
+  "new_label_policy": "expected-only",
+  "min_confidence": 0.35,
+  "valid_source": "test",
+  "old_dataset": {
+    "train": {
+      "images": 4052,
+      "labels": 4052,
+      "boxes": {
+        "0": 2128,
+        "1": 4172,
+        "2": 1800,
+        "3": 0,
+        "4": 0
+      }
+    },
+    "valid": {
+      "images": 348,
+      "labels": 348,
+      "boxes": {
+        "0": 183,
+        "1": 391,
+        "2": 102,
+        "3": 0,
+        "4": 0
+      }
+    },
+    "test": {
+      "images": 348,
+      "labels": 348,
+      "boxes": {
+        "0": 183,
+        "1": 391,
+        "2": 102,
+        "3": 0,
+        "4": 0
+      }
+    }
+  },
+  "new_dataset": {
+    "train": {
+      "candidate_rows": 719,
+      "written_images": 583,
+      "skipped_rows": 136,
+      "skipped_reasons": {
+        "no_valid_boxes": 136
+      },
+      "boxes": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 472,
+        "4": 252
+      }
+    },
+    "valid": {
+      "candidate_rows": 90,
+      "written_images": 67,
+      "skipped_rows": 23,
+      "skipped_reasons": {
+        "no_valid_boxes": 23
+      },
+      "boxes": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 60,
+        "4": 25
+      }
+    },
+    "test": {
+      "candidate_rows": 90,
+      "written_images": 67,
+      "skipped_rows": 23,
+      "skipped_reasons": {
+        "no_valid_boxes": 23
+      },
+      "boxes": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 60,
+        "4": 25
+      }
+    }
+  }
+}

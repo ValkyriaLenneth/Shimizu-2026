@@ -1,7 +1,7 @@
 pipeline:
   router_backend: rfdetr
   router_checkpoint: ../../../../../final_release_20260615/models/rfdetr/router/checkpoint_epoch_023.pth
-  router_conf_threshold: 0.10
+  router_conf_threshold: 0.00
   router_low_conf_threshold: 0.03
   router_overlap_policy: keep_all
   router_max_det: 12
@@ -38,19 +38,19 @@ crack_models:
   ceiling:
     backend: rfdetr
     checkpoint: ../../../../../final_release_20260615/models/rfdetr/downstream/tenjo/tenjo_standard_orig_checkpoint_epoch_009.pth
-    thresholds: [0.30, 0.40, 0.40]
+    thresholds: [0.20, 0.30, 0.30]
   inner_wall:
     backend: rfdetr
     checkpoint: ../../../../../final_release_20260615/models/rfdetr/downstream/inner_wall/inner_wall_checkpoint_epoch_026.pth
-    thresholds: [0.45, 0.45, 0.45]
+    thresholds: [0.35, 0.35, 0.35]
   rc_wall:
     backend: rfdetr
     checkpoint: ../../../../../final_release_20260615/models/rfdetr/downstream/rc_wall/rc_wall_checkpoint_epoch_009.pth
-    thresholds: [0.30, 0.45, 0.35]
+    thresholds: [0.20, 0.35, 0.25]
   rc_column:
     backend: rfdetr
     checkpoint: ../../../../../final_release_20260615/models/rfdetr/downstream/rc_column/checkpoint_epoch_047.pth
-    thresholds: [0.50, 0.50, 0.50]
+    thresholds: [0.40, 0.40, 0.40]
   wall_merged: null
 
 wall_strategy:
@@ -65,7 +65,7 @@ low_confidence_policy:
 downstream_empty_fallback:
   enabled: true
   dynamic: true
-  min_threshold: 0.05
+  min_threshold: 0.03
   step: 0.05
   max_outputs_per_region: 1
 
@@ -115,7 +115,7 @@ wall_display:
     inner_wall: 0.20
     rc_wall: 0.10
   max_single_groups_per_model: 6
-  use_union_bbox_for_pairs: false
+  use_union_bbox_for_pairs: true
 
 final_output_fallback:
   enabled: true
@@ -128,7 +128,7 @@ final_output_fallback:
     inner_wall: 0.10
     rc_wall: 0.05
   relaxed_max_single_groups_per_model: 8
-  relaxed_use_union_bbox_for_pairs: false
+  relaxed_use_union_bbox_for_pairs: true
   include_merged_candidates: true
   include_raw_candidates: true
   max_outputs: 12
@@ -139,5 +139,5 @@ outputs:
   save_visualizations: true
   save_audit_log: true
 
-conf_threshold: 0.30
+conf_threshold: 0.20
 iou_threshold: 0.45

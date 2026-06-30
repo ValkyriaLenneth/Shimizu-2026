@@ -22,7 +22,7 @@ def test_wall_display_grade_matrix() -> None:
         assert wall_display_grade(*pair) == grade
 
 
-def test_wall_pair_bbox_can_use_representative_candidate() -> None:
+def test_wall_pair_bbox_always_uses_merged_geometry() -> None:
     records = [
         {
             "source_router_class": "壁类",
@@ -40,15 +40,47 @@ def test_wall_pair_bbox_can_use_representative_candidate() -> None:
         },
     ]
 
-    union = build_wall_candidate_display(records, iou_threshold=0.10)
-    representative = build_wall_candidate_display(
+    default_result = build_wall_candidate_display(records, iou_threshold=0.10)
+    legacy_flag_result = build_wall_candidate_display(
         records,
         iou_threshold=0.10,
         use_union_bbox_for_pairs=False,
     )
 
-    assert union["display_detections"][0]["bbox_xyxy"] == [10.0, 10.0, 50.0, 50.0]
-    assert representative["display_detections"][0]["bbox_xyxy"] == [20, 20, 50, 50]
+    assert default_result["display_detections"][0]["bbox_xyxy"] == [10.0, 10.0, 50.0, 50.0]
+    assert legacy_flag_result["display_detections"][0]["bbox_xyxy"] == [10.0, 10.0, 50.0, 50.0]
+    assert legacy_flag_result["display_detections"][0]["display_bbox_source"] == "paired_wall_union"
+
+
+def test_wall_pair_same_grade_small_rc_box_does_not_replace_larger_inner_box() -> None:
+    records = [
+        {
+            "source_router_class": "壁类",
+            "source_model": "inner_wall",
+            "damage_grade": "D",
+            "confidence": 0.3334,
+            "bbox_xyxy": [509.091, 170.357, 803.725, 399.108],
+        },
+        {
+            "source_router_class": "壁类",
+            "source_model": "rc_wall",
+            "damage_grade": "D",
+            "confidence": 0.2995,
+            "bbox_xyxy": [586.507, 248.375, 722.615, 341.282],
+        },
+    ]
+
+    result = build_wall_candidate_display(
+        records,
+        iou_threshold=0.60,
+        ioa_threshold=0.98,
+        use_union_bbox_for_pairs=False,
+    )
+
+    assert len(result["display_detections"]) == 1
+    assert result["display_detections"][0]["damage_grade"] == "壁-D"
+    assert result["display_detections"][0]["bbox_xyxy"] == [509.091, 170.357, 803.725, 399.108]
+    assert result["display_detections"][0]["display_bbox_source"] == "paired_wall_union"
 
 
 def test_model_specific_single_threshold_keeps_second_rc_wall_candidate() -> None:

@@ -741,6 +741,9 @@ def _filter_display_by_dominant_router(
 
 
 def _display_item_matches_router_class(item: dict[str, Any], router_class: str) -> bool:
+    candidates = item.get("candidates") or []
+    if candidates and any(_display_item_matches_router_class(candidate, router_class) for candidate in candidates):
+        return True
     if router_class in {"壁类", "壁類"}:
         return _is_wall_display_item(item)
     if str(item.get("source_router_class") or "") == router_class:

@@ -1,0 +1,64 @@
+{
+  "dataset_dir": "/workspace/Shimizu-2026/data/rfdetr_router_5class_brace_columnbase_20260630_test_as_valid",
+  "data_yaml": {
+    "path": "/workspace/Shimizu-2026/data/rfdetr_router_5class_brace_columnbase_20260630_test_as_valid",
+    "train": "train/images",
+    "val": "valid/images",
+    "test": "test/images",
+    "nc": 5,
+    "names": {
+      "0": "天井",
+      "1": "壁类",
+      "2": "RC柱",
+      "3": "ブレース",
+      "4": "柱脚"
+    }
+  },
+  "splits": {
+    "train": {
+      "images": 4635,
+      "labels": 4635,
+      "missing_labels": 0,
+      "orphan_labels": 0,
+      "empty_labels": 0,
+      "malformed_lines": [],
+      "class_counts": {
+        "0": 2128,
+        "1": 4172,
+        "2": 1800,
+        "3": 472,
+        "4": 252
+      }
+    },
+    "valid": {
+      "images": 415,
+      "labels": 415,
+      "missing_labels": 0,
+      "orphan_labels": 0,
+      "empty_labels": 0,
+      "malformed_lines": [],
+      "class_counts": {
+        "0": 183,
+        "1": 391,
+        "2": 102,
+        "3": 60,
+        "4": 25
+      }
+    },
+    "test": {
+      "images": 415,
+      "labels": 415,
+      "missing_labels": 0,
+      "orphan_labels": 0,
+      "empty_labels": 0,
+      "malformed_lines": [],
+      "class_counts": {
+        "0": 183,
+        "1": 391,
+        "2": 102,
+        "3": 60,
+        "4": 25
+      }
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "total": 919,
+  "ok": 899,
+  "errors": 20,
+  "detected_label_counts": {
+    "天井": 302,
+    "内壁": 319,
+    "ブレース": 656,
+    "柱脚": 346,
+    "RC柱": 183,
+    "RC壁": 104
+  },
+  "expected_label_counts": {
+    "ブレース": 502,
+    "柱脚": 417
+  },
+  "model": "gemini-3.1-pro-preview",
+  "api_mode": "interactions",
+  "concurrency": 2,
+  "finished_at": "2026-06-30T06:11:57.205367+00:00",
+  "results": "outputs/gemini_new_router_classes_20260630/results.jsonl",
+  "sample_plan": "outputs/gemini_new_router_classes_20260630/sample_plan.jsonl"
+}

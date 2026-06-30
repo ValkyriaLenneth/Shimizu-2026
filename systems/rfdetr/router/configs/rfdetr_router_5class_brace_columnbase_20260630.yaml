@@ -1,0 +1,49 @@
+dataset:
+  name: rfdetr_router_5class_brace_columnbase_20260630
+  dir: data/rfdetr_router_5class_brace_columnbase_20260630
+  source_yolo_dataset: final_release_20260615/data/final_download_20260526/handoff_20260519/shimizu_20260519_minimal_repro_package/coarse_router_yolov9/datasets/coarse_router_3class_cleaned_merged_4219_rc_os900_aug_v2
+  new_classes_source: data/raw_new_classes_20260630/extracted
+  note: RF-DETR router dataset with existing wall merge plus brace and column-base classes.
+
+classes:
+  0: 天井
+  1: 壁类
+  2: RC柱
+  3: ブレース
+  4: 柱脚
+
+selection_policy:
+  primary_metric: precision
+  target_precision: 0.90
+  guardrail_metrics:
+    - recall
+    - per_class_precision
+    - old_class_regression
+    - new_class_precision
+    - t4_latency
+
+training_defaults:
+  epochs: 50
+  num_workers: 8
+  eval_interval: 1
+  checkpoint_interval: 1
+  tensorboard: true
+  wandb: false
+  run_test: true
+  test_each_epoch: false
+  save_epoch_pth: true
+  trainer_precision: 16-mixed
+
+experiments:
+  small:
+    model_size: small
+    batch_size: 8
+    grad_accum_steps: 2
+    lr: 0.0001
+    output_dir: outputs/rfdetr_router/small_5class_brace_columnbase_20260630
+  medium:
+    model_size: medium
+    batch_size: 28
+    grad_accum_steps: 1
+    lr: 0.0001
+    output_dir: outputs/rfdetr_router/medium_5class_brace_columnbase_20260630

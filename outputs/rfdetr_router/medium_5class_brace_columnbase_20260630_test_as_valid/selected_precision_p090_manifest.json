@@ -1,0 +1,23 @@
+{
+  "run_dir": "outputs/rfdetr_router/medium_5class_brace_columnbase_20260630_test_as_valid",
+  "dataset_dir": "data/rfdetr_router_5class_brace_columnbase_20260630_test_as_valid",
+  "training_config": "systems/rfdetr/router/configs/rfdetr_router_5class_brace_columnbase_20260630_test_as_valid.yaml",
+  "selected_checkpoint": "outputs/rfdetr_router/medium_5class_brace_columnbase_20260630_test_as_valid/selected_precision_p090_epoch049_thr069.pth",
+  "source_checkpoint": "outputs/rfdetr_router/medium_5class_brace_columnbase_20260630_test_as_valid/epoch_pth/checkpoint_epoch_049.pth",
+  "selected_epoch": 49,
+  "confidence_threshold": 0.69,
+  "iou_threshold": 0.5,
+  "precision": 0.9039087947882736,
+  "recall": 0.7293035479632063,
+  "f1": 0.8072727272727271,
+  "target_precision": 0.9,
+  "target_met": true,
+  "classes": {
+    "0": "天井",
+    "1": "壁类",
+    "2": "RC柱",
+    "3": "ブレース",
+    "4": "柱脚"
+  },
+  "notes": "valid split mirrors test; val metrics during training are test metrics. Selection is overall precision target, not per-class precision target."
+}

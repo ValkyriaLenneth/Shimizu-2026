@@ -11,6 +11,8 @@ data/zip/
 data/shimizu-split/
 data/final_crack_yolo_20260519/
 data/rfdetr_*/
+data/pipeline_eval_official_plus_20260615/
+data/raw_new_classes_20260630/
 data/20260603_*/
 additional_data_2026-05-19/
 external/
@@ -39,6 +41,15 @@ rfdetr_downstream_expansion_report_*/
 final_download_20260526/
 final_download_20260526.tar.zst
 final_release_20260615/data/
+final_release_20260615/docs/checksums/
+final_release_20260615/docs/report_assets_20260616_rc_wall/
+final_release_20260615/docs/source_manifests/
+final_release_20260615/models/rfdetr/router/
+final_release_20260615/models/rfdetr/config/
+final_release_20260615/models/rfdetr/metrics/
+final_release_20260615/models/rfdetr/scripts/
+final_release_20260615/models/rfdetr/model_candidates_20260602_README.md
+final_release_20260615/models/rfdetr/threshold_tuned_models_20260609_manifest.md
 *.bundle
 handoff_20260519/SHA256SUMS.txt
 docs/review.txt

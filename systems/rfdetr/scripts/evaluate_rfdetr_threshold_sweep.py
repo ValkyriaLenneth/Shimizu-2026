@@ -99,10 +99,15 @@ def detections_to_predictions(detections, threshold: float, num_classes: int) ->
     return preds, ignored
 
 
-def match_counts(targets_in: list[Target], preds_in: list[Prediction], iou_threshold: float) -> dict[int, dict[str, int]]:
+def match_counts(
+    targets_in: list[Target],
+    preds_in: list[Prediction],
+    iou_threshold: float,
+    num_classes: int,
+) -> dict[int, dict[str, int]]:
     targets = [Target(t.cls, t.xyxy) for t in targets_in]
     preds = [Prediction(p.cls, p.conf, p.xyxy) for p in preds_in]
-    counts = {cls: {"tp": 0, "fp": 0, "fn": 0, "gt": 0, "pred": 0} for cls in range(3)}
+    counts = {cls: {"tp": 0, "fp": 0, "fn": 0, "gt": 0, "pred": 0} for cls in range(num_classes)}
     for target in targets:
         counts[target.cls]["gt"] += 1
     for pred in preds:
@@ -161,7 +166,7 @@ def main() -> int:
     image_paths = sorted(path for path in image_dir.iterdir() if path.suffix in IMAGE_EXTS)
 
     per_threshold = {
-        threshold: {cls: {"tp": 0, "fp": 0, "fn": 0, "gt": 0, "pred": 0} for cls in range(3)}
+        threshold: {cls: {"tp": 0, "fp": 0, "fn": 0, "gt": 0, "pred": 0} for cls in range(args.num_classes)}
         for threshold in thresholds
     }
     ignored_predictions = {threshold: 0 for threshold in thresholds}
@@ -174,7 +179,7 @@ def main() -> int:
         for threshold in thresholds:
             preds, ignored = detections_to_predictions(detections, threshold, args.num_classes)
             ignored_predictions[threshold] += ignored
-            merge_counts(per_threshold[threshold], match_counts(targets, preds, args.iou_threshold))
+            merge_counts(per_threshold[threshold], match_counts(targets, preds, args.iou_threshold, args.num_classes))
         if idx % 25 == 0 or idx == len(image_paths):
             print(f"evaluated {idx}/{len(image_paths)} images")
 
@@ -183,7 +188,7 @@ def main() -> int:
         overall = {"tp": 0, "fp": 0, "fn": 0}
         row = {"threshold": threshold, "images": len(image_paths)}
         row["ignored_predictions"] = ignored_predictions[threshold]
-        for cls in range(3):
+        for cls in range(args.num_classes):
             values = counts[cls]
             precision, recall, f1 = metric(values["tp"], values["fp"], values["fn"])
             row[f"class_{cls}_tp"] = values["tp"]
