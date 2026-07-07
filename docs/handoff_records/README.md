@@ -14,7 +14,7 @@ kept out of git under `.local_artifacts/`.
 | 2026-06-09 | RF-DETR downstream expansion, threshold tuning, RF-DETR production pipeline | `docs/development_records/2026-06-08-09-rfdetr-downstream/rfdetr_work_summary_20260609.md`, `docs/meeting_notes/2026-06-09/meeting_rfdetr_downstream_expansion_20260609.md` | model packages are external artifacts |
 | 2026-06-15 | Final release layout and RF-DETR pipeline evaluation | `final_release_20260615/MANIFEST.md`, `docs/development_records/2026-06-15-16-final-release/pipeline_eval_20260615.md` | tracked folder keeps metadata only; data/models stay ignored |
 | 2026-06-16 | RC wall report optimization and final display/report update | `docs/handoff_records/2026-06-16/today_rc_wall_optimization_handoff_20260616.md`, `docs/development_records/2026-06-15-16-final-release/pipeline_visual_error_analysis_20260616.md` | optimized model binaries stay external/ignored |
-| 2026-07-07 | Reviewed and deduplicated `ブレース` / `柱脚` router data update | `docs/handoff_records/2026-07-07/router_5class_reviewed_dedup_handoff_20260707.md`, `docs/development_records/2026-07-07-router5-reviewed-dedup.md` | reviewed data and labels are ignored local artifacts and must be included in the next handoff archive |
+| 2026-07-07 | Reviewed and deduplicated `ブレース` / `柱脚` router data update; consolidated RF-DETR/Yolo package split | `docs/handoff_records/2026-07-07/router_5class_reviewed_dedup_handoff_20260707.md`, `docs/handoff_records/2026-07-07/consolidated_handoff_packages_20260707.md`, `docs/development_records/2026-07-07-router5-reviewed-dedup.md` | RF-DETR main staging is `.local_artifacts/handoff_20260707_rfdetr_main`; YOLO archive staging is `.local_artifacts/handoff_20260707_yolo_archive` |
 
 ## Consolidation Decision
 
@@ -52,6 +52,9 @@ are local recovery material. They belong in:
    improved RC wall reporting metrics and updated the release metadata.
 6. 2026-07-07 deduplicated the two new router classes and rebuilt the next
    training dataset from manual review labels.
+7. 2026-07-07 consolidated the next handoff into a RF-DETR main package and a
+   YOLO archive-only package. Future model delivery should continue from the
+   RF-DETR package.
 
 ## Current Code Direction
 
