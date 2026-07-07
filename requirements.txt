@@ -10,3 +10,6 @@ seaborn
 PyYAML
 tqdm
 tensorboard
+fastapi
+uvicorn[standard]
+python-multipart

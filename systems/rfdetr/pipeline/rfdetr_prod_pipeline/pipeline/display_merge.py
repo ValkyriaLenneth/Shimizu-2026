@@ -63,11 +63,12 @@ def _should_suppress(
     ioa_threshold: float,
     cross_class_ioa_threshold: float,
 ) -> bool:
+    del cross_class_ioa_threshold  # Kept in the public call signature for config compatibility.
+    if _display_family(keeper) != _display_family(candidate):
+        return False
     if overlap["iou"] >= iou_threshold:
         return True
-    if _display_family(keeper) == _display_family(candidate):
-        return overlap["ioa_min"] >= ioa_threshold
-    return overlap["ioa_min"] >= cross_class_ioa_threshold and _grade_rank(keeper) >= _grade_rank(candidate)
+    return overlap["ioa_min"] >= ioa_threshold
 
 
 def _display_priority(det: dict[str, Any]) -> tuple[int, float, float]:

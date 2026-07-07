@@ -113,9 +113,11 @@ class RfdetrCrackDetector:
 
 
 def build_detector_registry(config: dict[str, Any], root: Path, mock: bool = False) -> dict[str, list[CrackDetector]]:
+    router_classes = {str(value) for value in (config.get("classes", {}).get("router", {}) or {}).values()}
     if mock:
         detector = MockCrackDetector()
-        return {"天井": [detector], "壁类": [detector], "RC柱": [detector]}
+        defaults = {"天井", "壁类", "RC柱"}
+        return {router_class: [detector] for router_class in sorted(router_classes or defaults)}
 
     yolo_root = resolve_path(config.get("yolo_root", "../coarse_router_yolov9/yolov9"), root)
     device = str(config.get("device", "cpu"))
@@ -129,6 +131,18 @@ def build_detector_registry(config: dict[str, Any], root: Path, mock: bool = Fal
         "RC柱": detector_for("rc_column", models.get("rc_column"), yolo_root, device, imgsz, conf, iou, root),
         "壁类": wall_detectors(models, yolo_root, device, imgsz, conf, iou, root),
     }
+    for router_class in sorted(router_classes - set(detectors)):
+        model_key = ROUTER_CLASS_MODEL_KEYS.get(router_class)
+        detectors[router_class] = detector_for(
+            model_key or router_class,
+            models.get(model_key) if model_key else None,
+            yolo_root,
+            device,
+            imgsz,
+            conf,
+            iou,
+            root,
+        )
     return detectors
 
 
@@ -177,3 +191,13 @@ def wall_detectors(
 def resolve_path(value: str | Path, root: Path) -> Path:
     path = Path(value)
     return path if path.is_absolute() else (root / path).resolve()
+
+
+ROUTER_CLASS_MODEL_KEYS = {
+    "天井": "ceiling",
+    "壁类": "wall_merged",
+    "壁類": "wall_merged",
+    "RC柱": "rc_column",
+    "ブレース": "brace",
+    "柱脚": "column_base",
+}
