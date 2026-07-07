@@ -44,6 +44,14 @@ def parse_args() -> argparse.Namespace:
         "--gemini-results",
         default="outputs/gemini_new_router_classes_20260630/results.jsonl",
     )
+    parser.add_argument(
+        "--review-items",
+        help="Deduplicated review queue JSON. When set, new rows are built from reviewed items instead of Gemini JSONL.",
+    )
+    parser.add_argument(
+        "--review-annotations",
+        help="Manual review annotation JSON keyed by review item id.",
+    )
     parser.add_argument("--output-dir", default="data/rfdetr_router_5class_brace_columnbase_20260630")
     parser.add_argument("--new-label-policy", choices=["expected-only", "all-router-labels"], default="expected-only")
     parser.add_argument("--min-confidence", type=float, default=0.35)
@@ -172,6 +180,55 @@ def load_new_rows(results_path: Path) -> list[dict[str, Any]]:
     return list(latest_by_image.values())
 
 
+def load_reviewed_rows(items_path: Path, review_path: Path | None) -> list[dict[str, Any]]:
+    items = json.loads(items_path.read_text(encoding="utf-8"))
+    reviews = {}
+    if review_path and review_path.exists():
+        reviews = json.loads(review_path.read_text(encoding="utf-8"))
+
+    rows: list[dict[str, Any]] = []
+    for item in items:
+        review = reviews.get(str(item["id"]), {})
+        if review.get("status") == "rejected":
+            continue
+        boxes = review.get("boxes") if "boxes" in review else item.get("boxes", [])
+        elements = []
+        for box in boxes or []:
+            label = box.get("label")
+            if label not in NEW_LABEL_TO_CLASS:
+                continue
+            bbox = box.get("bbox")
+            if not bbox or len(bbox) != 4:
+                continue
+            elements.append(
+                {
+                    "label": label,
+                    "bbox_2d": bbox,
+                    "confidence": 1.0 if box.get("confidence") is None else box.get("confidence"),
+                    "reason": box.get("reason", "manual_review"),
+                }
+            )
+        rows.append(
+            {
+                "expected_label": item["expected_label"],
+                "image_path": item["image_path"],
+                "image_rel_path": item.get("image_rel_path", item["image_path"]),
+                "ok": True,
+                "source": "manual_review_dedup",
+                "review_item_id": item["id"],
+                "dedup": item.get("dedup", {}),
+                "response": {
+                    "parsed": {
+                        "elements": elements,
+                        "image_level_labels": sorted({element["label"] for element in elements}),
+                        "notes": review.get("notes", item.get("notes", "")),
+                    }
+                },
+            }
+        )
+    return rows
+
+
 def split_new_rows(rows: list[dict[str, Any]], seed: int, train_ratio: float, valid_ratio: float) -> dict[str, list[dict[str, Any]]]:
     rng = random.Random(seed)
     by_label: dict[str, list[dict[str, Any]]] = {}
@@ -260,7 +317,13 @@ def main() -> int:
     output_dir.mkdir(parents=True, exist_ok=True)
 
     old_summary = copy_old_dataset(Path(args.base_yolo_dir), output_dir, args.link_mode, args.valid_source)
-    new_rows = [row for row in load_new_rows(Path(args.gemini_results)) if row.get("ok")]
+    if args.review_items:
+        new_rows = load_reviewed_rows(
+            Path(args.review_items),
+            Path(args.review_annotations) if args.review_annotations else None,
+        )
+    else:
+        new_rows = [row for row in load_new_rows(Path(args.gemini_results)) if row.get("ok")]
     split_rows = split_new_rows(new_rows, args.seed, args.train_ratio, args.valid_ratio)
     if args.valid_source == "test":
         split_rows = mirror_test_to_valid(split_rows)
@@ -281,6 +344,8 @@ def main() -> int:
         "output_dir": str(output_dir),
         "base_yolo_dir": args.base_yolo_dir,
         "gemini_results": args.gemini_results,
+        "review_items": args.review_items,
+        "review_annotations": args.review_annotations,
         "names": {str(i): name for i, name in enumerate(NAMES)},
         "new_label_policy": args.new_label_policy,
         "min_confidence": args.min_confidence,

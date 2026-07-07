@@ -24,6 +24,7 @@ Recommended reading order:
 | 2026-06-08/09 | RF-DETR downstream expansion and production pipeline creation | `development_records/2026-06-08-09-rfdetr-downstream/` |
 | 2026-06-15/16 | Final release evaluation, visual error analysis, RC wall report optimization | `development_records/2026-06-15-16-final-release/` |
 | 2026-06-23 | Repository cleanup and model-family reorganization | `development_records/repo_organization_20260623.md` |
+| 2026-07-07 | reviewed and deduplicated 5-class router data update | `development_records/2026-07-07-router5-reviewed-dedup.md` |
 
 Supporting material:
 
@@ -58,6 +59,7 @@ Key handoff checkpoints:
 | 2026-05-26 | best YOLO router, fallback logic, final synthetic data handoff |
 | 2026-06-02 | RF-DETR migration recovery notes |
 | 2026-06-16 | RC wall optimization and final release update handoff |
+| 2026-07-07 | reviewed/deduplicated router 5-class data update |
 
 The large release payload is intentionally outside git:
 

@@ -39,10 +39,16 @@ Class map:
 4: 柱脚
 ```
 
-Dataset:
+Historical 2026-06-30 Gemini-only dataset:
 
 ```text
 data/rfdetr_router_5class_brace_columnbase_20260630_test_as_valid
+```
+
+Current reviewed-deduplicated dataset for the next handoff/training:
+
+```text
+data/rfdetr_router_5class_brace_columnbase_20260707_reviewed_dedup_test_as_valid
 ```
 
 There is no independent validation split. The `valid` directory mirrors `test`
@@ -60,10 +66,17 @@ Detailed training record:
 docs/development_records/2026-06-30-rfdetr-router-5class-training.md
 ```
 
+Reviewed-dedup data update:
+
+```text
+docs/handoff_records/2026-07-07/router_5class_reviewed_dedup_handoff_20260707.md
+docs/development_records/2026-07-07-router5-reviewed-dedup.md
+```
+
 Full local handoff archive:
 
 ```text
-shimizu_20260630_rfdetr_router5_incremental.tar.zst
+.local_artifacts/handoff_20260630/shimizu_20260630_rfdetr_router5_incremental.tar.zst
 SHA256: 21729a910a79eaa17e48dbf14b2d3d58c0511135eded949a39076642190e694c
 ```
 

@@ -30,6 +30,19 @@ Dataset path:
 data/rfdetr_router_5class_brace_columnbase_20260630_test_as_valid
 ```
 
+This is the historical Gemini-only 2026-06-30 dataset. After manual review and
+deduplication on 2026-07-07, the next handoff/training should use:
+
+```text
+data/rfdetr_router_5class_brace_columnbase_20260707_reviewed_dedup_test_as_valid
+```
+
+See:
+
+```text
+docs/handoff_records/2026-07-07/router_5class_reviewed_dedup_handoff_20260707.md
+```
+
 RF-DETR requires a `valid` split during training. For this delivery, `valid`
 mirrors `test`; there is no separate validation set. Training-time metrics
 labelled as validation metrics are therefore test metrics.
@@ -104,7 +117,7 @@ outputs/rfdetr_router/medium_5class_brace_columnbase_20260630_test_as_valid/sele
 The full incremental handoff archive is stored locally at:
 
 ```text
-shimizu_20260630_rfdetr_router5_incremental.tar.zst
+.local_artifacts/handoff_20260630/shimizu_20260630_rfdetr_router5_incremental.tar.zst
 ```
 
 SHA256:
