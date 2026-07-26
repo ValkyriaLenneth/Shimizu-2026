@@ -1,0 +1,1 @@
+../systems/rfdetr/scripts/build_rfdetr_joint_bcd_view.py

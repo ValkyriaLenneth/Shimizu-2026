@@ -35,7 +35,12 @@ def link_or_copy(src: Path, dst: Path, mode: str) -> None:
     if mode == "copy":
         shutil.copy2(src, dst)
     elif mode == "hardlink":
-        os.link(src, dst)
+        try:
+            os.link(src, dst)
+        except OSError:
+            # Hardlinks cannot cross filesystems; fall back rather than crash with
+            # "Invalid cross-device link" when the output dir is on another mount.
+            shutil.copy2(src, dst)
     else:
         os.symlink(src.resolve(), dst)
 

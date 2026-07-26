@@ -1,0 +1,1 @@
+../systems/rfdetr/scripts/run_new_classes_cv.sh

@@ -74,7 +74,10 @@ def main() -> int:
         for targets, preds, ignored in cached:
             selected = [pred for pred in preds if pred.conf >= class_thresholds[pred.cls]]
             ignored_predictions += ignored
-            merge_counts(total, match_counts(targets, selected, args.iou_threshold))
+            # match_counts in evaluate_rfdetr_threshold_sweep gained a required
+            # num_classes argument; this call site was never updated, so the
+            # per-class threshold grid raised TypeError before producing any row.
+            merge_counts(total, match_counts(targets, selected, args.iou_threshold, args.num_classes))
 
         overall = {"tp": 0, "fp": 0, "fn": 0}
         row = {

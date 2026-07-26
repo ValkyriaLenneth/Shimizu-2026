@@ -1,0 +1,66 @@
+# Stronger augmentation for the two new categories.
+#
+# Motivated by two measurements rather than by taste:
+#
+# 1. Overfitting is large. On its own training data the model reaches recall 0.798;
+#    on held-out folds it reaches 0.45. RF-DETR's default builds a single
+#    Albumentations transform (horizontal flip), so there is almost no augmentation
+#    in place to close that gap.
+#
+# 2. The dominant error is B-grade false positives - 159 for ブレース and 321 for
+#    柱脚, precision 0.27 and 0.23. B damage is hairline cracking and bolt
+#    corrosion at 0.8-2.4% of the frame, and the model confuses it with ordinary
+#    rust, shadow, joints and texture. Photometric variation is the augmentation
+#    that attacks that confusion directly, so brightness, contrast, hue and gamma
+#    are pushed harder here than in the light tenjo presets.
+#
+# Geometry stays conservative. Damage grade partly depends on apparent crack width
+# and spalling extent, so aggressive scaling or shear risks changing the very
+# property being graded.
+
+HorizontalFlip:
+  p: 0.5
+RandomBrightnessContrast:
+  brightness_limit: 0.30
+  contrast_limit: 0.30
+  p: 0.7
+HueSaturationValue:
+  hue_shift_limit: 10
+  sat_shift_limit: 25
+  val_shift_limit: 20
+  p: 0.5
+RandomGamma:
+  gamma_limit:
+    - 70
+    - 140
+  p: 0.4
+GaussianBlur:
+  blur_limit: 5
+  p: 0.25
+GaussNoise:
+  std_range:
+    - 0.01
+    - 0.06
+  p: 0.35
+ImageCompression:
+  quality_range:
+    - 45
+    - 95
+  p: 0.3
+Rotate:
+  limit: 8
+  p: 0.3
+Affine:
+  scale:
+    - 0.90
+    - 1.10
+  translate_percent:
+    - -0.05
+    - 0.05
+  rotate:
+    - -5
+    - 5
+  shear:
+    - -3
+    - 3
+  p: 0.3

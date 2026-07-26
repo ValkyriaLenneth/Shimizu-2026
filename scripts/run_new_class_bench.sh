@@ -1,0 +1,1 @@
+../systems/rfdetr/scripts/run_new_class_bench.sh

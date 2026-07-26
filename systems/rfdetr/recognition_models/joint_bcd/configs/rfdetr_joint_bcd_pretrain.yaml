@@ -1,0 +1,46 @@
+dataset:
+  name: rfdetr_joint_bcd_20260725_split91_crop2_test_as_valid
+  dir: data/rfdetr_joint_bcd_20260725_split91_crop2_test_as_valid
+  source_yolo_dataset: >-
+    union of data/rfdetr_brace_bcd_20260725_split91_crop2_test_as_valid and
+    data/rfdetr_column_base_bcd_20260725_split91_crop2_test_as_valid
+  note: >-
+    Joint B/C/D pretraining corpus over ブレース and 柱脚. This model is never
+    deployed - the architecture is one recognition model per element category. It
+    exists only to give the two per-category fine-tunes an initialization that has
+    seen 1907 training images instead of 264 and 203, since the damage-grade
+    semantics are shared across elements. Per-category test splits remain the
+    reporting basis; this dataset's valid/test are merged only so RF-DETR has
+    loaders during pretraining.
+
+classes:
+  0: 損傷程度B
+  1: 損傷程度C
+  2: 損傷程度D
+
+selection_policy:
+  primary_metric: valid/mAP_50
+  note: >-
+    Pretraining is selected on threshold-free mAP because it is an initialization,
+    not an operating point. Recall-first threshold work happens on the fine-tuned
+    per-category models.
+
+training_defaults:
+  epochs: 40
+  num_workers: 8
+  eval_interval: 1
+  checkpoint_interval: 1
+  tensorboard: true
+  wandb: false
+  run_test: true
+  test_each_epoch: false
+  save_epoch_pth: true
+  trainer_precision: 16-mixed
+
+experiments:
+  medium:
+    model_size: medium
+    batch_size: 28
+    grad_accum_steps: 1
+    lr: 0.0001
+    output_dir: outputs/rfdetr_single_crack/joint_bcd_medium_20260725_split91_crop2

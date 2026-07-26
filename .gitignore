@@ -77,3 +77,9 @@ coarse_router_yolov9/yolov9/.git/
 /handoff_20260519/shimizu_20260519_router_models_and_results
 /result/shimizu_building_cls_results_20260425
 /result/shimizu_training_results_models_tests_20260425
+
+# Client-delivered image data for the ブレース / 柱脚 categories. Pixels stay out of
+# git; the split that references them is reproducible from data/frozen/*.lock.json
+# and the handoff package in .local_artifacts/.
+data/new_classes_paired_20260724/
+data/downloads/

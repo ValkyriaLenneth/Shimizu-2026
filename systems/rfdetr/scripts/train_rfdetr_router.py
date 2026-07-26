@@ -24,7 +24,12 @@ MODEL_CLASSES = {
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", default="configs/rfdetr_router_base_aug_v2.yaml")
-    parser.add_argument("--experiment", choices=["small", "medium"], default="small")
+    # Any key defined under `experiments:` in the config is selectable. The old
+    # hardcoded choices=["small", "medium"] made every other key unreachable,
+    # including `large` and the `alt` experiment in the rc_wall report finetune
+    # config. The name is validated against the config instead, in
+    # build_train_options, so a typo still fails loudly.
+    parser.add_argument("--experiment", default="small")
     parser.add_argument("--dataset-dir", default="")
     parser.add_argument("--output-dir", default="")
     parser.add_argument("--model-size", choices=sorted(MODEL_CLASSES), default="")
@@ -33,6 +38,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--batch-size", default="", help="positive integer or 'auto'")
     parser.add_argument("--grad-accum-steps", type=int, default=0)
     parser.add_argument("--lr", type=float, default=0.0)
+    # RF-DETR carries a separate backbone learning rate (TrainConfig.lr_encoder,
+    # default 1.5e-4) which --lr does NOT touch. Every "low learning rate"
+    # experiment before 2026-07-25 therefore lowered only the decoder while the
+    # DINOv2 encoder kept training at 1.5e-4, five times faster. Exposed here so
+    # the two can be set together, or the encoder frozen outright.
+    parser.add_argument("--lr-encoder", type=float, default=0.0)
+    parser.add_argument("--freeze-encoder", action="store_true")
     parser.add_argument("--num-workers", type=int, default=-1)
     parser.add_argument("--resolution", type=int, default=0)
     parser.add_argument("--num-queries", type=int, default=0)
@@ -75,7 +87,13 @@ def resolve_path(value: str | Path, repo: Path) -> Path:
 def build_train_options(args: argparse.Namespace, repo: Path) -> dict[str, Any]:
     cfg = load_config(resolve_path(args.config, repo))
     defaults = cfg.get("training_defaults", {}) or {}
-    exp = (cfg.get("experiments", {}) or {}).get(args.experiment, {})
+    experiments = cfg.get("experiments", {}) or {}
+    if experiments and args.experiment not in experiments:
+        raise ValueError(
+            f"experiment {args.experiment!r} is not defined in {args.config}; "
+            f"available: {', '.join(sorted(experiments))}"
+        )
+    exp = experiments.get(args.experiment, {})
     dataset_cfg = cfg.get("dataset", {}) or {}
 
     dataset_dir = args.dataset_dir or dataset_cfg.get("dir")
@@ -133,6 +151,10 @@ def build_train_options(args: argparse.Namespace, repo: Path) -> dict[str, Any]:
         options["resolution"] = args.resolution
     if args.num_queries:
         options["num_queries"] = args.num_queries
+    if args.lr_encoder > 0:
+        options["lr_encoder"] = args.lr_encoder
+    if args.freeze_encoder:
+        options["freeze_encoder"] = True
     if args.focal_alpha >= 0:
         options["focal_alpha"] = args.focal_alpha
     if args.set_cost_class >= 0:
@@ -243,6 +265,10 @@ def main() -> int:
     model_kwargs: dict[str, Any] = {}
     if "num_queries" in options:
         model_kwargs["num_queries"] = int(options["num_queries"])
+    # freeze_encoder lives on ModelConfig, not TrainConfig, so it has to reach the
+    # constructor rather than model.train().
+    if options.pop("freeze_encoder", False):
+        model_kwargs["freeze_encoder"] = True
     model = build_model(model_size, checkpoint, model_kwargs)
     model.train(**options)
     return 0

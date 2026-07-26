@@ -1,0 +1,99 @@
+dataset:
+  name: rfdetr_column_base_bcd_20260725_test_as_valid
+  dir: data/rfdetr_column_base_bcd_20260725_test_as_valid
+  source_yolo_dataset: data/new_classes_paired_20260724/column_base
+  # Frozen 2026-07-25 by systems/rfdetr/scripts/freeze_new_class_datasets.py.
+  # Content digests live in data/frozen/new_classes_20260725.lock.json; run that
+  # script with --check before trusting a comparison against a stored number.
+  note: >-
+    Column-base B/C/D dataset from the 2026-07-17 CVAT delivery, deduplicated by
+    image content and 1:1 matched to the raw images. Empty labels are dropped by
+    client decision, so every image is assumed to contain damage. One fixed
+    train/test split at 8:2 on scene groups, so near-identical views of one scene
+    cannot straddle the two; valid mirrors test, matching the existing downstream
+    convention of using the official test split as valid too.
+    The 8:2 ratio is deliberate rather than the project's usual 9:1: at 9:1 this
+    test split held only 4 grade-D boxes, which quantises D recall to steps of
+    0.25 and cannot support incremental tuning.
+    Cross-validation was dropped on 2026-07-25 in favour of this single split.
+
+classes:
+  0: 柱脚の損傷程度B
+  1: 柱脚の損傷程度C
+  2: 柱脚の損傷程度D
+
+selection_policy:
+  primary_metric: test/recall
+  # Client requirement 2026-07-25: recall-first, overall recall >= 0.80.
+  # Precision only has to stay respectable - the four delivered RF-DETR models
+  # shipped with precision between 0.596 and 0.824, so 0.60 is the floor.
+  official_targets:
+    overall_recall: 0.800
+    precision_floor: 0.600
+  guardrail_metrics:
+    - test/mAP_50
+    - test/mAP_50_95
+    - test/precision
+    - per_class_B_recall
+    - per_class_C_recall
+    - per_class_D_recall
+    - false_negative_count
+  # Selection must follow the established downstream procedure, because the
+  # automatic checkpoint_best_total.pth is chosen by mAP, not recall-first:
+  #   1. sweep_rfdetr_router_test.py over the saved epoch checkpoints
+  #   2. evaluate_rfdetr_class_threshold_grid.py at match IoU 0.229 for
+  #      per-class B/C/D thresholds
+  # The delivered numbers for the other four categories are per-class
+  # threshold-tuned results at IoU 0.229, so only that protocol is comparable.
+  match_iou: 0.229
+  reference_delivered_models:
+    tenjo: {precision: 0.596, recall: 0.875, B: 0.818, C: 0.917, D: 0.889}
+    rc_wall: {precision: 0.722, recall: 0.812, B: 0.857, C: 0.600, D: 1.000}
+    inner_wall: {precision: 0.824, recall: 0.848, B: 0.750, C: 1.000, D: 0.889}
+    rc_column: {precision: 0.661, recall: 0.826, B: 0.750, C: 0.727, D: 1.000}
+  caveats:
+    - test holds 45 images and 72 boxes (B 47 / C 15 / D 10); report the sample
+      size alongside per-class recall, and treat D recall as indicative - it still
+      moves in 10-point steps
+    - one true positive moves overall recall by 1/72 = 0.014, so F1 differences
+      below roughly 0.03 are not resolvable on this split
+    - train holds only 29 D boxes, so D is the expected bottleneck and the first
+      candidate for oversampling if recall is short
+    - 6 of the 11 documented grade contradictions are 柱脚 B-vs-C pairs, so a
+      B/C confusion in the results may reflect the label set rather than the model
+# Identical to the RC柱 / RC壁 / 内壁 / 天井 baselines: RFDETRMedium, 80 epochs,
+# batch 28, no gradient accumulation, lr 1e-4, 16-mixed, default resolution.
+# Resolution is deliberately left at the default - raising it to 896 was already
+# tried for tenjo and rc_wall and is recorded as giving no meaningful gain.
+training_defaults:
+  epochs: 80
+  num_workers: 8
+  eval_interval: 1
+  checkpoint_interval: 1
+  tensorboard: true
+  wandb: false
+  run_test: true
+  test_each_epoch: false
+  save_epoch_pth: true
+  trainer_precision: 16-mixed
+  # No external_eval_profiles: the 内壁 / RC壁 / RC柱 baselines carry none. Only the
+  # tenjo baseline defines them, and those pin device: cpu and run after every
+  # epoch, which cost ~22 minutes per epoch here with both GPUs idle. Threshold
+  # work happens after training instead, via the two scripts named above.
+
+experiments:
+  medium:
+    model_size: medium
+    batch_size: 28
+    grad_accum_steps: 1
+    lr: 0.0001
+    output_dir: outputs/rfdetr_single_crack/column_base_medium_bcd_20260725_test_as_valid
+  # RFDETRLarge trial. Effective batch is held at 28 to match the medium run, so
+  # backbone capacity is the only variable. Large will not fit at batch 28 on a
+  # 32 GB card, hence 14 x 2 accumulation.
+  large:
+    model_size: large
+    batch_size: 14
+    grad_accum_steps: 2
+    lr: 0.0001
+    output_dir: outputs/rfdetr_single_crack/column_base_large_bcd_20260725_test_as_valid
