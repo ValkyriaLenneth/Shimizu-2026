@@ -72,6 +72,8 @@ def build_test_objects(
     num_workers: int,
 ) -> tuple[Any, Any]:
     import rfdetr
+
+    from checkpoint_resolution import from_checkpoint_matched
     from rfdetr._namespace import _namespace_from_configs
     from rfdetr.config import TrainConfig
     from rfdetr.datasets import build_dataset
@@ -96,7 +98,7 @@ def build_test_objects(
         args["num_workers"] = num_workers
 
     train_config = TrainConfig(**args)
-    model = rfdetr.from_checkpoint(checkpoint_path)
+    model = from_checkpoint_matched(checkpoint_path)
     module = RFDETRModelModule(model.model_config, train_config)
     datamodule = RFDETRDataModule(model.model_config, train_config)
 

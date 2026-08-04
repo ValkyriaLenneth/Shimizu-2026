@@ -25,6 +25,8 @@ import os
 from collections import Counter, defaultdict
 from pathlib import Path
 
+from checkpoint_resolution import resolution_from_checkpoint
+
 os.environ.setdefault("HF_HOME", "/workspace/.hf_home")
 
 IMAGE_EXTS = {".bmp", ".jpg", ".jpeg", ".png", ".tif", ".tiff", ".webp"}
@@ -95,7 +97,15 @@ def main() -> None:
         raise ValueError("--thresholds needs three comma-separated values")
     min_threshold = min(thresholds)
 
-    model = RFDETRMedium(pretrain_weights=args.checkpoint, num_classes=3, device=args.device)
+    # Resolution is not stored in the checkpoint args; recover it from the
+    # positional-encoding tensor so eval preprocessing matches training.
+    _res = resolution_from_checkpoint(args.checkpoint)
+    _res_kw = {"resolution": _res} if _res is not None else {}
+    if _res is not None:
+        print(f"  [resolution] building model at {_res} px (from checkpoint)")
+    model = RFDETRMedium(
+        pretrain_weights=args.checkpoint, num_classes=3, device=args.device, **_res_kw
+    )
 
     split_dir = Path(args.dataset_dir) / args.split
     images = sorted(p for p in (split_dir / "images").iterdir() if p.suffix.lower() in IMAGE_EXTS)

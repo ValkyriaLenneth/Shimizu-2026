@@ -150,11 +150,12 @@ def main() -> int:
         os.environ["CUDA_VISIBLE_DEVICES"] = ""
 
     import torch
-    import rfdetr
+
+    from checkpoint_resolution import from_checkpoint_matched
 
     if args.device.startswith("cuda:"):
         torch.cuda.set_device(int(args.device.split(":", 1)[1]))
-    model = rfdetr.from_checkpoint(args.checkpoint)
+    model = from_checkpoint_matched(args.checkpoint)
     model_ctx = getattr(model, "model", None)
     if model_ctx is not None and hasattr(model_ctx, "device"):
         model_ctx.device = torch.device(args.device)

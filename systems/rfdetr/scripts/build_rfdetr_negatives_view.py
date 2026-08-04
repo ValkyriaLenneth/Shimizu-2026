@@ -30,6 +30,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import random
 import shutil
 from collections import Counter
 from pathlib import Path
@@ -62,6 +63,23 @@ def parse_args() -> argparse.Namespace:
     # boxes on these images, but the baseline model is effectively an element
     # detector (that is the shortcut it learned), so its own detections localise
     # the intact elements for us.
+    # --- S1 synthetic negatives -------------------------------------------------
+    # Measured 2026-08-04: at the delivery threshold the brace model fires on 0% of
+    # the 59 real training negatives but on 95.7% of S1 counterfactual negatives -
+    # the same scenes with the damage repaired away. The real negatives have been
+    # memorised and carry no gradient left; the synthetic ones are all still errors.
+    # Adding more negatives is not an option (the dose-response saturates at 31-35%
+    # and turns harmful by 48%), so the useful move is to REPLACE a share of the
+    # real negatives with synthetic ones: the negative fraction is unchanged, the
+    # information content is not.
+    parser.add_argument("--synthetic-pool", default="",
+                        help="directory holding images/ and labels/ of QC-accepted S1 negatives")
+    parser.add_argument("--synthetic-replace", type=float, default=0.0,
+                        help="fraction of real negatives to swap out for synthetic ones (0-1)")
+    parser.add_argument("--synthetic-add", type=int, default=0,
+                        help="instead of replacing, append this many synthetic negatives")
+    parser.add_argument("--synthetic-seed", type=int, default=20260804,
+                        help="fixes which negatives are swapped, so a rebuild reproduces")
     parser.add_argument("--crop-negatives", action="store_true",
                         help="emit crops around baseline detections instead of whole images")
     parser.add_argument("--crop-context", type=float, default=3.0,
@@ -183,9 +201,49 @@ def main() -> int:
         paired_images = {p.stem: p for p in (Path(args.paired_root) / category / "images").iterdir()
                          if p.suffix.lower() in IMAGE_EXTS}
 
+        # Synthetic pool, and how many real negatives it displaces. The eligible
+        # real negatives are resolved first so the swap count is a share of what
+        # would actually have been emitted, not of the raw manifest list.
+        synth_pool: list[Path] = []
+        if args.synthetic_pool:
+            pool_dir = Path(args.synthetic_pool)
+            cat_dir = pool_dir / category if (pool_dir / category).is_dir() else pool_dir
+            img_dir = cat_dir / "images" if (cat_dir / "images").is_dir() else cat_dir
+            synth_pool = sorted(p for p in img_dir.iterdir() if p.suffix.lower() in IMAGE_EXTS)
+            # A synthetic negative inherits its source photograph's scene, so one
+            # derived from a test image leaks that scene as surely as copying it.
+            src_group = {r["stem"]: r["scene_group_id"] for r in manifest["records"]
+                         if r["category"] == category}
+            kept = []
+            for p in synth_pool:
+                origin = p.stem.replace("_s1neg", "")
+                if src_group.get(origin) in test_groups:
+                    skipped_synth_leak_local = True
+                else:
+                    kept.append(p)
+            leaked = len(synth_pool) - len(kept)
+            synth_pool = kept
+            if leaked:
+                print(f"  [{category}] dropped {leaked} synthetic negatives whose source "
+                      f"scene is in test")
+
+        eligible = [r for r in negatives
+                    if r["scene_group_id"] not in test_groups
+                    and audit_score.get(r["stem"], 0.0) <= args.max_audit_score]
+        n_swap = 0
+        if synth_pool and args.synthetic_replace > 0:
+            n_swap = min(len(synth_pool), int(round(len(eligible) * args.synthetic_replace)))
+        rng = random.Random(args.synthetic_seed)
+        dropped_for_synth: set[str] = set()
+        if n_swap:
+            dropped_for_synth = set(rng.sample([r["stem"] for r in eligible], n_swap))
+
         added, skipped_leak, skipped_score, missing = 0, [], [], []
+        synth_added = 0
         for record in negatives:
             stem = record["stem"]
+            if stem in dropped_for_synth:
+                continue
             if record["scene_group_id"] in test_groups:
                 skipped_leak.append(stem)
                 continue
@@ -220,6 +278,17 @@ def main() -> int:
                 (dst / "train" / "labels" / f"{name}.txt").write_text("", encoding="utf-8")
                 added += 1
 
+        # Emit the synthetic negatives. Replacement mode takes exactly as many as
+        # were dropped, so the negative fraction is untouched and the only variable
+        # is which negatives the model sees.
+        n_emit = n_swap if n_swap else min(args.synthetic_add, len(synth_pool))
+        for image in synth_pool[:n_emit]:
+            target = dst / "train" / "images" / f"{image.stem}{image.suffix}"
+            link(image, target)
+            (dst / "train" / "labels" / f"{image.stem}.txt").write_text("", encoding="utf-8")
+            added += 1
+            synth_added += 1
+
         names = {i: f"{CATEGORY_LABELS[category]}の損傷程度{g}" for i, g in GRADES.items()}
         (dst / "data.yaml").write_text(
             yaml.safe_dump(
@@ -232,6 +301,9 @@ def main() -> int:
             "source": str(src),
             "train_positive_images": stats["train"]["images"],
             "negatives_added": added,
+            "synthetic_negatives": synth_added,
+            "real_negatives_replaced": n_swap,
+            "synthetic_pool_size": len(synth_pool),
             "train_total_images": stats["train"]["images"] + added,
             "negative_fraction": round(added / max(1, stats["train"]["images"] + added), 3),
             "skipped_scene_group_leak": skipped_leak,
@@ -246,6 +318,9 @@ def main() -> int:
         print(f"[{category}] train {stats['train']['images']} positives + {added} negatives "
               f"= {info['train_total_images']} ({info['negative_fraction']:.0%} negative); "
               f"test {stats['test']['images']} imgs / {stats['test']['boxes']} boxes unchanged")
+        if synth_added:
+            print(f"  of which {synth_added} synthetic (replaced {n_swap} real negatives; "
+                  f"pool held {len(synth_pool)})")
         if skipped_leak:
             print(f"  skipped {len(skipped_leak)} for scene-group leakage")
         if skipped_score:

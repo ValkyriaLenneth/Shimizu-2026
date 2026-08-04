@@ -10,9 +10,9 @@ import os
 from pathlib import Path
 
 import torch
-import rfdetr
 from PIL import Image
 
+from checkpoint_resolution import from_checkpoint_matched
 from evaluate_rfdetr_threshold_sweep import (
     IMAGE_EXTS,
     detections_to_predictions,
@@ -46,7 +46,7 @@ def main() -> int:
     thresholds = [float(item) for item in args.threshold_grid.split(",") if item.strip()]
     min_threshold = min(thresholds)
 
-    model = rfdetr.from_checkpoint(args.checkpoint)
+    model = from_checkpoint_matched(args.checkpoint)
     model_ctx = getattr(model, "model", None)
     if model_ctx is not None and hasattr(model_ctx, "device"):
         model_ctx.device = torch.device(args.device)

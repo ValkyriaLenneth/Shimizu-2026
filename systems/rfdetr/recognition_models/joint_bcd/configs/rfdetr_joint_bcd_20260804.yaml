@@ -1,0 +1,32 @@
+dataset:
+  name: rfdetr_joint_bcd_20260804_neg_test_as_valid
+  dir: data/rfdetr_joint_bcd_20260804_neg_test_as_valid
+  note: >-
+    Joint B/C/D pretraining corpus rebuilt 2026-08-04 on the FROZEN 8:2 split
+    (neg2x for brace, neg for column_base), replacing the 2026-07-25 split91_crop2
+    corpus. Crop augmentation is deliberately excluded: the 2026-07-26 record shows
+    crop views amplify the element/damage shortcut rather than break it. This model
+    is never deployed; it only supplies an initialisation that has seen both
+    categories, because the 2026-08-04 capacity experiment showed the binding
+    constraint is data volume, not model capacity.
+classes:
+  0: 損傷程度B
+  1: 損傷程度C
+  2: 損傷程度D
+training_defaults:
+  epochs: 20
+  num_workers: 8
+  eval_interval: 1
+  checkpoint_interval: 1
+  tensorboard: false
+  run_test: false
+  test_each_epoch: false
+  save_epoch_pth: true
+  trainer_precision: 16-mixed
+experiments:
+  medium:
+    model_size: medium
+    batch_size: 28
+    grad_accum_steps: 1
+    lr: 0.0001
+    output_dir: outputs/rfdetr_new_classes/joint/pretrain

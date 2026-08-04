@@ -45,6 +45,27 @@ def parse_args() -> argparse.Namespace:
     # the two can be set together, or the encoder frozen outright.
     parser.add_argument("--lr-encoder", type=float, default=0.0)
     parser.add_argument("--freeze-encoder", action="store_true")
+    # Regularisation. Measured 2026-08-04: train recall 0.995 vs test 0.590 on
+    # brace (394 boxes, only 2 missed, zero misses in the smallest quartile) is
+    # extreme memorisation, yet the delivered runs used drop_path=0.0 - stochastic
+    # depth entirely off - and weight_decay 1e-4. Neither was ever exposed here, so
+    # none of the six training-side interventions in the 2026-07-26 table touched
+    # them. Stochastic depth is the regulariser reported to gain most on small
+    # corpora, which is the regime this project is in.
+    # Background Recalibration: 27% of column_base training images carry damage
+    # the annotators did not box, and focal loss pushes exactly those - the ones
+    # the model is most confident about - hardest toward background. See
+    # systems/rfdetr/scripts/brl_patch.py.
+    parser.add_argument("--brl-threshold", type=float, default=0.0,
+                        help="ignore unmatched queries above this confidence; 0 disables")
+    parser.add_argument("--brl-mode", default="ignore", choices=["ignore", "flip", "pu"],
+                        help="how to treat confident unmatched queries")
+    parser.add_argument("--brl-pu-keep", type=float, default=0.25,
+                        help="residual background weight in pu mode")
+    parser.add_argument("--drop-path", type=float, default=-1.0,
+                        help="stochastic depth rate; RF-DETR default is 0.0 (off)")
+    parser.add_argument("--weight-decay", type=float, default=-1.0,
+                        help="AdamW weight decay; RF-DETR default is 1e-4")
     parser.add_argument("--num-workers", type=int, default=-1)
     parser.add_argument("--resolution", type=int, default=0)
     parser.add_argument("--num-queries", type=int, default=0)
@@ -153,6 +174,10 @@ def build_train_options(args: argparse.Namespace, repo: Path) -> dict[str, Any]:
         options["num_queries"] = args.num_queries
     if args.lr_encoder > 0:
         options["lr_encoder"] = args.lr_encoder
+    if args.drop_path >= 0:
+        options["drop_path"] = args.drop_path
+    if args.weight_decay >= 0:
+        options["weight_decay"] = args.weight_decay
     if args.freeze_encoder:
         options["freeze_encoder"] = True
     if args.focal_alpha >= 0:
@@ -228,6 +253,9 @@ def build_model(model_size: str, checkpoint: str = "", model_kwargs: dict[str, A
 
 def main() -> int:
     args = parse_args()
+    if getattr(args, "brl_threshold", 0.0) > 0:
+        import brl_patch
+        brl_patch.apply(args.brl_threshold, args.brl_mode, args.brl_pu_keep)
     repo = Path.cwd()
     if str(repo) not in sys.path:
         sys.path.insert(0, str(repo))

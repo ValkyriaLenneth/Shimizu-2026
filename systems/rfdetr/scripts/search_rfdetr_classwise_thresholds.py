@@ -9,6 +9,8 @@ import sys
 from itertools import product
 from pathlib import Path
 
+from checkpoint_resolution import from_checkpoint_matched
+
 import torch
 import rfdetr
 from PIL import Image
@@ -57,7 +59,7 @@ def main() -> int:
     grids = parse_thresholds(args.class_thresholds, args.num_classes)
     min_threshold = min(min(values) for values in grids)
 
-    model = rfdetr.from_checkpoint(args.checkpoint)
+    model = from_checkpoint_matched(args.checkpoint)
     model_ctx = getattr(model, "model", None)
     if model_ctx is not None and hasattr(model_ctx, "device"):
         model_ctx.device = torch.device(args.device)

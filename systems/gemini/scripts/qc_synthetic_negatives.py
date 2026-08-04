@@ -50,10 +50,20 @@ JUDGE_SCHEMA = {
         "residual_at_repair_site": {"type": "string",
                                     "enum": ["none", "minor", "moderate", "severe"]},
         "residual_description": {"type": "string"},
+        # Added 2026-08-04. The two questions above are both satisfied by an edit
+        # that REBUILDS the member instead of repairing it, which is the dominant
+        # failure mode on steel: e-00085 had a severed brace replaced by a clean
+        # bolted connection and the judge passed it, describing the replacement
+        # approvingly. A rebuilt member is worse than a failed repair, because the
+        # image enters training labelled "no damage" while showing a component that
+        # does not exist in the real corpus.
+        "structure_preserved": {"type": "boolean"},
+        "structure_change_description": {"type": "string"},
         "confidence": {"type": "number"},
     },
     "required": ["damage_removed", "residual_at_repair_site",
-                 "residual_description", "confidence"],
+                 "residual_description", "structure_preserved",
+                 "structure_change_description", "confidence"],
 }
 
 # Asked WITHOUT the original alongside. Shown a pair, the judge reports "looks
@@ -121,6 +131,24 @@ and surface texture are visible.
    Ageing is NOT damage: rust staining without material loss, water stains, efflorescence,
    dirt, grime, mould, faded or chalky paint, discolouration, survey markings, chalk lines,
    handwriting, form-tie holes, joint lines, chamfers and casting seams.
+
+3. structure_preserved: is IMAGE 2 the SAME PHYSICAL OBJECT as IMAGE 1, only in a
+   sound condition? A valid repair changes surface state only - a crack is filled,
+   rust is cleaned off, a spall is made good. Answer FALSE if the member itself was
+   rebuilt or substituted in any way, for example:
+   - a bolt, nut, gusset plate, splice plate, weld or bracket appears that was not
+     in IMAGE 1, or one present in IMAGE 1 disappears
+   - the outline, width, cross-section or edge profile of the member changes
+   - a damaged or severed member is shown as a new, differently-shaped component
+   - a rod, pipe or bar changes into an object of another shape
+   Answer TRUE only if every structural element keeps its original shape, position
+   and count, and the only difference is the condition of the surface.
+   Be strict: when the geometry of a member looks different, answer false even if
+   the result looks like a plausible undamaged structure. A convincingly rebuilt
+   member is a WORSE outcome than a visibly failed repair.
+
+structure_change_description: if structure_preserved is false, name the component that
+   was added, removed or reshaped. Empty string otherwise.
 
 confidence: 0.0-1.0 in your overall assessment."""
 
@@ -345,6 +373,12 @@ def combine(local_verdict: str, flags: list[str], j: dict | None) -> tuple[str, 
     elif residual == "minor":
         verdict = "reject" if verdict == "reject" else "review"
         reasons.append("residual_minor")
+    # A rebuilt member is a hard reject, not a review: it enters training as a
+    # negative while showing structure the real corpus never contains, so the model
+    # would learn the fabricated component as evidence of soundness.
+    if j.get("structure_preserved") is False:
+        verdict = "reject"
+        reasons.append("geometry_changed")
     if j.get("looks_edited"):
         verdict = "reject" if verdict == "reject" else "review"
         reasons.append("looks_edited")
