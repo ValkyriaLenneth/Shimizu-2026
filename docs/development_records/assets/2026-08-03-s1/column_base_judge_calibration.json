@@ -1,0 +1,502 @@
+{
+  "summary": {
+    "negatives": {
+      "n": 16,
+      "damage_visible": 11,
+      "looks_edited": 0,
+      "inauthentic": 0,
+      "collateral": 11
+    },
+    "positives": {
+      "n": 16,
+      "damage_visible": 16,
+      "looks_edited": 0,
+      "inauthentic": 0,
+      "collateral": 16
+    }
+  },
+  "negatives": [
+    {
+      "file": "f-00113.jpg",
+      "judge": {
+        "damage_visible": false,
+        "damage_description": "No structural damage is visible on the inspected column base; only surface rust and staining are present.",
+        "worst_grade_if_any": "none",
+        "looks_edited": false,
+        "edit_evidence": "No signs of digital editing are present; the image appears entirely unaltered.",
+        "only_change_is_damage_removal": true,
+        "other_changes": "None.",
+        "authentic_survey_photo": true,
+        "confidence": 0.95
+      },
+      "error": null
+    },
+    {
+      "file": "f-00147.jpg",
+      "judge": {
+        "damage_visible": false,
+        "damage_description": "No structural damage is visible on the concrete pedestal. Only non-structural issues like water staining, rust stains, and minor surface dirt are present.",
+        "worst_grade_if_any": "none",
+        "looks_edited": false,
+        "edit_evidence": "There are no visible signs of digital editing or manipulation in the image.",
+        "only_change_is_damage_removal": false,
+        "other_changes": "The images appear to be completely identical. No edits or damage removals have been applied.",
+        "authentic_survey_photo": true,
+        "confidence": 1.0
+      },
+      "error": null
+    },
+    {
+      "file": "f-00183.jpg",
+      "judge": {
+        "damage_visible": true,
+        "damage_description": "Cracking along the top edge and a spall at the top right corner of the concrete pedestal remain visible.",
+        "worst_grade_if_any": "C",
+        "looks_edited": false,
+        "edit_evidence": "There is no evidence of digital editing; the images appear identical.",
+        "only_change_is_damage_removal": false,
+        "other_changes": "No changes were made. The images are completely identical, and the intended damage removal was not performed.",
+        "authentic_survey_photo": true,
+        "confidence": 1.0
+      },
+      "error": null
+    },
+    {
+      "file": "f-00105.jpg",
+      "judge": {
+        "damage_visible": false,
+        "damage_description": "There is no structural damage visible on the concrete pedestal or its attachments; only surface staining, dirt, and mild rust are present.",
+        "worst_grade_if_any": "none",
+        "looks_edited": false,
+        "edit_evidence": "There are no visible signs of digital editing or manipulation.",
+        "only_change_is_damage_removal": false,
+        "other_changes": "The images appear to be completely identical with no visible changes made.",
+        "authentic_survey_photo": true,
+        "confidence": 0.95
+      },
+      "error": null
+    },
+    {
+      "file": "f-00093.jpg",
+      "judge": {
+        "damage_visible": true,
+        "damage_description": "The rust on the steel column base plate is still visible, as no changes were made to the image.",
+        "worst_grade_if_any": "B",
+        "looks_edited": false,
+        "edit_evidence": "No signs of digital editing are present.",
+        "only_change_is_damage_removal": false,
+        "other_changes": "IMAGE 1 and IMAGE 2 are completely identical. The automated repair failed to make any changes.",
+        "authentic_survey_photo": true,
+        "confidence": 0.95
+      },
+      "error": null
+    },
+    {
+      "file": "f-00173.jpg",
+      "judge": {
+        "damage_visible": false,
+        "damage_description": "No structural damage is visible on the inspected element; only surface rust staining and dirt are present.",
+        "worst_grade_if_any": "none",
+        "looks_edited": false,
+        "edit_evidence": "There are no signs of digital alteration; the textures and lighting are natural.",
+        "only_change_is_damage_removal": true,
+        "other_changes": "The original and edited images appear to be completely identical.",
+        "authentic_survey_photo": true,
+        "confidence": 1.0
+      },
+      "error": null
+    },
+    {
+      "file": "f-00097.jpg",
+      "judge": {
+        "damage_visible": true,
+        "damage_description": "Corrosion and rust are visible at the base of the steel column.",
+        "worst_grade_if_any": "C",
+        "looks_edited": false,
+        "edit_evidence": "No signs of digital editing are present; the image appears entirely natural.",
+        "only_change_is_damage_removal": false,
+        "other_changes": "No changes were made between the original and the provided image; they appear identical.",
+        "authentic_survey_photo": true,
+        "confidence": 0.95
+      },
+      "error": null
+    },
+    {
+      "file": "f-00092.jpg",
+      "judge": {
+        "damage_visible": true,
+        "damage_description": "A prominent vertical crack on the left side and horizontal cracks near the top of the concrete pedestal are still clearly visible.",
+        "worst_grade_if_any": "B",
+        "looks_edited": false,
+        "edit_evidence": "There are no signs of digital editing; the image appears completely untouched.",
+        "only_change_is_damage_removal": false,
+        "other_changes": "No changes were made to the image; it is identical to the original and the damage was not removed.",
+        "authentic_survey_photo": true,
+        "confidence": 1.0
+      },
+      "error": null
+    },
+    {
+      "file": "f-00230.jpg",
+      "judge": {
+        "damage_visible": true,
+        "damage_description": "Large area of spalling on the concrete foundation and severe corrosion on the steel base plate remain visible.",
+        "worst_grade_if_any": "C",
+        "looks_edited": false,
+        "edit_evidence": "There are no visible signs of digital editing.",
+        "only_change_is_damage_removal": false,
+        "other_changes": "The image is completely identical to the original; no damage was removed.",
+        "authentic_survey_photo": true,
+        "confidence": 1.0
+      },
+      "error": null
+    },
+    {
+      "file": "f-00319.jpg",
+      "judge": {
+        "damage_visible": true,
+        "damage_description": "Spalling and broken concrete along the edge of the foundation adjacent to the column base.",
+        "worst_grade_if_any": "C",
+        "looks_edited": false,
+        "edit_evidence": "No signs of digital editing are visible; the image appears identical to the original.",
+        "only_change_is_damage_removal": false,
+        "other_changes": "No changes were made; the original damage remains untouched and the images are identical.",
+        "authentic_survey_photo": true,
+        "confidence": 1.0
+      },
+      "error": null
+    },
+    {
+      "file": "f-00158.jpg",
+      "judge": {
+        "damage_visible": true,
+        "damage_description": "Corrosion and rust flaking along the bottom edge of the steel column.",
+        "worst_grade_if_any": "B",
+        "looks_edited": false,
+        "edit_evidence": "The image appears identical to the original, with no signs of digital editing.",
+        "only_change_is_damage_removal": true,
+        "other_changes": "No changes were made between the two images.",
+        "authentic_survey_photo": true,
+        "confidence": 0.95
+      },
+      "error": null
+    },
+    {
+      "file": "f-00098.jpg",
+      "judge": {
+        "damage_visible": true,
+        "damage_description": "Severe corrosion and thick rust scale on the steel column base plate and its junction with the concrete pedestal.",
+        "worst_grade_if_any": "C",
+        "looks_edited": false,
+        "edit_evidence": "No visible edits; the image appears completely identical to the original.",
+        "only_change_is_damage_removal": true,
+        "other_changes": "None, the images are identical.",
+        "authentic_survey_photo": true,
+        "confidence": 0.95
+      },
+      "error": null
+    },
+    {
+      "file": "f-00065.jpg",
+      "judge": {
+        "damage_visible": false,
+        "damage_description": "No structural damage is visible on the column base; only superficial rust and dirt are present.",
+        "worst_grade_if_any": "none",
+        "looks_edited": false,
+        "edit_evidence": "No evidence of digital editing is visible; the image appears identical to the original.",
+        "only_change_is_damage_removal": true,
+        "other_changes": "No changes detected between the two images.",
+        "authentic_survey_photo": true,
+        "confidence": 0.95
+      },
+      "error": null
+    },
+    {
+      "file": "f-00278.jpg",
+      "judge": {
+        "damage_visible": true,
+        "damage_description": "Heavy corrosion on the anchor bolts and base plate.",
+        "worst_grade_if_any": "C",
+        "looks_edited": false,
+        "edit_evidence": "No evidence of digital editing is visible.",
+        "only_change_is_damage_removal": false,
+        "other_changes": "The images are identical; no changes were made and the damage remains intact.",
+        "authentic_survey_photo": true,
+        "confidence": 1.0
+      },
+      "error": null
+    },
+    {
+      "file": "f-00203.jpg",
+      "judge": {
+        "damage_visible": true,
+        "damage_description": "Severe corrosion and significant section loss at the base of the steel column, with detached rust flakes resting on the concrete pedestal.",
+        "worst_grade_if_any": "D",
+        "looks_edited": false,
+        "edit_evidence": "No signs of digital editing are visible.",
+        "only_change_is_damage_removal": false,
+        "other_changes": "No changes were made; the images are identical.",
+        "authentic_survey_photo": true,
+        "confidence": 1.0
+      },
+      "error": null
+    },
+    {
+      "file": "f-00061.jpg",
+      "judge": {
+        "damage_visible": true,
+        "damage_description": "A horizontal crack remains clearly visible on the lower portion of the concrete pedestal's front face.",
+        "worst_grade_if_any": "C",
+        "looks_edited": false,
+        "edit_evidence": "No digital editing artifacts are visible; the second image appears completely identical to the first.",
+        "only_change_is_damage_removal": false,
+        "other_changes": "No changes of any kind are observable; the intended damage removal did not occur.",
+        "authentic_survey_photo": true,
+        "confidence": 0.95
+      },
+      "error": null
+    }
+  ],
+  "positives": [
+    {
+      "file": "f-00312.jpg",
+      "judge": {
+        "damage_visible": true,
+        "damage_description": "Severe concrete spalling and section loss at the base of the column, exposing the steel base plate, anchor bolts, and transverse reinforcement.",
+        "worst_grade_if_any": "D",
+        "looks_edited": false,
+        "edit_evidence": "No evidence of digital editing is visible; the image appears untouched.",
+        "only_change_is_damage_removal": false,
+        "other_changes": "The images are identical. The automated repair failed to make any changes.",
+        "authentic_survey_photo": true,
+        "confidence": 1.0
+      },
+      "error": null
+    },
+    {
+      "file": "f-00060.jpg",
+      "judge": {
+        "damage_visible": true,
+        "damage_description": "Peeling paint and surface corrosion are visible on the steel column.",
+        "worst_grade_if_any": "B",
+        "looks_edited": false,
+        "edit_evidence": "There are no visible signs of digital editing.",
+        "only_change_is_damage_removal": false,
+        "other_changes": "The images are completely identical; no damage was removed and no changes were made.",
+        "authentic_survey_photo": true,
+        "confidence": 1.0
+      },
+      "error": null
+    },
+    {
+      "file": "f-00028.jpg",
+      "judge": {
+        "damage_visible": true,
+        "damage_description": "Extensive spalling and cracking of the concrete pedestal beneath the steel base plate, leaving a large void and loose concrete debris.",
+        "worst_grade_if_any": "C",
+        "looks_edited": false,
+        "edit_evidence": "There is no evidence of digital editing; the image appears completely unaltered.",
+        "only_change_is_damage_removal": false,
+        "other_changes": "No changes were made; the images are identical and the damage remains entirely visible.",
+        "authentic_survey_photo": true,
+        "confidence": 1.0
+      },
+      "error": null
+    },
+    {
+      "file": "f-00045.jpg",
+      "judge": {
+        "damage_visible": true,
+        "damage_description": "Severe concrete spalling exposing the aggregate and a severely corroded metal embedment or anchor.",
+        "worst_grade_if_any": "C",
+        "looks_edited": false,
+        "edit_evidence": "No digital artifacts or alterations are visible; the image appears identical to the original.",
+        "only_change_is_damage_removal": false,
+        "other_changes": "No changes were made to the image; the original damage remains completely unaltered.",
+        "authentic_survey_photo": true,
+        "confidence": 0.95
+      },
+      "error": null
+    },
+    {
+      "file": "f-00207.jpg",
+      "judge": {
+        "damage_visible": true,
+        "damage_description": "Severe spalling exposing anchor bolts and vertical cracks in the concrete column and pedestal remain untouched.",
+        "worst_grade_if_any": "C",
+        "looks_edited": false,
+        "edit_evidence": "No signs of editing; the image appears identical to the original.",
+        "only_change_is_damage_removal": false,
+        "other_changes": "No changes were made at all; the images are identical.",
+        "authentic_survey_photo": true,
+        "confidence": 1.0
+      },
+      "error": null
+    },
+    {
+      "file": "f-00287.jpg",
+      "judge": {
+        "damage_visible": true,
+        "damage_description": "Spalling and cracking are visible on the concrete pedestal directly beneath the steel base plate.",
+        "worst_grade_if_any": "C",
+        "looks_edited": false,
+        "edit_evidence": "There is no evidence of digital editing; the image appears completely untouched.",
+        "only_change_is_damage_removal": false,
+        "other_changes": "The images are identical. The automated repair failed to remove the damage or make any changes.",
+        "authentic_survey_photo": true,
+        "confidence": 1.0
+      },
+      "error": null
+    },
+    {
+      "file": "f-00305.jpg",
+      "judge": {
+        "damage_visible": true,
+        "damage_description": "Large spalled area with missing material and exposed interior at the corner of the column base, with corresponding debris on the ground.",
+        "worst_grade_if_any": "C",
+        "looks_edited": false,
+        "edit_evidence": "The image does not show any signs of digital alteration.",
+        "only_change_is_damage_removal": false,
+        "other_changes": "No changes have been made; the image is identical to the original and retains all damage.",
+        "authentic_survey_photo": true,
+        "confidence": 1.0
+      },
+      "error": null
+    },
+    {
+      "file": "f-00008.jpg",
+      "judge": {
+        "damage_visible": true,
+        "damage_description": "A vertical crack is still clearly visible on the side face of the concrete pedestal beneath the base plate.",
+        "worst_grade_if_any": "B",
+        "looks_edited": false,
+        "edit_evidence": "There are no visible signs of digital editing; the image appears to be identical to the original.",
+        "only_change_is_damage_removal": false,
+        "other_changes": "No changes were made to the image. The original image was returned unmodified and the structural damage was not removed.",
+        "authentic_survey_photo": true,
+        "confidence": 0.95
+      },
+      "error": null
+    },
+    {
+      "file": "f-00210.jpg",
+      "judge": {
+        "damage_visible": true,
+        "damage_description": "Significant spalling and concrete section loss on the pedestal at the column base.",
+        "worst_grade_if_any": "C",
+        "looks_edited": false,
+        "edit_evidence": "No signs of editing are visible.",
+        "only_change_is_damage_removal": false,
+        "other_changes": "No changes were made; the image is identical to the original and the damage remains untouched.",
+        "authentic_survey_photo": true,
+        "confidence": 1.0
+      },
+      "error": null
+    },
+    {
+      "file": "f-00226.jpg",
+      "judge": {
+        "damage_visible": true,
+        "damage_description": "Severe concrete spalling and a large cavity remain fully visible.",
+        "worst_grade_if_any": "C",
+        "looks_edited": false,
+        "edit_evidence": "No visible edits; identical to original.",
+        "only_change_is_damage_removal": false,
+        "other_changes": "None. The image is identical to the original.",
+        "authentic_survey_photo": true,
+        "confidence": 0.9
+      },
+      "error": null
+    },
+    {
+      "file": "f-00077.jpg",
+      "judge": {
+        "damage_visible": true,
+        "damage_description": "A prominent crack is visible on the front face of the concrete pedestal, and there is significant corrosion on the steel column base and attached components.",
+        "worst_grade_if_any": "C",
+        "looks_edited": false,
+        "edit_evidence": "No signs of digital editing are visible.",
+        "only_change_is_damage_removal": false,
+        "other_changes": "The images appear perfectly identical; no changes were made.",
+        "authentic_survey_photo": true,
+        "confidence": 0.99
+      },
+      "error": null
+    },
+    {
+      "file": "f-00277.jpg",
+      "judge": {
+        "damage_visible": true,
+        "damage_description": "Severe spalling and failure of the concrete pedestal, with large chunks of concrete missing and debris scattered at the base.",
+        "worst_grade_if_any": "D",
+        "looks_edited": false,
+        "edit_evidence": "No signs of digital editing are visible.",
+        "only_change_is_damage_removal": false,
+        "other_changes": "No changes were made; IMAGE 1 and IMAGE 2 are identical.",
+        "authentic_survey_photo": true,
+        "confidence": 0.95
+      },
+      "error": null
+    },
+    {
+      "file": "f-00185.jpg",
+      "judge": {
+        "damage_visible": true,
+        "damage_description": "Cracking remains clearly visible in the upper section of the concrete pedestal.",
+        "worst_grade_if_any": "B",
+        "looks_edited": false,
+        "edit_evidence": "No signs of digital alteration; the image appears completely untouched.",
+        "only_change_is_damage_removal": false,
+        "other_changes": "No changes were made; the images are identical.",
+        "authentic_survey_photo": true,
+        "confidence": 0.95
+      },
+      "error": null
+    },
+    {
+      "file": "f-00299.jpg",
+      "judge": {
+        "damage_visible": true,
+        "damage_description": "Spalled material, debris, and chipping are still clearly visible on the concrete pedestal and base plate.",
+        "worst_grade_if_any": "B",
+        "looks_edited": false,
+        "edit_evidence": "There are no visible signs of digital alteration; the image appears completely identical to the original.",
+        "only_change_is_damage_removal": false,
+        "other_changes": "No changes were made between the two images.",
+        "authentic_survey_photo": true,
+        "confidence": 0.95
+      },
+      "error": null
+    },
+    {
+      "file": "f-00082.jpg",
+      "judge": {
+        "damage_visible": true,
+        "damage_description": "A horizontal crack near the top edge of the concrete pedestal and a crack on the top left corner remain visible.",
+        "worst_grade_if_any": "C",
+        "looks_edited": false,
+        "edit_evidence": "There are no visible signs of editing; the image appears identical to the original.",
+        "only_change_is_damage_removal": false,
+        "other_changes": "No changes are visible between the two images; the damage was not removed.",
+        "authentic_survey_photo": true,
+        "confidence": 0.95
+      },
+      "error": null
+    },
+    {
+      "file": "f-00095.jpg",
+      "judge": {
+        "damage_visible": true,
+        "damage_description": "A fine vertical crack is visible on the upper center part of the concrete pedestal, and there is rust/corrosion at the base of the steel column.",
+        "worst_grade_if_any": "B",
+        "looks_edited": false,
+        "edit_evidence": "The image does not show any signs of digital editing; it appears completely identical to the original image.",
+        "only_change_is_damage_removal": false,
+        "other_changes": "No changes were made; the original damage was not removed and both images are identical.",
+        "authentic_survey_photo": true,
+        "confidence": 0.95
+      },
+      "error": null
+    }
+  ]
+}

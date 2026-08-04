@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="560" viewBox="0 0 1200 560">
+  <rect width="1200" height="560" fill="#ffffff"/>
+  <style>
+    text { font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans CJK JP", sans-serif; fill:#172033 }
+    .title {font-size:32px;font-weight:700}.label{font-size:23px}.value{font-size:21px;font-weight:700}.note{font-size:21px;fill:#5b6472}.gain{font-size:25px;font-weight:700;fill:#1f9d74}
+  </style>
+  <text x="55" y="55" class="title">負例を追加した学習で、両部材のRecallが改善しました</text>
+  <text x="55" y="165" class="label">ブレース</text>
+  <rect x="230" y="118" width="347" height="38" rx="5" fill="#cfe7ff"/><text x="592" y="146" class="value">基礎学習 0.434</text>
+  <rect x="230" y="168" width="395" height="38" rx="5" fill="#f59e0b"/><text x="640" y="196" class="value">負例追加後 0.494</text><text x="890" y="181" class="gain">+0.060</text>
+  <text x="55" y="335" class="label">柱脚</text>
+  <rect x="230" y="288" width="334" height="38" rx="5" fill="#cfe7ff"/><text x="579" y="316" class="value">基礎学習 0.417</text>
+  <rect x="230" y="338" width="411" height="38" rx="5" fill="#f59e0b"/><text x="656" y="366" class="value">負例追加後 0.514</text><text x="890" y="351" class="gain">+0.097</text>
+  <text x="55" y="470" class="note">複数の学習・推論方法を比較した結果、両部材で一貫して効果が確認できたのは負例の追加でした。</text>
+  <text x="55" y="510" class="note">※ RecallはPrecision 0.60以上の同一条件で比較しています。</text>
+</svg>

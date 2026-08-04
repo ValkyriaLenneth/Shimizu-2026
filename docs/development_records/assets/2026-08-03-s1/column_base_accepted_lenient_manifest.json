@@ -1,0 +1,182 @@
+{
+  "category": "column_base",
+  "accepted_verdicts": [
+    "pass",
+    "review"
+  ],
+  "split_isolated": true,
+  "counts": {
+    "verdict_review": 10,
+    "accepted": 14,
+    "verdict_pass": 6,
+    "dropped_not_in_train_split": 2,
+    "verdict_reject": 5,
+    "dropped_verdict": 5
+  },
+  "entries": [
+    {
+      "synthetic_stem": "f-00226_s1neg",
+      "source_stem": "f-00226",
+      "verdict": "review",
+      "reasons": [
+        "residual_minor"
+      ],
+      "damage_profile": null,
+      "n_boxes_repaired": 4,
+      "judge": {},
+      "residual": "minor"
+    },
+    {
+      "synthetic_stem": "f-00327_s1neg",
+      "source_stem": "f-00327",
+      "verdict": "review",
+      "reasons": [
+        "looks_edited",
+        "inauthentic"
+      ],
+      "damage_profile": null,
+      "n_boxes_repaired": 5,
+      "judge": {},
+      "residual": "none"
+    },
+    {
+      "synthetic_stem": "f-00100_s1neg",
+      "source_stem": "f-00100",
+      "verdict": "pass",
+      "reasons": [],
+      "damage_profile": null,
+      "n_boxes_repaired": 2,
+      "judge": {},
+      "residual": "none"
+    },
+    {
+      "synthetic_stem": "f-00242_s1neg",
+      "source_stem": "f-00242",
+      "verdict": "review",
+      "reasons": [
+        "looks_edited",
+        "inauthentic"
+      ],
+      "damage_profile": null,
+      "n_boxes_repaired": 2,
+      "judge": {},
+      "residual": "none"
+    },
+    {
+      "synthetic_stem": "f-00021_s1neg",
+      "source_stem": "f-00021",
+      "verdict": "pass",
+      "reasons": [],
+      "damage_profile": "concrete",
+      "n_boxes_repaired": 2,
+      "judge": {},
+      "residual": "none"
+    },
+    {
+      "synthetic_stem": "f-00019_s1neg",
+      "source_stem": "f-00019",
+      "verdict": "review",
+      "reasons": [
+        "looks_edited",
+        "inauthentic"
+      ],
+      "damage_profile": "concrete",
+      "n_boxes_repaired": 6,
+      "judge": {},
+      "residual": "none"
+    },
+    {
+      "synthetic_stem": "f-00048_s1neg",
+      "source_stem": "f-00048",
+      "verdict": "review",
+      "reasons": [
+        "looks_edited",
+        "inauthentic"
+      ],
+      "damage_profile": "concrete",
+      "n_boxes_repaired": 4,
+      "judge": {},
+      "residual": "none"
+    },
+    {
+      "synthetic_stem": "f-00062_s1neg",
+      "source_stem": "f-00062",
+      "verdict": "review",
+      "reasons": [
+        "looks_edited",
+        "inauthentic"
+      ],
+      "damage_profile": "steel",
+      "n_boxes_repaired": 2,
+      "judge": {},
+      "residual": "none"
+    },
+    {
+      "synthetic_stem": "f-00118_s1neg",
+      "source_stem": "f-00118",
+      "verdict": "pass",
+      "reasons": [],
+      "damage_profile": "steel",
+      "n_boxes_repaired": 4,
+      "judge": {},
+      "residual": "none"
+    },
+    {
+      "synthetic_stem": "f-00073_s1neg",
+      "source_stem": "f-00073",
+      "verdict": "review",
+      "reasons": [
+        "looks_edited",
+        "inauthentic"
+      ],
+      "damage_profile": "mixed",
+      "n_boxes_repaired": 6,
+      "judge": {},
+      "residual": "none"
+    },
+    {
+      "synthetic_stem": "f-00238_s1neg",
+      "source_stem": "f-00238",
+      "verdict": "review",
+      "reasons": [
+        "brighter(45.4)"
+      ],
+      "damage_profile": "steel",
+      "n_boxes_repaired": 3,
+      "judge": {},
+      "residual": "none"
+    },
+    {
+      "synthetic_stem": "f-00276_s1neg",
+      "source_stem": "f-00276",
+      "verdict": "pass",
+      "reasons": [],
+      "damage_profile": "concrete",
+      "n_boxes_repaired": 1,
+      "judge": {},
+      "residual": "none"
+    },
+    {
+      "synthetic_stem": "f-00254_s1neg",
+      "source_stem": "f-00254",
+      "verdict": "pass",
+      "reasons": [],
+      "damage_profile": "steel",
+      "n_boxes_repaired": 4,
+      "judge": {},
+      "residual": "none"
+    },
+    {
+      "synthetic_stem": "f-00305_s1neg",
+      "source_stem": "f-00305",
+      "verdict": "review",
+      "reasons": [
+        "residual_minor"
+      ],
+      "damage_profile": "concrete",
+      "n_boxes_repaired": 5,
+      "judge": {},
+      "residual": "minor"
+    }
+  ]
+}

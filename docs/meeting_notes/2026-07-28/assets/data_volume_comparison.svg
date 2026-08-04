@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="650" viewBox="0 0 1200 650">
+  <rect width="1200" height="650" fill="#ffffff"/>
+  <style>
+    text { font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans CJK JP", sans-serif; fill:#172033 }
+    .title { font-size:32px; font-weight:700 }
+    .label { font-size:22px }
+    .value { font-size:22px; font-weight:700 }
+    .note { font-size:20px; fill:#5b6472 }
+  </style>
+  <text x="55" y="55" class="title">各部材のBCD判定モデル：学習画像数の比較</text>
+  <line x1="210" y1="100" x2="210" y2="570" stroke="#cfd5df" stroke-width="2"/>
+  <g>
+  <text x="55" y="145" class="label">天井</text><rect x="210" y="118" width="600" height="38" rx="5" fill="#cfe7ff"/><text x="825" y="146" class="value">750</text>
+    <text x="55" y="220" class="label">内壁</text><rect x="210" y="193" width="672" height="38" rx="5" fill="#cfe7ff"/><text x="897" y="221" class="value">840</text>
+    <text x="55" y="295" class="label">RC壁</text><rect x="210" y="268" width="773" height="38" rx="5" fill="#3d8dff"/><text x="998" y="296" class="value">966</text>
+    <text x="55" y="370" class="label">RC柱</text><rect x="210" y="343" width="484" height="38" rx="5" fill="#3d8dff"/><text x="709" y="371" class="value">605</text>
+    <text x="55" y="445" class="label">ブレース</text><rect x="210" y="418" width="188" height="38" rx="5" fill="#f59e0b"/><text x="413" y="446" class="value">235</text>
+    <text x="55" y="520" class="label">柱脚</text><rect x="210" y="493" width="143" height="38" rx="5" fill="#f59e0b"/><text x="368" y="521" class="value">179</text>
+  </g>
+  <text x="55" y="615" class="note">ブレースはRC柱の39％、柱脚は30％です。既存部材と比べ、約3分の1の学習量にとどまります。</text>
+</svg>

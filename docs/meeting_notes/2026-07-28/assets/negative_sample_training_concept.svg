@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="600" viewBox="0 0 1200 600">
+  <rect width="1200" height="600" fill="#ffffff"/>
+  <style>
+    text { font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans CJK JP", sans-serif; fill:#172033 }
+    .title {font-size:32px;font-weight:700}.head{font-size:26px;font-weight:700}.body{font-size:20px;fill:#5b6472}.small{font-size:18px;fill:#5b6472}.arrow{font-size:34px;font-weight:700;fill:#3d8dff}
+  </style>
+  <text x="55" y="55" class="title">負例を追加することで、「部材」と「損傷」を区別する学習へ</text>
+  <rect x="55" y="105" width="300" height="340" rx="16" fill="#eaf5fb"/>
+  <text x="85" y="155" class="head">損傷あり画像（正例）</text>
+  <rect x="95" y="190" width="220" height="105" rx="8" fill="#ffffff" stroke="#3d8dff" stroke-width="3"/>
+  <path d="M135 250 L205 220 L275 270" fill="none" stroke="#6b7280" stroke-width="13" stroke-linecap="round"/>
+  <rect x="184" y="219" width="45" height="45" fill="none" stroke="#d9485f" stroke-width="5"/>
+  <text x="85" y="345" class="body">部材の中に損傷がある</text>
+  <text x="85" y="385" class="body">B/C/Dの位置を学習</text>
+  <rect x="450" y="105" width="300" height="340" rx="16" fill="#fff1d6"/>
+  <text x="480" y="155" class="head">無損傷画像（負例）</text>
+  <rect x="490" y="190" width="220" height="105" rx="8" fill="#ffffff" stroke="#f59e0b" stroke-width="3"/>
+  <path d="M530 250 L600 220 L670 270" fill="none" stroke="#6b7280" stroke-width="13" stroke-linecap="round"/>
+  <text x="480" y="345" class="body">部材は写っている</text>
+  <text x="480" y="385" class="body">ただし損傷はない</text>
+  <text x="372" y="286" class="arrow">＋</text>
+  <text x="775" y="286" class="arrow">→</text>
+  <rect x="850" y="145" width="290" height="260" rx="16" fill="#f3f4f6"/>
+  <text x="890" y="205" class="head">モデルの学習結果</text>
+  <text x="890" y="260" class="body">部材があるだけでは</text>
+  <text x="890" y="292" class="body">検出しない</text>
+  <text x="890" y="342" class="body">損傷がある箇所を</text>
+  <text x="890" y="374" class="body">検出する</text>
+  <text x="55" y="530" class="small">本週は、BCD未標注だった画像のうち、学習に利用可能なものを負例として追加しました。</text>
+</svg>

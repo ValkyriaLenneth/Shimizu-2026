@@ -1,0 +1,67 @@
+{
+  "category": "column_base",
+  "accepted_verdicts": [
+    "pass"
+  ],
+  "split_isolated": true,
+  "counts": {
+    "verdict_review": 10,
+    "dropped_verdict": 15,
+    "verdict_pass": 6,
+    "dropped_not_in_train_split": 1,
+    "accepted": 5,
+    "verdict_reject": 5
+  },
+  "entries": [
+    {
+      "synthetic_stem": "f-00100_s1neg",
+      "source_stem": "f-00100",
+      "verdict": "pass",
+      "reasons": [],
+      "damage_profile": null,
+      "n_boxes_repaired": 2,
+      "judge": {},
+      "residual": "none"
+    },
+    {
+      "synthetic_stem": "f-00021_s1neg",
+      "source_stem": "f-00021",
+      "verdict": "pass",
+      "reasons": [],
+      "damage_profile": "concrete",
+      "n_boxes_repaired": 2,
+      "judge": {},
+      "residual": "none"
+    },
+    {
+      "synthetic_stem": "f-00118_s1neg",
+      "source_stem": "f-00118",
+      "verdict": "pass",
+      "reasons": [],
+      "damage_profile": "steel",
+      "n_boxes_repaired": 4,
+      "judge": {},
+      "residual": "none"
+    },
+    {
+      "synthetic_stem": "f-00276_s1neg",
+      "source_stem": "f-00276",
+      "verdict": "pass",
+      "reasons": [],
+      "damage_profile": "concrete",
+      "n_boxes_repaired": 1,
+      "judge": {},
+      "residual": "none"
+    },
+    {
+      "synthetic_stem": "f-00254_s1neg",
+      "source_stem": "f-00254",
+      "verdict": "pass",
+      "reasons": [],
+      "damage_profile": "steel",
+      "n_boxes_repaired": 4,
+      "judge": {},
+      "residual": "none"
+    }
+  ]
+}

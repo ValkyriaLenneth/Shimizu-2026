@@ -1,0 +1,1368 @@
+[
+  {
+    "stem": "f-00226",
+    "metrics": {
+      "edited_frac": 0.46039010416666665,
+      "outside_mean_abs_diff": 0.11496202647686005,
+      "hf_core": 5.695580005645752,
+      "hf_ring": 5.923500061035156,
+      "smoothness_ratio": 0.961522739420792,
+      "brightness_core": 169.87872314453125,
+      "brightness_ring": 151.4547119140625,
+      "brightness_shift": 18.42401123046875,
+      "saturation_core": 56.86618423461914,
+      "saturation_ring": 22.602214813232422,
+      "saturation_shift": 34.26396942138672,
+      "core_mean_abs_diff": 27.111156463623047
+    },
+    "local_verdict": "pass",
+    "flags": [],
+    "judge": {
+      "damage_removed": true,
+      "residual_at_repair_site": "minor",
+      "residual_description": "The large vertical gap has been filled, but minor crack-like seams and slight surface roughness remain along the edges of the repaired area.",
+      "looks_edited": false,
+      "edit_evidence": "",
+      "authentic_survey_photo": true,
+      "confidence": 0.7,
+      "n_windows": 2,
+      "per_window": [
+        {
+          "damage_removed": true,
+          "residual_at_repair_site": "minor",
+          "residual_description": "The large vertical gap has been filled, but minor crack-like seams and slight surface roughness remain along the edges of the repaired area.",
+          "confidence": 0.7,
+          "looks_edited": false,
+          "edit_evidence": "No signs of digital manipulation. Textures and lighting appear natural for an inspection photo.",
+          "authentic_survey_photo": true,
+          "window": [
+            0,
+            0,
+            1200,
+            1200
+          ]
+        },
+        {
+          "damage_removed": true,
+          "residual_at_repair_site": "minor",
+          "residual_description": "The large void and spalling have been filled, but there are some faint crack-like lines and messy textures at the boundaries of the repaired area.",
+          "confidence": 0.75,
+          "looks_edited": false,
+          "edit_evidence": "Lighting and textures appear natural with no signs of manipulation.",
+          "authentic_survey_photo": true,
+          "window": [
+            55,
+            0,
+            1255,
+            1200
+          ]
+        }
+      ]
+    },
+    "judge_error": null,
+    "verdict": "review",
+    "reasons": [
+      "residual_minor"
+    ]
+  },
+  {
+    "stem": "f-00327",
+    "metrics": {
+      "edited_frac": 0.11846896701388888,
+      "outside_mean_abs_diff": 0.0024546540807932615,
+      "hf_core": 2.748405933380127,
+      "hf_ring": 1.9199298620224,
+      "smoothness_ratio": 1.4315137171131,
+      "brightness_core": 118.10458374023438,
+      "brightness_ring": 109.28324127197266,
+      "brightness_shift": 8.821342468261719,
+      "saturation_core": 15.42926025390625,
+      "saturation_ring": 20.0422420501709,
+      "saturation_shift": -4.612981796264648,
+      "core_mean_abs_diff": 3.7185823917388916
+    },
+    "local_verdict": "pass",
+    "flags": [],
+    "judge": {
+      "damage_removed": true,
+      "residual_at_repair_site": "none",
+      "residual_description": "The cracks have been successfully removed, and the texture has been restored seamlessly.",
+      "looks_edited": true,
+      "edit_evidence": "Form tie holes look flat and lack depth; bottom-left hole on front face is incompletely formed.",
+      "authentic_survey_photo": false,
+      "confidence": 0.75,
+      "n_windows": 1,
+      "per_window": [
+        {
+          "damage_removed": true,
+          "residual_at_repair_site": "none",
+          "residual_description": "The cracks have been successfully removed, and the texture has been restored seamlessly.",
+          "confidence": 0.75,
+          "looks_edited": true,
+          "edit_evidence": "Form tie holes look flat and lack depth; bottom-left hole on front face is incompletely formed.",
+          "authentic_survey_photo": false,
+          "window": [
+            1444,
+            490,
+            2724,
+            1770
+          ]
+        }
+      ]
+    },
+    "judge_error": null,
+    "verdict": "review",
+    "reasons": [
+      "looks_edited",
+      "inauthentic"
+    ]
+  },
+  {
+    "stem": "f-00289",
+    "metrics": {
+      "edited_frac": 0.5376958819241983,
+      "outside_mean_abs_diff": 0.11523382365703583,
+      "hf_core": 14.177273750305176,
+      "hf_ring": 15.975058555603027,
+      "smoothness_ratio": 0.8874630224959454,
+      "brightness_core": 129.88026428222656,
+      "brightness_ring": 126.24991607666016,
+      "brightness_shift": 3.6303482055664062,
+      "saturation_core": 13.81003475189209,
+      "saturation_ring": 6.903903961181641,
+      "saturation_shift": 6.906130790710449,
+      "core_mean_abs_diff": 9.604411125183105
+    },
+    "local_verdict": "pass",
+    "flags": [],
+    "judge": {
+      "damage_removed": true,
+      "residual_at_repair_site": "none",
+      "residual_description": "The chipped paint and rust on the bottom edge of the lower nut have been cleanly painted over, leaving no visible residual damage at the repair site.",
+      "looks_edited": false,
+      "edit_evidence": "",
+      "authentic_survey_photo": true,
+      "confidence": 0.7,
+      "n_windows": 2,
+      "per_window": [
+        {
+          "damage_removed": true,
+          "residual_at_repair_site": "none",
+          "residual_description": "The chipped paint and rust on the bottom edge of the lower nut have been cleanly painted over, leaving no visible residual damage at the repair site.",
+          "confidence": 0.7,
+          "looks_edited": false,
+          "edit_evidence": "No obvious signs of manipulation. Textures and lighting are consistent.",
+          "authentic_survey_photo": true,
+          "window": [
+            46,
+            0,
+            302,
+            256
+          ]
+        },
+        {
+          "damage_removed": true,
+          "residual_at_repair_site": "none",
+          "residual_description": "The chipped paint and exposed rust on the lower nut have been successfully painted over, leaving no residual damage.",
+          "confidence": 0.75,
+          "looks_edited": false,
+          "edit_evidence": "No obvious manipulation; lighting and texture appear natural.",
+          "authentic_survey_photo": true,
+          "window": [
+            44,
+            0,
+            300,
+            256
+          ]
+        }
+      ]
+    },
+    "judge_error": null,
+    "verdict": "pass",
+    "reasons": []
+  },
+  {
+    "stem": "f-00100",
+    "metrics": {
+      "edited_frac": 0.75,
+      "outside_mean_abs_diff": 0.08330728858709335,
+      "hf_core": 11.842422485351562,
+      "hf_ring": 12.232112884521484,
+      "smoothness_ratio": 0.9681420206918597,
+      "brightness_core": 157.818115234375,
+      "brightness_ring": 138.0195770263672,
+      "brightness_shift": 19.798538208007812,
+      "saturation_core": 126.22982025146484,
+      "saturation_ring": 135.0342254638672,
+      "saturation_shift": -8.804405212402344,
+      "core_mean_abs_diff": 12.855592727661133
+    },
+    "local_verdict": "pass",
+    "flags": [],
+    "judge": {
+      "damage_removed": true,
+      "residual_at_repair_site": "none",
+      "residual_description": "The prominent crack has been completely removed and seamlessly replaced with concrete texture matching the surroundings.",
+      "looks_edited": false,
+      "edit_evidence": "",
+      "authentic_survey_photo": true,
+      "confidence": 0.75,
+      "n_windows": 1,
+      "per_window": [
+        {
+          "damage_removed": true,
+          "residual_at_repair_site": "none",
+          "residual_description": "The prominent crack has been completely removed and seamlessly replaced with concrete texture matching the surroundings.",
+          "confidence": 0.75,
+          "looks_edited": false,
+          "edit_evidence": "No evidence of digital manipulation.",
+          "authentic_survey_photo": true,
+          "window": [
+            110,
+            0,
+            590,
+            480
+          ]
+        }
+      ]
+    },
+    "judge_error": null,
+    "verdict": "pass",
+    "reasons": []
+  },
+  {
+    "stem": "f-00242",
+    "metrics": {
+      "edited_frac": 0.0486456553141276,
+      "outside_mean_abs_diff": 0.004547417629510164,
+      "hf_core": 4.326271057128906,
+      "hf_ring": 3.971801519393921,
+      "smoothness_ratio": 1.0892465386309322,
+      "brightness_core": 153.3813934326172,
+      "brightness_ring": 134.14295959472656,
+      "brightness_shift": 19.238433837890625,
+      "saturation_core": 42.27235412597656,
+      "saturation_ring": 63.16511917114258,
+      "saturation_shift": -20.892765045166016,
+      "core_mean_abs_diff": 19.389360427856445
+    },
+    "local_verdict": "pass",
+    "flags": [],
+    "judge": {
+      "damage_removed": true,
+      "residual_at_repair_site": "none",
+      "residual_description": "The spalled concrete corner and the debris on the floor have been completely removed with no residual damage visible.",
+      "looks_edited": true,
+      "edit_evidence": "A smudged circular patch on the green floor lacks natural texture and appears artificially blurred.",
+      "authentic_survey_photo": false,
+      "confidence": 0.75,
+      "n_windows": 1,
+      "per_window": [
+        {
+          "damage_removed": true,
+          "residual_at_repair_site": "none",
+          "residual_description": "The spalled concrete corner and the debris on the floor have been completely removed with no residual damage visible.",
+          "confidence": 0.75,
+          "looks_edited": true,
+          "edit_evidence": "A smudged circular patch on the green floor lacks natural texture and appears artificially blurred.",
+          "authentic_survey_photo": false,
+          "window": [
+            552,
+            235,
+            1532,
+            1215
+          ]
+        }
+      ]
+    },
+    "judge_error": null,
+    "verdict": "review",
+    "reasons": [
+      "looks_edited",
+      "inauthentic"
+    ]
+  },
+  {
+    "stem": "f-00021",
+    "metrics": {
+      "edited_frac": 0.05922526041666667,
+      "outside_mean_abs_diff": 0.00975965429097414,
+      "hf_core": 6.75907564163208,
+      "hf_ring": 6.577315330505371,
+      "smoothness_ratio": 1.0276344225559189,
+      "brightness_core": 138.37705993652344,
+      "brightness_ring": 144.1033935546875,
+      "brightness_shift": -5.7263336181640625,
+      "saturation_core": 13.029247283935547,
+      "saturation_ring": 10.566527366638184,
+      "saturation_shift": 2.4627199172973633,
+      "core_mean_abs_diff": 27.49164581298828
+    },
+    "local_verdict": "pass",
+    "flags": [],
+    "judge": {
+      "damage_removed": true,
+      "residual_at_repair_site": "none",
+      "residual_description": "The large void has been completely filled and matches the surrounding concrete surface reasonably well. No remaining cracks or structural damage are visible in the repaired area.",
+      "looks_edited": false,
+      "edit_evidence": "",
+      "authentic_survey_photo": true,
+      "confidence": 0.75,
+      "n_windows": 1,
+      "per_window": [
+        {
+          "damage_removed": true,
+          "residual_at_repair_site": "none",
+          "residual_description": "The large void has been completely filled and matches the surrounding concrete surface reasonably well. No remaining cracks or structural damage are visible in the repaired area.",
+          "confidence": 0.75,
+          "looks_edited": false,
+          "edit_evidence": "No signs of digital manipulation found. Textures and lighting appear natural and consistent.",
+          "authentic_survey_photo": true,
+          "window": [
+            747,
+            428,
+            1863,
+            1544
+          ]
+        }
+      ]
+    },
+    "judge_error": null,
+    "verdict": "pass",
+    "reasons": []
+  },
+  {
+    "stem": "f-00019",
+    "metrics": {
+      "edited_frac": 0.02079033297294936,
+      "outside_mean_abs_diff": 0.018290217965841293,
+      "hf_core": 6.229487895965576,
+      "hf_ring": 5.6496381759643555,
+      "smoothness_ratio": 1.1026348417263454,
+      "brightness_core": 131.0137939453125,
+      "brightness_ring": 136.91165161132812,
+      "brightness_shift": -5.897857666015625,
+      "saturation_core": 13.632567405700684,
+      "saturation_ring": 12.402314186096191,
+      "saturation_shift": 1.2302532196044922,
+      "core_mean_abs_diff": 11.835018157958984
+    },
+    "local_verdict": "pass",
+    "flags": [],
+    "judge": {
+      "damage_removed": true,
+      "residual_at_repair_site": "none",
+      "residual_description": "The large vertical cracks were completely filled, leaving no residual damage at the altered locations.",
+      "looks_edited": true,
+      "edit_evidence": "Smooth patch on the base plate suggests alteration.",
+      "authentic_survey_photo": false,
+      "confidence": 0.7,
+      "n_windows": 2,
+      "per_window": [
+        {
+          "damage_removed": true,
+          "residual_at_repair_site": "none",
+          "residual_description": "The large vertical cracks were completely filled, leaving no residual damage at the altered locations.",
+          "confidence": 0.75,
+          "looks_edited": true,
+          "edit_evidence": "Smooth patch on the base plate suggests alteration.",
+          "authentic_survey_photo": false,
+          "window": [
+            149,
+            0,
+            673,
+            524
+          ]
+        },
+        {
+          "damage_removed": true,
+          "residual_at_repair_site": "none",
+          "residual_description": "The major vertical cracks on the concrete pedestal were successfully removed, leaving no residual damage at those specific locations.",
+          "confidence": 0.7,
+          "looks_edited": false,
+          "edit_evidence": "No signs of editing found. Textures and lighting are consistent.",
+          "authentic_survey_photo": true,
+          "window": [
+            21,
+            0,
+            545,
+            524
+          ]
+        }
+      ]
+    },
+    "judge_error": null,
+    "verdict": "review",
+    "reasons": [
+      "looks_edited",
+      "inauthentic"
+    ]
+  },
+  {
+    "stem": "f-00048",
+    "metrics": {
+      "edited_frac": 0.11585843276130821,
+      "outside_mean_abs_diff": 0.02541249431669712,
+      "hf_core": 7.451730728149414,
+      "hf_ring": 6.128811836242676,
+      "smoothness_ratio": 1.2158524241327935,
+      "brightness_core": 168.14024353027344,
+      "brightness_ring": 148.4189453125,
+      "brightness_shift": 19.721298217773438,
+      "saturation_core": 25.70029067993164,
+      "saturation_ring": 33.14219665527344,
+      "saturation_shift": -7.441905975341797,
+      "core_mean_abs_diff": 8.644450187683105
+    },
+    "local_verdict": "pass",
+    "flags": [],
+    "judge": {
+      "damage_removed": true,
+      "residual_at_repair_site": "none",
+      "residual_description": "The vertical crack has been fully removed, leaving a continuous concrete surface with no residual signs of damage.",
+      "looks_edited": true,
+      "edit_evidence": "Tape digits form continuous text without scale marks. Glove fuses with tape.",
+      "authentic_survey_photo": false,
+      "confidence": 0.7,
+      "n_windows": 2,
+      "per_window": [
+        {
+          "damage_removed": true,
+          "residual_at_repair_site": "none",
+          "residual_description": "The vertical crack has been fully removed, leaving a continuous concrete surface with no residual signs of damage.",
+          "confidence": 0.75,
+          "looks_edited": false,
+          "edit_evidence": "No signs of editing. Textures and lighting appear natural.",
+          "authentic_survey_photo": true,
+          "window": [
+            108,
+            0,
+            431,
+            323
+          ]
+        },
+        {
+          "damage_removed": true,
+          "residual_at_repair_site": "none",
+          "residual_description": "The prominent vertical crack has been entirely removed, leaving a smooth concrete surface with no remaining structural damage visible at the repair site.",
+          "confidence": 0.7,
+          "looks_edited": true,
+          "edit_evidence": "Tape digits form continuous text without scale marks. Glove fuses with tape.",
+          "authentic_survey_photo": false,
+          "window": [
+            108,
+            0,
+            431,
+            323
+          ]
+        }
+      ]
+    },
+    "judge_error": null,
+    "verdict": "review",
+    "reasons": [
+      "looks_edited",
+      "inauthentic"
+    ]
+  },
+  {
+    "stem": "f-00062",
+    "metrics": {
+      "edited_frac": 0.063671875,
+      "outside_mean_abs_diff": 0.015582936815917492,
+      "hf_core": 7.558391571044922,
+      "hf_ring": 6.127330303192139,
+      "smoothness_ratio": 1.2335537986433092,
+      "brightness_core": 114.48384094238281,
+      "brightness_ring": 124.45146179199219,
+      "brightness_shift": -9.967620849609375,
+      "saturation_core": 94.70633697509766,
+      "saturation_ring": 86.23965454101562,
+      "saturation_shift": 8.466682434082031,
+      "core_mean_abs_diff": 7.679447650909424
+    },
+    "local_verdict": "pass",
+    "flags": [],
+    "judge": {
+      "damage_removed": true,
+      "residual_at_repair_site": "none",
+      "residual_description": "The rust spot on the column was removed, but it was replaced by a highly visible, unblended rectangular blur artifact. No actual damage remains visible at the site.",
+      "looks_edited": true,
+      "edit_evidence": "Blurry rectangular smudge on the right side of the column indicates digital erasure.",
+      "authentic_survey_photo": false,
+      "confidence": 0.7,
+      "n_windows": 2,
+      "per_window": [
+        {
+          "damage_removed": true,
+          "residual_at_repair_site": "none",
+          "residual_description": "The rust spot on the column was removed, but it was replaced by a highly visible, unblended rectangular blur artifact. No actual damage remains visible at the site.",
+          "confidence": 0.7,
+          "looks_edited": true,
+          "edit_evidence": "Blurry rectangular smudge on the right side of the column indicates digital erasure.",
+          "authentic_survey_photo": false,
+          "window": [
+            0,
+            0,
+            480,
+            480
+          ]
+        },
+        {
+          "damage_removed": true,
+          "residual_at_repair_site": "none",
+          "residual_description": "The rust spot on the column has been painted over. While the edit left a noticeable blurred artifact with mismatched color, no actual damage remains visible at the site.",
+          "confidence": 0.75,
+          "looks_edited": true,
+          "edit_evidence": "Visible blurred rectangular patch on the painted column indicating digital alteration.",
+          "authentic_survey_photo": false,
+          "window": [
+            137,
+            0,
+            617,
+            480
+          ]
+        }
+      ]
+    },
+    "judge_error": null,
+    "verdict": "review",
+    "reasons": [
+      "looks_edited",
+      "inauthentic"
+    ]
+  },
+  {
+    "stem": "f-00118",
+    "metrics": {
+      "edited_frac": 0.234013671875,
+      "outside_mean_abs_diff": 0.033635057508945465,
+      "hf_core": 7.581353664398193,
+      "hf_ring": 6.375345230102539,
+      "smoothness_ratio": 1.1891675494844154,
+      "brightness_core": 121.58074188232422,
+      "brightness_ring": 134.53076171875,
+      "brightness_shift": -12.950019836425781,
+      "saturation_core": 146.08970642089844,
+      "saturation_ring": 103.447509765625,
+      "saturation_shift": 42.64219665527344,
+      "core_mean_abs_diff": 19.60245704650879
+    },
+    "local_verdict": "pass",
+    "flags": [],
+    "judge": {
+      "damage_removed": true,
+      "residual_at_repair_site": "none",
+      "residual_description": "The spalled corner on the concrete base has been fully restored, and the rusted steel column has been seamlessly replaced or repainted with no visible defects remaining.",
+      "looks_edited": false,
+      "edit_evidence": "",
+      "authentic_survey_photo": true,
+      "confidence": 0.75,
+      "n_windows": 1,
+      "per_window": [
+        {
+          "damage_removed": true,
+          "residual_at_repair_site": "none",
+          "residual_description": "The spalled corner on the concrete base has been fully restored, and the rusted steel column has been seamlessly replaced or repainted with no visible defects remaining.",
+          "confidence": 0.75,
+          "looks_edited": false,
+          "edit_evidence": "Natural textures with consistent lighting and no visible seams.",
+          "authentic_survey_photo": true,
+          "window": [
+            0,
+            0,
+            480,
+            480
+          ]
+        }
+      ]
+    },
+    "judge_error": null,
+    "verdict": "pass",
+    "reasons": []
+  },
+  {
+    "stem": "f-00083",
+    "metrics": {
+      "edited_frac": 0.10604817708333333,
+      "outside_mean_abs_diff": 0.031028445810079575,
+      "hf_core": 8.485962867736816,
+      "hf_ring": 8.636521339416504,
+      "smoothness_ratio": 0.9825672321340134,
+      "brightness_core": 164.605712890625,
+      "brightness_ring": 162.18612670898438,
+      "brightness_shift": 2.419586181640625,
+      "saturation_core": 66.49883270263672,
+      "saturation_ring": 69.95381927490234,
+      "saturation_shift": -3.454986572265625,
+      "core_mean_abs_diff": 5.71462345123291
+    },
+    "local_verdict": "pass",
+    "flags": [],
+    "judge": {
+      "damage_removed": false,
+      "residual_at_repair_site": "severe",
+      "residual_description": "The model failed to remove the original fine cracks and instead hallucinated a large, severe horizontal crack along the top front edge of the concrete foundation.",
+      "looks_edited": false,
+      "edit_evidence": "",
+      "authentic_survey_photo": true,
+      "confidence": 0.75,
+      "n_windows": 2,
+      "per_window": [
+        {
+          "damage_removed": false,
+          "residual_at_repair_site": "severe",
+          "residual_description": "The model failed to remove the original fine cracks and instead hallucinated a large, severe horizontal crack along the top front edge of the concrete foundation.",
+          "confidence": 0.75,
+          "looks_edited": false,
+          "edit_evidence": "No obvious signs of digital manipulation. Textures are consistent.",
+          "authentic_survey_photo": true,
+          "window": [
+            0,
+            0,
+            480,
+            480
+          ]
+        },
+        {
+          "damage_removed": false,
+          "residual_at_repair_site": "severe",
+          "residual_description": "Rather than removing damage, the second image introduces a prominent horizontal crack across the top of the concrete block that was not present in the first image.",
+          "confidence": 0.75,
+          "looks_edited": false,
+          "edit_evidence": "Natural rust and staining present with no visible seams or blur.",
+          "authentic_survey_photo": true,
+          "window": [
+            0,
+            0,
+            480,
+            480
+          ]
+        }
+      ]
+    },
+    "judge_error": null,
+    "verdict": "reject",
+    "reasons": [
+      "not_repaired",
+      "residual_severe"
+    ]
+  },
+  {
+    "stem": "f-00073",
+    "metrics": {
+      "edited_frac": 0.45787109375,
+      "outside_mean_abs_diff": 0.11726932972669601,
+      "hf_core": 9.226729393005371,
+      "hf_ring": 7.805142402648926,
+      "smoothness_ratio": 1.1821346641765285,
+      "brightness_core": 161.16046142578125,
+      "brightness_ring": 136.79478454589844,
+      "brightness_shift": 24.365676879882812,
+      "saturation_core": 62.92544937133789,
+      "saturation_ring": 54.52047348022461,
+      "saturation_shift": 8.404975891113281,
+      "core_mean_abs_diff": 7.594342231750488
+    },
+    "local_verdict": "pass",
+    "flags": [],
+    "judge": {
+      "damage_removed": true,
+      "residual_at_repair_site": "none",
+      "residual_description": "The vertical crack on the left edge has been completely removed. The model hallucinated a metal plate and bolts at the bottom of the image, but this is not residual damage. The horizontal crack near the top remains unchanged and is therefore not counted.",
+      "looks_edited": true,
+      "edit_evidence": "Blurry artifacts and mismatched textures surround the red bracket indicating digital insertion.",
+      "authentic_survey_photo": false,
+      "confidence": 0.7,
+      "n_windows": 3,
+      "per_window": [
+        {
+          "damage_removed": true,
+          "residual_at_repair_site": "none",
+          "residual_description": "The vertical crack on the left edge has been completely removed. The model hallucinated a metal plate and bolts at the bottom of the image, but this is not residual damage. The horizontal crack near the top remains unchanged and is therefore not counted.",
+          "confidence": 0.75,
+          "looks_edited": false,
+          "edit_evidence": "No clear signs of manipulation. Textures and lighting seem natural.",
+          "authentic_survey_photo": true,
+          "window": [
+            0,
+            0,
+            480,
+            480
+          ]
+        },
+        {
+          "damage_removed": true,
+          "residual_at_repair_site": "none",
+          "residual_description": "The rusted structural element has been replaced by a newly generated, undamaged steel bracket.",
+          "confidence": 0.7,
+          "looks_edited": true,
+          "edit_evidence": "Blurry artifacts and mismatched textures surround the red bracket indicating digital insertion.",
+          "authentic_survey_photo": false,
+          "window": [
+            0,
+            160,
+            480,
+            640
+          ]
+        },
+        {
+          "damage_removed": true,
+          "residual_at_repair_site": "none",
+          "residual_description": "The prominent crack on the top left edge has been completely removed. No residual cracking or spalling is visible in the altered areas.",
+          "confidence": 0.75,
+          "looks_edited": false,
+          "edit_evidence": "Natural rust and texture. No obvious tampering.",
+          "authentic_survey_photo": true,
+          "window": [
+            0,
+            0,
+            480,
+            480
+          ]
+        }
+      ]
+    },
+    "judge_error": null,
+    "verdict": "review",
+    "reasons": [
+      "looks_edited",
+      "inauthentic"
+    ]
+  },
+  {
+    "stem": "f-00130",
+    "metrics": {
+      "edited_frac": 0.15341796875,
+      "outside_mean_abs_diff": 0.0604233592748642,
+      "hf_core": 8.211653709411621,
+      "hf_ring": 7.079460144042969,
+      "smoothness_ratio": 1.1599265399242822,
+      "brightness_core": 145.11679077148438,
+      "brightness_ring": 116.42546844482422,
+      "brightness_shift": 28.691322326660156,
+      "saturation_core": 68.54300689697266,
+      "saturation_ring": 102.33610534667969,
+      "saturation_shift": -33.79309844970703,
+      "core_mean_abs_diff": 10.491781234741211
+    },
+    "local_verdict": "review",
+    "flags": [
+      "brighter(28.7)",
+      "desaturated(-33.8)"
+    ],
+    "judge": {
+      "damage_removed": true,
+      "residual_at_repair_site": "none",
+      "residual_description": "The horizontal crack along the top edge of the concrete base has been completely removed. No residual cracks or structural damage remain at the repair site, though the inpainting process slightly blurred the texture and hallucinated a new anchor bolt assembly on the left.",
+      "looks_edited": true,
+      "edit_evidence": "Inconsistent textures and soft, deformed geometry on the bolt and fittings.",
+      "authentic_survey_photo": false,
+      "confidence": 0.7,
+      "n_windows": 3,
+      "per_window": [
+        {
+          "damage_removed": true,
+          "residual_at_repair_site": "none",
+          "residual_description": "The horizontal crack along the top edge of the concrete base has been completely removed. No residual cracks or structural damage remain at the repair site, though the inpainting process slightly blurred the texture and hallucinated a new anchor bolt assembly on the left.",
+          "confidence": 0.75,
+          "looks_edited": true,
+          "edit_evidence": "Inconsistent textures and soft, deformed geometry on the bolt and fittings.",
+          "authentic_survey_photo": false,
+          "window": [
+            0,
+            0,
+            480,
+            480
+          ]
+        },
+        {
+          "damage_removed": true,
+          "residual_at_repair_site": "none",
+          "residual_description": "The horizontal crack near the top edge of the concrete pedestal has been completely removed. No residual structural damage is visible in the repaired area, although some generation artifacts (a new bolt and plate) have been introduced.",
+          "confidence": 0.7,
+          "looks_edited": false,
+          "edit_evidence": "No digital manipulation detected. Textures, stains, and lighting appear natural.",
+          "authentic_survey_photo": true,
+          "window": [
+            0,
+            0,
+            480,
+            480
+          ]
+        },
+        {
+          "damage_removed": true,
+          "residual_at_repair_site": "none",
+          "residual_description": "The hole/spall in the lower-middle portion of the concrete has been filled, but the resulting texture is blurry and artificial. However, no structural damage remains at the repair site.",
+          "confidence": 0.7,
+          "looks_edited": false,
+          "edit_evidence": "No obvious signs of digital alteration. Textures and lighting appear natural.",
+          "authentic_survey_photo": true,
+          "window": [
+            0,
+            160,
+            480,
+            640
+          ]
+        }
+      ]
+    },
+    "judge_error": null,
+    "verdict": "review",
+    "reasons": [
+      "brighter(28.7)",
+      "desaturated(-33.8)",
+      "looks_edited",
+      "inauthentic"
+    ]
+  },
+  {
+    "stem": "f-00156",
+    "metrics": {
+      "edited_frac": 0.089326171875,
+      "outside_mean_abs_diff": 0.03170178085565567,
+      "hf_core": 6.958803176879883,
+      "hf_ring": 6.266437530517578,
+      "smoothness_ratio": 1.110487919649798,
+      "brightness_core": 163.91574096679688,
+      "brightness_ring": 146.09898376464844,
+      "brightness_shift": 17.816757202148438,
+      "saturation_core": 70.85193634033203,
+      "saturation_ring": 63.61144256591797,
+      "saturation_shift": 7.2404937744140625,
+      "core_mean_abs_diff": 11.852774620056152
+    },
+    "local_verdict": "pass",
+    "flags": [],
+    "judge": {
+      "damage_removed": true,
+      "residual_at_repair_site": "moderate",
+      "residual_description": "The surrounding concrete spall was filled, but a piece of rusty exposed rebar or a similar metal artifact was left clearly visible in the center of the repaired patch.",
+      "looks_edited": false,
+      "edit_evidence": "",
+      "authentic_survey_photo": true,
+      "confidence": 0.7,
+      "n_windows": 2,
+      "per_window": [
+        {
+          "damage_removed": true,
+          "residual_at_repair_site": "moderate",
+          "residual_description": "The surrounding concrete spall was filled, but a piece of rusty exposed rebar or a similar metal artifact was left clearly visible in the center of the repaired patch.",
+          "confidence": 0.75,
+          "looks_edited": false,
+          "edit_evidence": "No obvious signs of digital editing; smooth patch appears to be physical concrete repair.",
+          "authentic_survey_photo": true,
+          "window": [
+            0,
+            160,
+            480,
+            640
+          ]
+        },
+        {
+          "damage_removed": true,
+          "residual_at_repair_site": "moderate",
+          "residual_description": "The spalled area on the top left corner was only partially filled. Cracks and a broken edge remain clearly visible at the repair site.",
+          "confidence": 0.7,
+          "looks_edited": false,
+          "edit_evidence": "Textures and lighting appear consistent. No signs of manipulation observed.",
+          "authentic_survey_photo": true,
+          "window": [
+            0,
+            0,
+            480,
+            480
+          ]
+        }
+      ]
+    },
+    "judge_error": null,
+    "verdict": "reject",
+    "reasons": [
+      "residual_moderate"
+    ]
+  },
+  {
+    "stem": "f-00151",
+    "metrics": {
+      "edited_frac": 0.04986653645833333,
+      "outside_mean_abs_diff": 0.028197502717375755,
+      "hf_core": 11.110377311706543,
+      "hf_ring": 10.411150932312012,
+      "smoothness_ratio": 1.0671612950326572,
+      "brightness_core": 163.9219970703125,
+      "brightness_ring": 176.0906524658203,
+      "brightness_shift": -12.168655395507812,
+      "saturation_core": 112.97976684570312,
+      "saturation_ring": 98.61846923828125,
+      "saturation_shift": 14.361297607421875,
+      "core_mean_abs_diff": 5.816001892089844
+    },
+    "local_verdict": "pass",
+    "flags": [],
+    "judge": {
+      "damage_removed": false,
+      "residual_at_repair_site": "severe",
+      "residual_description": "The images are identical. No repairs were made, and the crack on the concrete base remains completely unchanged.",
+      "looks_edited": false,
+      "edit_evidence": "",
+      "authentic_survey_photo": true,
+      "confidence": 0.7,
+      "n_windows": 3,
+      "per_window": [
+        {
+          "damage_removed": false,
+          "residual_at_repair_site": "severe",
+          "residual_description": "The images are identical. No repairs were made, and the crack on the concrete base remains completely unchanged.",
+          "confidence": 0.75,
+          "looks_edited": false,
+          "edit_evidence": "No signs of editing. Textures and lighting look natural.",
+          "authentic_survey_photo": true,
+          "window": [
+            0,
+            0,
+            480,
+            480
+          ]
+        },
+        {
+          "damage_removed": false,
+          "residual_at_repair_site": "severe",
+          "residual_description": "The images are completely identical. The prominent vertical crack in the concrete foundation block remains entirely unchanged.",
+          "confidence": 0.7,
+          "looks_edited": false,
+          "edit_evidence": "Image appears unedited with natural textures.",
+          "authentic_survey_photo": true,
+          "window": [
+            0,
+            0,
+            480,
+            480
+          ]
+        },
+        {
+          "damage_removed": false,
+          "residual_at_repair_site": "severe",
+          "residual_description": "The images are visually identical; no repairs appear to have been made to any damage.",
+          "confidence": 0.7,
+          "looks_edited": false,
+          "edit_evidence": "No signs of digital manipulation found. Textures and lighting remain natural.",
+          "authentic_survey_photo": true,
+          "window": [
+            160,
+            0,
+            640,
+            480
+          ]
+        }
+      ]
+    },
+    "judge_error": null,
+    "verdict": "reject",
+    "reasons": [
+      "not_repaired",
+      "residual_severe"
+    ]
+  },
+  {
+    "stem": "f-00238",
+    "metrics": {
+      "edited_frac": 0.4169282913208008,
+      "outside_mean_abs_diff": 0.020110338926315308,
+      "hf_core": 1.9329841136932373,
+      "hf_ring": 1.836233377456665,
+      "smoothness_ratio": 1.0526897819331549,
+      "brightness_core": 144.90794372558594,
+      "brightness_ring": 99.4843521118164,
+      "brightness_shift": 45.42359161376953,
+      "saturation_core": 59.04544448852539,
+      "saturation_ring": 51.91279983520508,
+      "saturation_shift": 7.1326446533203125,
+      "core_mean_abs_diff": 20.188264846801758
+    },
+    "local_verdict": "review",
+    "flags": [
+      "brighter(45.4)"
+    ],
+    "judge": {
+      "damage_removed": true,
+      "residual_at_repair_site": "none",
+      "residual_description": "The heavy corrosion and deterioration on the steel column base and base plate have been completely removed and replaced with a clean, painted surface and new bolts. No damage remains in the altered area.",
+      "looks_edited": false,
+      "edit_evidence": "",
+      "authentic_survey_photo": true,
+      "confidence": 0.7,
+      "n_windows": 2,
+      "per_window": [
+        {
+          "damage_removed": true,
+          "residual_at_repair_site": "none",
+          "residual_description": "The heavy corrosion and deterioration on the steel column base and base plate have been completely removed and replaced with a clean, painted surface and new bolts. No damage remains in the altered area.",
+          "confidence": 0.75,
+          "looks_edited": false,
+          "edit_evidence": "No clear signs of digital alteration. Lighting, shadows, and noise levels appear consistent.",
+          "authentic_survey_photo": true,
+          "window": [
+            331,
+            211,
+            1611,
+            1491
+          ]
+        },
+        {
+          "damage_removed": true,
+          "residual_at_repair_site": "none",
+          "residual_description": "The heavily corroded column base and base plate have been replaced with clean, newly painted surfaces and new anchor bolts. No damage remains in the altered area.",
+          "confidence": 0.7,
+          "looks_edited": false,
+          "edit_evidence": "Image appears natural with typical flash lighting and no visible artifacts.",
+          "authentic_survey_photo": true,
+          "window": [
+            325,
+            256,
+            1605,
+            1536
+          ]
+        }
+      ]
+    },
+    "judge_error": null,
+    "verdict": "review",
+    "reasons": [
+      "brighter(45.4)"
+    ]
+  },
+  {
+    "stem": "f-00276",
+    "metrics": {
+      "edited_frac": 0.30697674418604654,
+      "outside_mean_abs_diff": 0.07054488360881805,
+      "hf_core": 6.975254535675049,
+      "hf_ring": 5.051019191741943,
+      "smoothness_ratio": 1.380959816402815,
+      "brightness_core": 185.06719970703125,
+      "brightness_ring": 160.81292724609375,
+      "brightness_shift": 24.2542724609375,
+      "saturation_core": 21.37566566467285,
+      "saturation_ring": 21.67867088317871,
+      "saturation_shift": -0.3030052185058594,
+      "core_mean_abs_diff": 27.02081871032715
+    },
+    "local_verdict": "pass",
+    "flags": [],
+    "judge": {
+      "damage_removed": true,
+      "residual_at_repair_site": "none",
+      "residual_description": "The missing concrete section has been filled, restoring the foundation block. The repaired area shows rust staining, but no structural damage.",
+      "looks_edited": false,
+      "edit_evidence": "",
+      "authentic_survey_photo": true,
+      "confidence": 0.75,
+      "n_windows": 1,
+      "per_window": [
+        {
+          "damage_removed": true,
+          "residual_at_repair_site": "none",
+          "residual_description": "The missing concrete section has been filled, restoring the foundation block. The repaired area shows rust staining, but no structural damage.",
+          "confidence": 0.75,
+          "looks_edited": false,
+          "edit_evidence": "Image shows typical low resolution and compression artifacts without signs of localized digital manipulation.",
+          "authentic_survey_photo": true,
+          "window": [
+            74,
+            0,
+            205,
+            131
+          ]
+        }
+      ]
+    },
+    "judge_error": null,
+    "verdict": "pass",
+    "reasons": []
+  },
+  {
+    "stem": "f-00254",
+    "metrics": {
+      "edited_frac": 0.2926148133501205,
+      "outside_mean_abs_diff": 0.04677670821547508,
+      "hf_core": 4.871844291687012,
+      "hf_ring": 4.78180456161499,
+      "smoothness_ratio": 1.0188296549789588,
+      "brightness_core": 139.71298217773438,
+      "brightness_ring": 154.967041015625,
+      "brightness_shift": -15.254058837890625,
+      "saturation_core": 41.794673919677734,
+      "saturation_ring": 29.54854393005371,
+      "saturation_shift": 12.246129989624023,
+      "core_mean_abs_diff": 20.43943214416504
+    },
+    "local_verdict": "pass",
+    "flags": [],
+    "judge": {
+      "damage_removed": true,
+      "residual_at_repair_site": "none",
+      "residual_description": "The corroded and degraded surfaces on the bolt, nut, and washer have been completely replaced with clean, pristine metal textures.",
+      "looks_edited": false,
+      "edit_evidence": "",
+      "authentic_survey_photo": true,
+      "confidence": 0.7,
+      "n_windows": 3,
+      "per_window": [
+        {
+          "damage_removed": true,
+          "residual_at_repair_site": "none",
+          "residual_description": "The corroded and degraded surfaces on the bolt, nut, and washer have been completely replaced with clean, pristine metal textures.",
+          "confidence": 0.7,
+          "looks_edited": false,
+          "edit_evidence": "No manipulation detected; textures normal.",
+          "authentic_survey_photo": true,
+          "window": [
+            551,
+            194,
+            1831,
+            1474
+          ]
+        },
+        {
+          "damage_removed": true,
+          "residual_at_repair_site": "none",
+          "residual_description": "The corroded edge of the steel plate and the rusted weld at the base have been replaced with clean, uncorroded metal and a new weld.",
+          "confidence": 0.75,
+          "looks_edited": false,
+          "edit_evidence": "No visible editing. Textures and lighting are natural.",
+          "authentic_survey_photo": true,
+          "window": [
+            1536,
+            0,
+            2816,
+            1280
+          ]
+        },
+        {
+          "damage_removed": true,
+          "residual_at_repair_site": "none",
+          "residual_description": "The heavy rust and corrosion on the left vertical plate edge and the bolt assembly have been replaced with smooth, clean metal textures, leaving no visible damage.",
+          "confidence": 0.75,
+          "looks_edited": false,
+          "edit_evidence": "No signs of editing. Textures and lighting look natural.",
+          "authentic_survey_photo": true,
+          "window": [
+            0,
+            97,
+            1280,
+            1377
+          ]
+        }
+      ]
+    },
+    "judge_error": null,
+    "verdict": "pass",
+    "reasons": []
+  },
+  {
+    "stem": "f-00297",
+    "metrics": {
+      "edited_frac": 0.15073902027027028,
+      "outside_mean_abs_diff": 0.07028920203447342,
+      "hf_core": 11.092692375183105,
+      "hf_ring": 4.2599053382873535,
+      "smoothness_ratio": 2.603976261041236,
+      "brightness_core": 122.52220153808594,
+      "brightness_ring": 140.97886657714844,
+      "brightness_shift": -18.4566650390625,
+      "saturation_core": 19.064855575561523,
+      "saturation_ring": 14.667154312133789,
+      "saturation_shift": 4.397701263427734,
+      "core_mean_abs_diff": 11.003524780273438
+    },
+    "local_verdict": "reject",
+    "flags": [
+      "invented_texture(2.60)"
+    ],
+    "judge": {
+      "damage_removed": false,
+      "residual_at_repair_site": "severe",
+      "residual_description": "The two images are completely identical. No repairs have been made.",
+      "looks_edited": false,
+      "edit_evidence": "",
+      "authentic_survey_photo": true,
+      "confidence": 0.7,
+      "n_windows": 2,
+      "per_window": [
+        {
+          "damage_removed": false,
+          "residual_at_repair_site": "severe",
+          "residual_description": "The two images are completely identical. No repairs have been made.",
+          "confidence": 0.75,
+          "looks_edited": false,
+          "edit_evidence": "The image does not show any signs of digital manipulation.",
+          "authentic_survey_photo": true,
+          "window": [
+            42,
+            0,
+            298,
+            256
+          ]
+        },
+        {
+          "damage_removed": false,
+          "residual_at_repair_site": "severe",
+          "residual_description": "Both images are identical. No repair has been applied, so the original crack in the concrete and rust at the column base remain.",
+          "confidence": 0.7,
+          "looks_edited": false,
+          "edit_evidence": "No obvious signs of alteration. Textures and lighting are consistent throughout the scene.",
+          "authentic_survey_photo": true,
+          "window": [
+            42,
+            0,
+            298,
+            256
+          ]
+        }
+      ]
+    },
+    "judge_error": null,
+    "verdict": "reject",
+    "reasons": [
+      "invented_texture(2.60)",
+      "not_repaired",
+      "residual_severe"
+    ]
+  },
+  {
+    "stem": "f-00314",
+    "metrics": {
+      "edited_frac": 0.06923043628808864,
+      "outside_mean_abs_diff": 0.0055687264539301395,
+      "hf_core": 11.292858123779297,
+      "hf_ring": 9.147613525390625,
+      "smoothness_ratio": 1.2345141268194388,
+      "brightness_core": 92.4361801147461,
+      "brightness_ring": 118.30066680908203,
+      "brightness_shift": -25.864486694335938,
+      "saturation_core": 23.552499771118164,
+      "saturation_ring": 16.074691772460938,
+      "saturation_shift": 7.477807998657227,
+      "core_mean_abs_diff": 41.84675598144531
+    },
+    "local_verdict": "pass",
+    "flags": [],
+    "judge": {
+      "damage_removed": true,
+      "residual_at_repair_site": "moderate",
+      "residual_description": "The major spalling and exposed rebar have been filled in, but the repaired surface exhibits a messy, uneven texture with several noticeable cracks across the newly generated concrete area.",
+      "looks_edited": true,
+      "edit_evidence": "Concrete and soil display smeared, artificial textures indicative of generative AI.",
+      "authentic_survey_photo": false,
+      "confidence": 0.7,
+      "n_windows": 2,
+      "per_window": [
+        {
+          "damage_removed": true,
+          "residual_at_repair_site": "moderate",
+          "residual_description": "The major spalling and exposed rebar have been filled in, but the repaired surface exhibits a messy, uneven texture with several noticeable cracks across the newly generated concrete area.",
+          "confidence": 0.75,
+          "looks_edited": true,
+          "edit_evidence": "Concrete and soil display smeared, artificial textures indicative of generative AI.",
+          "authentic_survey_photo": false,
+          "window": [
+            2071,
+            1049,
+            3351,
+            2329
+          ]
+        },
+        {
+          "damage_removed": true,
+          "residual_at_repair_site": "moderate",
+          "residual_description": "The large void and exposed horizontal rebar have been filled, but the newly generated concrete surface exhibits extensive, deep cracking and a highly uneven, crumbling texture.",
+          "confidence": 0.7,
+          "looks_edited": true,
+          "edit_evidence": "Smudged textures on concrete; implausible bolt geometry below plate.",
+          "authentic_survey_photo": false,
+          "window": [
+            2063,
+            1049,
+            3343,
+            2329
+          ]
+        }
+      ]
+    },
+    "judge_error": null,
+    "verdict": "reject",
+    "reasons": [
+      "residual_moderate",
+      "looks_edited",
+      "inauthentic"
+    ]
+  },
+  {
+    "stem": "f-00305",
+    "metrics": {
+      "edited_frac": 0.1508177806712963,
+      "outside_mean_abs_diff": 0.029186535626649857,
+      "hf_core": 10.870083808898926,
+      "hf_ring": 9.587227821350098,
+      "smoothness_ratio": 1.133808856058682,
+      "brightness_core": 147.6341094970703,
+      "brightness_ring": 123.05416107177734,
+      "brightness_shift": 24.57994842529297,
+      "saturation_core": 9.229804039001465,
+      "saturation_ring": 10.898518562316895,
+      "saturation_shift": -1.6687145233154297,
+      "core_mean_abs_diff": 29.07255744934082
+    },
+    "local_verdict": "pass",
+    "flags": [],
+    "judge": {
+      "damage_removed": true,
+      "residual_at_repair_site": "minor",
+      "residual_description": "The large spalled area has been filled, but the texture is blurry and discolored. Some faint traces of cracks remain, and concrete debris at the base is only partially obscured by a blurry artifact.",
+      "looks_edited": false,
+      "edit_evidence": "",
+      "authentic_survey_photo": true,
+      "confidence": 0.7,
+      "n_windows": 2,
+      "per_window": [
+        {
+          "damage_removed": true,
+          "residual_at_repair_site": "none",
+          "residual_description": "The main spalled area and most of the rubble have been filled in and removed. The repaired area exhibits some blurry texture and discoloration, but no structural damage remains at the repair site.",
+          "confidence": 0.7,
+          "looks_edited": false,
+          "edit_evidence": "No obvious signs of digital manipulation detected. Textures and lighting are consistent.",
+          "authentic_survey_photo": true,
+          "window": [
+            291,
+            0,
+            1544,
+            1253
+          ]
+        },
+        {
+          "damage_removed": true,
+          "residual_at_repair_site": "minor",
+          "residual_description": "The large spalled area has been filled, but the texture is blurry and discolored. Some faint traces of cracks remain, and concrete debris at the base is only partially obscured by a blurry artifact.",
+          "confidence": 0.75,
+          "looks_edited": false,
+          "edit_evidence": "Textures and lighting appear natural with no obvious digital anomalies.",
+          "authentic_survey_photo": true,
+          "window": [
+            372,
+            98,
+            1652,
+            1378
+          ]
+        }
+      ]
+    },
+    "judge_error": null,
+    "verdict": "review",
+    "reasons": [
+      "residual_minor"
+    ]
+  }
+]
