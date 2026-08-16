@@ -16,6 +16,9 @@ kept out of git under `.local_artifacts/`.
 | 2026-06-16 | RC wall report optimization and final display/report update | `docs/handoff_records/2026-06-16/today_rc_wall_optimization_handoff_20260616.md`, `docs/development_records/2026-06-15-16-final-release/pipeline_visual_error_analysis_20260616.md` | optimized model binaries stay external/ignored |
 | 2026-07-07 | Reviewed and deduplicated `ブレース` / `柱脚` router data update; consolidated RF-DETR/Yolo package split | `docs/handoff_records/2026-07-07/router_5class_reviewed_dedup_handoff_20260707.md`, `docs/handoff_records/2026-07-07/consolidated_handoff_packages_20260707.md`, `docs/development_records/2026-07-07-router5-reviewed-dedup.md` | RF-DETR main staging is `.local_artifacts/handoff_20260707_rfdetr_main`; YOLO archive staging is `.local_artifacts/handoff_20260707_yolo_archive` |
 | 2026-08-03 | Gemini synthetic data (S1 counterfactual negatives) for `ブレース` / `柱脚` B/C/D, calibrated quality gate, and the training plan | `docs/handoff_records/2026-08-03/synthetic_data_handoff_20260803.md`, `docs/development_records/2026-08-03-new-classes-synthetic-data-plan.md`, `docs/development_records/2026-08-03-s1-pipeline-and-judge-calibration.md` | generated images stay ignored under `outputs/gemini_synth/`; small state files are tracked in `docs/development_records/assets/2026-08-03-s1/` |
+| 2026-08-04 | Annotation-completeness audit finds the label noise behind the recall gap; sixteen negative results; the two methods that worked (WBF inference aggregation, BRL sparse-annotation loss) | `docs/handoff_records/2026-08-04/handoff_20260804.md`, `docs/development_records/2026-08-04-label-noise-finding-and-sixteen-negative-results.md`, `docs/development_records/2026-08-04-synthetic-negatives-and-failed-interventions.md` | models, threshold grids, audit JSON and the client report ship in `shimizu_handoff_20260804.tar.zst` (359 MB, external) |
+| 2026-08-15 | `ブレース` recall freeze: the 0.723 operating point pinned with its inference parameters, plus the per-grade B/C/D breakdown the client asked for | `docs/handoff_records/2026-08-15/brace_recall_freeze_20260815.md` | checkpoints and threshold grids ship in the `handoff_20260815_brace_recall_freeze` package (261 MB, external); the machine-readable point table is tracked at `docs/development_records/assets/2026-08-15/brace_frozen_operating_points.json` |
+| 2026-08-16 | `柱脚` delivery freeze: three inference-side gains (fusion parameters, horizontal-flip TTA, router spatial gate) and four training-side interventions that all measured harmful; the cross-validation measurement floor that made either verdict possible | `docs/handoff_records/2026-08-16/column_base_freeze_20260816.md`, `docs/development_records/2026-08-16-column-base-measurement-floor.md` | checkpoints and raw result JSON ship in the `handoff_20260816_column_base_freeze` package (256 MB, external); the machine-readable result table is tracked at `docs/development_records/assets/2026-08-16/column_base_20260816_results.json` |
 
 ## Consolidation Decision
 
@@ -56,6 +59,20 @@ are local recovery material. They belong in:
 7. 2026-07-07 consolidated the next handoff into a RF-DETR main package and a
    YOLO archive-only package. Future model delivery should continue from the
    RF-DETR package.
+8. 2026-08-04 traced the `ブレース` / `柱脚` recall gap to incomplete annotation
+   rather than to tuning, and found the only two interventions that moved it:
+   WBF inference aggregation and the BRL sparse-annotation loss.
+9. 2026-08-15 froze the `ブレース` operating point behind the reported overall
+   recall 0.723 and reported it per grade. B reaches only 0.636 there; all four
+   figures clear 0.70 at a different threshold triple, at precision 0.359.
+10. 2026-08-16 moved the `柱脚` delivery entirely from the inference side -
+   precision 0.300 to 0.395 measured, false alarms 2.45 to 1.66 boxes per sound
+   image, four-target feasibility 26.6% to 46.4%, with recall unchanged and no
+   model retrained. The same day closed the training side: four interventions,
+   all harmful under a cross-validation protocol whose detection floor
+   (0.045 precision, 0.29 boxes/image) is 2-5x tighter than the previous one.
+   Five improvements claimed earlier in the week fell below the old floor and
+   were retracted as unmeasurable rather than disproved.
 
 ## Current Code Direction
 

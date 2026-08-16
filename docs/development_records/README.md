@@ -31,6 +31,21 @@ others hold the detail:
 | `2026-07-26-new-classes-shortcut-learning-finding.md` | the models detected the element, not the damage |
 | `2026-07-26-new-classes-negatives-results.md` | background negatives, the one intervention that worked |
 
+## ブレース / 柱脚 (2026-08-03 to 08-16)
+
+| file | focus |
+|---|---|
+| `2026-08-03-new-classes-synthetic-data-plan.md` | synthetic data plan |
+| `2026-08-03-s1-pipeline-and-judge-calibration.md` | S1 pipeline, judge calibration |
+| `2026-08-04-synthetic-negatives-and-failed-interventions.md` | synthetic negatives; interventions that did not hold |
+| `2026-08-04-label-noise-finding-and-sixteen-negative-results.md` | the annotation is incomplete; sixteen negative results; WBF and BRL |
+| **`2026-08-16-column-base-measurement-floor.md`** | **柱脚: the cross-validation measurement floor, three inference-side gains, four training-side interventions all harmful** |
+
+Read the 08-16 record before proposing any further 柱脚 experiment: it records
+the detection floor (0.045 precision, 0.29 boxes/image), the four training-side
+verdicts, and why five improvements claimed earlier that week were retracted as
+unmeasurable rather than disproved.
+
 ## Supporting Folders
 
 | folder | contents |

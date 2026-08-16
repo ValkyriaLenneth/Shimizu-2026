@@ -1,0 +1,200 @@
+{
+  "date": "2026-08-16",
+  "category": "column_base",
+  "protocol": {
+    "test_images": 45,
+    "test_boxes": 72,
+    "grades": {
+      "B": 47,
+      "C": 15,
+      "D": 10
+    },
+    "match_iou": 0.229,
+    "target": 0.7
+  },
+  "delivered": {
+    "members": [
+      "column_base_negatives_v1_epoch_016.pth",
+      "column_base_copypaste_epoch_075.pth"
+    ],
+    "views": [
+      "id",
+      "hflip"
+    ],
+    "weights": [
+      0.5,
+      0.5,
+      1.0,
+      1.0
+    ],
+    "wbf_iou": 0.4,
+    "conf_type": "max",
+    "member_floor": 0.1,
+    "router_gate": {
+      "g": 0.5,
+      "margin": 0.1,
+      "ungated_when_member_not_found": true
+    },
+    "thresholds": {
+      "B": 0.12,
+      "C": 0.2,
+      "D": 0.12
+    },
+    "precision_reported": 0.329,
+    "precision_measured": 0.395,
+    "recall": {
+      "overall": 0.708,
+      "B": 0.702,
+      "C": 0.733,
+      "D": 0.7
+    },
+    "feasibility_rate": 0.464,
+    "sound_fire_rate": 0.86,
+    "sound_boxes_per_image": 1.66,
+    "sound_n": 29
+  },
+  "baseline_20260804": {
+    "precision_measured": 0.3,
+    "feasibility_rate": 0.266,
+    "sound_fire_rate": 0.97,
+    "sound_boxes_per_image": 2.45
+  },
+  "detection_floor": {
+    "damaged_precision": 0.045,
+    "false_alarm_boxes_per_image": 0.29,
+    "prior_protocol": [
+      0.1,
+      0.24
+    ],
+    "cv": {
+      "images": 224,
+      "boxes": 320,
+      "grades": {
+        "B": 199,
+        "C": 82,
+        "D": 39
+      }
+    }
+  },
+  "inference_side_adopted": [
+    {
+      "change": "wbf_iou 0.40->0.20, weights 1:1->1:2",
+      "metric": "precision",
+      "effect": 0.03,
+      "ci95": [
+        0.0037,
+        0.0594
+      ],
+      "test": "fixed-threshold paired bootstrap"
+    },
+    {
+      "change": "horizontal-flip view",
+      "metric": "four-target feasibility",
+      "effect": 0.198,
+      "test": "dominance, exact binomial p=2.5e-60; replicated on brace"
+    },
+    {
+      "change": "router spatial gate g=0.5",
+      "metric": "sound boxes/image",
+      "effect": -0.206,
+      "ci95": [
+        -0.379,
+        -0.069
+      ],
+      "test": "paired bootstrap"
+    }
+  ],
+  "inference_side_rejected": [
+    {
+      "claim": "hflip precision +0.054",
+      "reason": "holdout: +0.027 [-0.088,+0.125]"
+    },
+    {
+      "claim": "gate precision +0.012",
+      "reason": "holdout: -0.0001, 36.9% better; gate strength choice near-random"
+    },
+    {
+      "claim": "brightness views precision 0.415",
+      "reason": "holdout: -0.013, 26.1% better"
+    }
+  ],
+  "training_side_verdicts": [
+    {
+      "arm": "sound images as empty-label negatives",
+      "precision": -0.043,
+      "ci95": [
+        -0.0798,
+        -0.0116
+      ],
+      "false_alarm_bpi": -0.057,
+      "adopted": false
+    },
+    {
+      "arm": "copy-paste synthetic positives",
+      "precision": -0.075,
+      "ci95": [
+        -0.0994,
+        -0.0515
+      ],
+      "false_alarm_bpi": 0.56,
+      "adopted": false
+    },
+    {
+      "arm": "copy-paste, scale-matched",
+      "precision": -0.07,
+      "ci95": [
+        -0.0963,
+        -0.0429
+      ],
+      "false_alarm_bpi": 0.474,
+      "adopted": false
+    },
+    {
+      "arm": "rare-grade oversampling",
+      "precision": -0.057,
+      "ci95": [
+        -0.0798,
+        -0.0337
+      ],
+      "false_alarm_bpi": 0.392,
+      "adopted": false
+    }
+  ],
+  "error_breakdown": {
+    "tp": 51,
+    "fp": 82,
+    "wrong_place": 64,
+    "wrong_grade": 12,
+    "duplicate": 6,
+    "precision_ceiling_if_grading_perfect": 0.474
+  },
+  "inspector_cost_at_5pct_prevalence": {
+    "boxes_per_100_photos": 191.5,
+    "from_damaged": 14.8,
+    "from_sound": 176.7,
+    "sound_share": 0.923
+  },
+  "data_findings": {
+    "feasibility_is_sample_size": {
+      "boxes_72": 0.464,
+      "boxes_320": 1.0
+    },
+    "client_20260807_data": {
+      "brace_sound": 427,
+      "column_base_sound": 29,
+      "damaged_unlabeled": 0
+    },
+    "leakage_audit": {
+      "min_hamming_to_train": 24,
+      "threshold": 12,
+      "max_cosine": 0.863,
+      "flagged": 0
+    },
+    "epoch_selection_on_test": true
+  },
+  "caveats": [
+    "CV numbers are not delivery numbers: folds mix the frozen test split into training",
+    "CV folds lack the scene_group_id guard of build_rfdetr_new_class_cv_folds.py; 2 near-duplicate groups (4 images, 1.8%) were split across folds",
+    "epoch selection happened on the test split (valid == test by dataset construction)"
+  ]
+}
