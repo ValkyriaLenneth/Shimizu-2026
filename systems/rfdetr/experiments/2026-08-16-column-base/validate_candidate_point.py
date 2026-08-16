@@ -1,3 +1,10 @@
+import os as _os, sys as _sys
+# Resolve sibling modules from wherever this package was extracted,
+# falling back to the authoring location if it happens to exist.
+_here = _os.path.dirname(_os.path.abspath(__file__))
+for _p in (_here, "/workspace/scripts_exp"):
+    if _os.path.isdir(_p) and _p not in _sys.path:
+        _sys.path.insert(0, _p)
 """Is the candidate point's precision real, or another maximum picked from a grid?
 
 Relaxing B to 0.68 moves precision from 0.395 to 0.442 and sound-image boxes from
@@ -19,7 +26,6 @@ question is empirical. Two checks:
 import itertools, sys, json
 from pathlib import Path
 import numpy as np
-sys.path.insert(0, "/workspace/scripts_exp")
 import router_gate as RG
 from tta_fusion import MEMBERS, GRID, NC, DS, fuse
 sys.path.insert(0, "/workspace/Shimizu-2026/systems/rfdetr/scripts")

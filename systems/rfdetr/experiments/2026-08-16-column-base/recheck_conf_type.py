@@ -1,3 +1,10 @@
+import os as _os, sys as _sys
+# Resolve sibling modules from wherever this package was extracted,
+# falling back to the authoring location if it happens to exist.
+_here = _os.path.dirname(_os.path.abspath(__file__))
+for _p in (_here, "/workspace/scripts_exp"):
+    if _os.path.isdir(_p) and _p not in _sys.path:
+        _sys.path.insert(0, _p)
 """Re-check conf_type now that fusion takes four inputs instead of two.
 
 conf_type was fixed to "max" on the morning's fusion sweep, when WBF combined two
@@ -14,7 +21,6 @@ import itertools, json, sys
 from pathlib import Path
 import numpy as np
 from PIL import Image
-sys.path.insert(0, "/workspace/scripts_exp")
 import router_gate as RG
 from tta_fusion import MEMBERS, GRID, NC, DS
 from ensemble_boxes import weighted_boxes_fusion

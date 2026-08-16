@@ -1,3 +1,10 @@
+import os as _os, sys as _sys
+# Resolve sibling modules from wherever this package was extracted,
+# falling back to the authoring location if it happens to exist.
+_here = _os.path.dirname(_os.path.abspath(__file__))
+for _p in (_here, "/workspace/scripts_exp"):
+    if _os.path.isdir(_p) and _p not in _sys.path:
+        _sys.path.insert(0, _p)
 """Does the flip view survive the gate on the same terms as the identity view?
 
 The delivered configuration fuses four inputs: two checkpoints, each run on the
@@ -14,7 +21,6 @@ the un-flip is sound; a gap means it is not.
 """
 import sys
 import numpy as np
-sys.path.insert(0, "/workspace/scripts_exp")
 import router_gate as RG
 from tta_fusion import MEMBERS, NC, DS
 from PIL import Image

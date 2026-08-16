@@ -22,13 +22,19 @@ recipe has not been shown to help the delivery whatever the CV said.
 The router gate is applied exactly as the delivered configuration applies it.
 """
 from __future__ import annotations
+import os as _os, sys as _sys
+# Resolve sibling modules from wherever this package was extracted,
+# falling back to the authoring location if it happens to exist.
+_here = _os.path.dirname(_os.path.abspath(__file__))
+for _p in (_here, "/workspace/scripts_exp"):
+    if _os.path.isdir(_p) and _p not in _sys.path:
+        _sys.path.insert(0, _p)
 import itertools, json, sys
 from pathlib import Path
 import numpy as np
 import torch
 from PIL import Image
 from ensemble_boxes import weighted_boxes_fusion
-sys.path.insert(0, "/workspace/scripts_exp")
 import router_gate as RG
 sys.path.insert(0, "/workspace/Shimizu-2026/systems/rfdetr/scripts")
 from checkpoint_resolution import from_checkpoint_matched

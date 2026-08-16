@@ -1,3 +1,10 @@
+import os as _os, sys as _sys
+# Resolve sibling modules from wherever this package was extracted,
+# falling back to the authoring location if it happens to exist.
+_here = _os.path.dirname(_os.path.abspath(__file__))
+for _p in (_here, "/workspace/scripts_exp"):
+    if _os.path.isdir(_p) and _p not in _sys.path:
+        _sys.path.insert(0, _p)
 """Put the most divergent candidates in the third WBF slot, at a fixed epoch.
 
 The screen ranked 38 earlier runs by how much they disagree with the shipped
@@ -16,7 +23,6 @@ import numpy as np
 import torch
 from PIL import Image
 from ensemble_boxes import weighted_boxes_fusion
-sys.path.insert(0, "/workspace/scripts_exp")
 import router_gate as RG
 from tta_fusion import MEMBERS, GRID, NC, DS
 sys.path.insert(0, "/workspace/Shimizu-2026/systems/rfdetr/scripts")

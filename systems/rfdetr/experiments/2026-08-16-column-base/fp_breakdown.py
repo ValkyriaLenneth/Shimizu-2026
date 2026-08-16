@@ -18,13 +18,19 @@ move the number; if most are wrong-place, the reverse.
 Nothing here changes the delivered figure. It says which kind of work could.
 """
 from __future__ import annotations
+import os as _os, sys as _sys
+# Resolve sibling modules from wherever this package was extracted,
+# falling back to the authoring location if it happens to exist.
+_here = _os.path.dirname(_os.path.abspath(__file__))
+for _p in (_here, "/workspace/scripts_exp"):
+    if _os.path.isdir(_p) and _p not in _sys.path:
+        _sys.path.insert(0, _p)
 import json, sys
 from collections import Counter
 from pathlib import Path
 import numpy as np
 import torch
 from PIL import Image
-sys.path.insert(0, "/workspace/scripts_exp")
 from tta_fusion import MEMBERS, NC, DS, fuse
 sys.path.insert(0, "/workspace/Shimizu-2026/systems/rfdetr/scripts")
 from checkpoint_resolution import from_checkpoint_matched

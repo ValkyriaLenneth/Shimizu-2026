@@ -22,11 +22,17 @@ Per-grade columns are kept separate because a concession on B is not the same
 promise as a concession on D: B carries 47 of the 72 test boxes and D only 10.
 """
 from __future__ import annotations
+import os as _os, sys as _sys
+# Resolve sibling modules from wherever this package was extracted,
+# falling back to the authoring location if it happens to exist.
+_here = _os.path.dirname(_os.path.abspath(__file__))
+for _p in (_here, "/workspace/scripts_exp"):
+    if _os.path.isdir(_p) and _p not in _sys.path:
+        _sys.path.insert(0, _p)
 import csv, itertools, json, sys
 from pathlib import Path
 import numpy as np
 from PIL import Image
-sys.path.insert(0, "/workspace/scripts_exp")
 import router_gate as RG
 from tta_fusion import MEMBERS, GRID, NC, DS, fuse
 sys.path.insert(0, "/workspace/Shimizu-2026/systems/rfdetr/scripts")

@@ -20,12 +20,18 @@ move with it and the client knows their own.
 Nothing is retrained: this is the delivered four-view configuration, re-cut.
 """
 from __future__ import annotations
+import os as _os, sys as _sys
+# Resolve sibling modules from wherever this package was extracted,
+# falling back to the authoring location if it happens to exist.
+_here = _os.path.dirname(_os.path.abspath(__file__))
+for _p in (_here, "/workspace/scripts_exp"):
+    if _os.path.isdir(_p) and _p not in _sys.path:
+        _sys.path.insert(0, _p)
 import itertools, json, sys
 from pathlib import Path
 import numpy as np
 import torch
 from PIL import Image
-sys.path.insert(0, "/workspace/scripts_exp")
 from tta_fusion import MEMBERS, GRID, NC, DS, OUT, fuse, tabulate, best
 sys.path.insert(0, "/workspace/Shimizu-2026/systems/rfdetr/scripts")
 from checkpoint_resolution import from_checkpoint_matched

@@ -63,3 +63,24 @@
     python scripts/gate_margin_single.py cuda:0         # 构件框外扩
     python scripts/router_thr_sweep.py cuda:0           # 路由器阈值
     python scripts/negative_class_gate.py cuda:0        # 门控方向
+
+---
+
+## 复现命令的可用性已实测(2026-08-16 晚)
+
+上表的复现命令曾**逐条写下但从未从解包目录实跑过**。检查发现 12 个脚本中 11 个
+硬编码 `sys.path.insert("/workspace/scripts_exp")` —— 换台机器解包后,
+本文档列出的九条命令**一条都跑不通**。只有 `verify_freeze.py` 当初被刻意写成自足。
+
+已为全部脚本加入路径解析:优先从**脚本自身所在目录**解析同级依赖,
+回退到原编写位置。修正同时应用于冻结包与仓库两处副本(各 31 个),
+故 `/workspace/scripts_exp` 下的工作副本不受影响。
+
+**验证方式:** 从 tar 解包到全新目录,**并从 sys.path 中移除原编写位置**,
+逐个导入 20 个模块 —— 全部成功。
+
+一处过程记录:第一次修正后**静态检查全部通过**(`ast.parse` 无报错),
+实跑导入时却有三个文件失败 —— shim 被插在 `from __future__ import annotations`
+之前,而 Python 要求 future 导入必须是文档字符串后的第一条语句。
+**`ast.parse` 只检查单文件语法,`import` 才检查这类语义约束。**
+若止步于静态检查,交接包会带着三个坏文件发出。
