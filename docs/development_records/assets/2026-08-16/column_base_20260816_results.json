@@ -31,10 +31,12 @@
     "conf_type": "max",
     "member_floor": 0.1,
     "router_gate": {
+      "member_box": "highest-scoring router column-base box (not the union)",
+      "margin": 0.05,
       "g": 0.5,
-      "margin": 0.1,
+      "router_threshold": 0.3,
       "ungated_when_member_not_found": true,
-      "adopted_for": "false-alarm reduction only; precision claim rejected by holdout"
+      "adopted_for": "false-alarm reduction; precision claims rejected by holdout at both steps"
     },
     "thresholds": {
       "B": 0.12,
@@ -42,7 +44,7 @@
       "D": 0.12
     },
     "precision_reported": 0.329,
-    "precision_measured": 0.395,
+    "precision_measured": 0.408,
     "recall": {
       "overall": 0.708,
       "B": 0.702,
@@ -50,8 +52,8 @@
       "D": 0.7
     },
     "feasibility_rate": 0.464,
-    "sound_fire_rate": 0.86,
-    "sound_boxes_per_image": 1.66,
+    "sound_fire_rate": 0.72,
+    "sound_boxes_per_image": 1.41,
     "sound_n": 29
   },
   "baseline_20260804": {
@@ -244,5 +246,63 @@
       }
     ],
     "conclusion": "no recipe improves the delivery; all six ensemble values 0.238-0.286 vs 0.395"
+  },
+  "candidate_operating_point": {
+    "rule": "relax B recall below 0.70; the threshold triple follows, it is not searched",
+    "thresholds": {
+      "B": 0.15,
+      "C": 0.2,
+      "D": 0.12
+    },
+    "precision": 0.455,
+    "recall": {
+      "B": 0.681,
+      "C": 0.733,
+      "D": 0.7
+    },
+    "sound_fire_rate": 0.62,
+    "sound_boxes_per_image": 1.03,
+    "holdout": {
+      "better": 0.309,
+      "worse": 0.012
+    },
+    "pending": "client decision"
+  },
+  "gate_geometry_sweeps": {
+    "strength_g": {
+      "swept": [
+        0.3,
+        0.4,
+        0.5,
+        0.6,
+        0.7,
+        0.8
+      ],
+      "chosen": 0.5,
+      "note": "0.4-0.5 plateau, cliff at 0.6"
+    },
+    "margin": {
+      "swept": [
+        0.0,
+        0.05,
+        0.1,
+        0.15,
+        0.2,
+        0.3
+      ],
+      "chosen": 0.05,
+      "note": "cliff at 0.00; adopted on the false-alarm side only, holdout worse 4.0%"
+    },
+    "router_threshold": {
+      "swept": [
+        0.3,
+        0.2,
+        0.15,
+        0.1,
+        0.05
+      ],
+      "chosen": 0.3,
+      "note": "lower thresholds enlarge the union and let false alarms back through"
+    }
   }
 }

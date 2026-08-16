@@ -60,7 +60,10 @@ CONFIGS = {
 # what it has a reason to remove, which is why recall does not move.
 ROUTER = ("/workspace/handoff_20260707_rfdetr_main/models/rfdetr/router_5class/"
           "selected_precision_p090_epoch049_thr069.pth")
-CB_CLASS, ROUTER_THR, GATE_MARGIN = 4, 0.30, 0.10
+# 0.05 rather than 0.10: with the single-box gate the member is better
+# localised, and the tighter margin removes more false alarms with recall
+# unchanged. 0.00 collapses -- some slack is needed for localisation error.
+CB_CLASS, ROUTER_THR, GATE_MARGIN = 4, 0.30, 0.05
 
 
 def member_boxes(device, paths, sizes):
@@ -80,8 +83,12 @@ def member_boxes(device, paths, sizes):
             out[p.name] = None
             continue
         b = xy[sel]
+        conf = np.asarray(det.confidence).reshape(-1)
         W, H = sizes[p.name]
-        x1, y1, x2, y2 = b[:, 0].min(), b[:, 1].min(), b[:, 2].max(), b[:, 3].max()
+        # Highest-scoring member box rather than the union: the union grows with
+        # each extra router detection and lets false alarms back through, while
+        # all four recalls are unchanged either way.
+        x1, y1, x2, y2 = b[int(np.argmax(conf[sel]))]
         dw, dh = (x2 - x1) * GATE_MARGIN, (y2 - y1) * GATE_MARGIN
         out[p.name] = [max(0, x1 - dw), max(0, y1 - dh), min(W, x2 + dw), min(H, y2 + dh)]
     del model

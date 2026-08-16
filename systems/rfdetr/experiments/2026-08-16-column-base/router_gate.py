@@ -43,7 +43,13 @@ VIEWS, RATIO, IOU, CONF, FLOOR = ("id", "hflip"), (1.0, 2.0), 0.40, "max", 0.10
 MATCH_IOU, TARGET, GRADES = 0.229, 0.70, "BCD"
 # Fraction of the detection's own area that must lie inside the member box.
 GATES = [None, 0.0, 0.1, 0.3, 0.5, 0.7, 0.9]
-MARGIN = 0.10          # member box is dilated by this fraction before gating
+# Member box dilated by this fraction before gating. 0.10 was set to absorb
+# localisation error when the gate used the union of every router box; the single
+# box is smaller and better localised, so less slack is needed. Sweeping it,
+# 0.05 removes more false alarms (1.52 -> 1.41 per sound image) with all four
+# recalls unchanged, while 0.00 collapses -- with no slack real damage is clipped
+# and the threshold search retreats to a worse operating point.
+MARGIN = 0.05
 
 
 def unflip(b, view):
@@ -101,8 +107,13 @@ def member_boxes(device, paths, sizes):
         # should not have half of it gated away.
         b = xy[sel]
         W, H = sizes[p.name]
-        x1, y1 = b[:, 0].min(), b[:, 1].min()
-        x2, y2 = b[:, 2].max(), b[:, 3].max()
+        # Highest-scoring member box, not the union of all of them. The union
+        # grows with every extra detection and dilutes the gate: measured at
+        # router threshold 0.30 it covers 74% of the frame against 55% for the
+        # single box, and the boxes that difference lets through are false
+        # alarms -- all four recalls are identical either way.
+        j = int(np.argmax(conf[sel]))
+        x1, y1, x2, y2 = b[j]
         dw, dh = (x2 - x1) * MARGIN, (y2 - y1) * MARGIN
         out[p.name] = [max(0, x1 - dw), max(0, y1 - dh), min(W, x2 + dw), min(H, y2 + dh)]
     del m; torch.cuda.empty_cache()
