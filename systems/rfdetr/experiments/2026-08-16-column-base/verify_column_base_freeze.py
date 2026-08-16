@@ -39,12 +39,69 @@ MATCH_IOU, NC, GRADES, TARGET, FLOOR = 0.229, 3, "BCD", 0.70, 0.10
 # the old row would score a configuration that was never delivered.
 CONFIGS = {
     "2026-08-04 交付":   {"views": ("id",),          "iou": 0.40, "conf": "avg",
-                          "w": (1.0, 1.0), "thr": (0.07, 0.15, 0.05)},
+                          "w": (1.0, 1.0), "thr": (0.07, 0.15, 0.05), "gate": None},
     "08-16 参数修正":    {"views": ("id",),          "iou": 0.20, "conf": "max",
-                          "w": (1.0, 2.0), "thr": (0.07, 0.15, 0.05)},
-    "08-16 交付(+翻转)": {"views": ("id", "hflip"),  "iou": 0.40, "conf": "max",
-                          "w": (1.0, 2.0), "thr": (0.12, 0.20, 0.12)},
+                          "w": (1.0, 2.0), "thr": (0.07, 0.15, 0.05), "gate": None},
+    "08-16 +翻转":       {"views": ("id", "hflip"),  "iou": 0.40, "conf": "max",
+                          "w": (1.0, 2.0), "thr": (0.12, 0.20, 0.12), "gate": None},
+    "08-16 交付(+门控)": {"views": ("id", "hflip"),  "iou": 0.40, "conf": "max",
+                          "w": (1.0, 2.0), "thr": (0.12, 0.20, 0.12), "gate": 0.5},
 }
+
+# The router locates the column base itself; damage sits on the member, so a
+# detection lying away from it is wrong-place almost by definition. Images where
+# the router finds nothing are passed through ungated - the gate only removes
+# what it has a reason to remove, which is why recall does not move.
+ROUTER = ("/workspace/handoff_20260707_rfdetr_main/models/rfdetr/router_5class/"
+          "selected_precision_p090_epoch049_thr069.pth")
+CB_CLASS, ROUTER_THR, GATE_MARGIN = 4, 0.30, 0.10
+
+
+def member_boxes(device, paths, sizes):
+    model = from_checkpoint_matched(ROUTER, device=device, verbose=False)
+    ctx = getattr(model, "model", None)
+    if ctx is not None and hasattr(ctx, "device"):
+        ctx.device = torch.device(device)
+    out = {}
+    for p in paths:
+        with Image.open(p) as h:
+            im = h.convert("RGB")
+        det = model.predict(im, threshold=ROUTER_THR)
+        cls = np.asarray(det.class_id).reshape(-1)
+        xy = np.asarray(det.xyxy).reshape(-1, 4)
+        sel = cls == CB_CLASS
+        if not sel.any():
+            out[p.name] = None
+            continue
+        b = xy[sel]
+        W, H = sizes[p.name]
+        x1, y1, x2, y2 = b[:, 0].min(), b[:, 1].min(), b[:, 2].max(), b[:, 3].max()
+        dw, dh = (x2 - x1) * GATE_MARGIN, (y2 - y1) * GATE_MARGIN
+        out[p.name] = [max(0, x1 - dw), max(0, y1 - dh), min(W, x2 + dw), min(H, y2 + dh)]
+    del model
+    torch.cuda.empty_cache()
+    return out
+
+
+def apply_gate(fused, members, g):
+    if g is None:
+        return fused
+    out = {}
+    for name, dets in fused.items():
+        mb = members.get(name)
+        if mb is None:
+            out[name] = dets
+            continue
+        keep = []
+        for c, s, b in dets:
+            ix1, iy1 = max(b[0], mb[0]), max(b[1], mb[1])
+            ix2, iy2 = min(b[2], mb[2]), min(b[3], mb[3])
+            inter = max(0.0, ix2 - ix1) * max(0.0, iy2 - iy1)
+            area = (b[2] - b[0]) * (b[3] - b[1])
+            if area > 0 and inter / area >= g:
+                keep.append((c, s, b))
+        out[name] = keep
+    return out
 
 
 def unflip(b, view):
@@ -125,9 +182,13 @@ def main():
     print(f"冻结测试集: {len(imgs)} 图 / {ngt} 框  (match_iou {MATCH_IOU})\n")
 
     store = predict(device, imgs, sizes, ("id", "hflip"))
+    members_t = member_boxes(device, imgs, sizes)
+    print(f"  路由器在 {sum(1 for v in members_t.values() if v)}/{len(members_t)} "
+          f"张测试图上定位到柱脚\n")
     print(f"{'配置':22s} {'P':>7} {'R':>7} {'B':>7} {'C':>7} {'D':>7}  四项")
     for label, c in CONFIGS.items():
-        f = fuse(store, c["views"], sizes, c["iou"], c["conf"], c["w"])
+        f = apply_gate(fuse(store, c["views"], sizes, c["iou"], c["conf"], c["w"]),
+                       members_t, c["gate"])
         p, r, per = score(f, targets, c["thr"])
         ok = r >= TARGET and all(v >= TARGET for v in per)
         print(f"{label:22s} {p:7.3f} {r:7.3f} {per[0]:7.3f} {per[1]:7.3f} {per[2]:7.3f}  "
@@ -140,9 +201,11 @@ def main():
             with Image.open(p) as h:
                 ssz[p.name] = h.size
         sstore = predict(device, sound, ssz, ("id", "hflip"))
+        members_s = member_boxes(device, sound, ssz)
         print(f"\n健全图 {len(sound)} 张的误报:")
         for label, c in CONFIGS.items():
-            f = fuse(sstore, c["views"], ssz, c["iou"], c["conf"], c["w"])
+            f = apply_gate(fuse(sstore, c["views"], ssz, c["iou"], c["conf"], c["w"]),
+                           members_s, c["gate"])
             fired = sum(1 for d in f.values() if any(x[1] >= c["thr"][x[0]] for x in d))
             boxes = sum(len([x for x in d if x[1] >= c["thr"][x[0]]]) for d in f.values())
             print(f"  {label:22s} 发火 {fired}/{len(sound)} = {fired/len(sound):.0%},"

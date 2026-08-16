@@ -33,7 +33,8 @@
     "router_gate": {
       "g": 0.5,
       "margin": 0.1,
-      "ungated_when_member_not_found": true
+      "ungated_when_member_not_found": true,
+      "adopted_for": "false-alarm reduction only; precision claim rejected by holdout"
     },
     "thresholds": {
       "B": 0.12,
@@ -195,6 +196,53 @@
   "caveats": [
     "CV numbers are not delivery numbers: folds mix the frozen test split into training",
     "CV folds lack the scene_group_id guard of build_rfdetr_new_class_cv_folds.py; 2 near-duplicate groups (4 images, 1.8%) were split across folds",
-    "epoch selection happened on the test split (valid == test by dataset construction)"
-  ]
+    "epoch selection happened on the test split (valid == test by dataset construction)",
+    "CV paired comparison is valid only between configurations that drift from the fine-tuning start at a similar rate; contamination retention differs by configuration",
+    "the CV freeze-encoder result (+0.188) was refuted on the clean delivery protocol",
+    "no protocol available on current data is both clean and high-powered: 45 clean images, or 320 contaminated boxes"
+  ],
+  "delivery_protocol_training_check": {
+    "protocol": "train on 179 train images, score on the 45-image split (never trained on)",
+    "shipped_ensemble": 0.395,
+    "delivered_single_baseline": 0.159,
+    "recipes": [
+      {
+        "name": "standard",
+        "encoder_lr_ratio": 3.0,
+        "single": [
+          0.148,
+          0.162
+        ],
+        "ensemble": [
+          0.275,
+          0.238
+        ]
+      },
+      {
+        "name": "lr_encoder 1.5e-5",
+        "encoder_lr_ratio": 0.3,
+        "single": [
+          0.116,
+          null
+        ],
+        "ensemble": [
+          0.244,
+          0.286
+        ]
+      },
+      {
+        "name": "freeze encoder",
+        "encoder_lr_ratio": 0.0,
+        "single": [
+          0.152,
+          null
+        ],
+        "ensemble": [
+          0.246,
+          0.252
+        ]
+      }
+    ],
+    "conclusion": "no recipe improves the delivery; all six ensemble values 0.238-0.286 vs 0.395"
+  }
 }
