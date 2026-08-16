@@ -46,6 +46,12 @@ CONFIGS = {
                           "w": (1.0, 2.0), "thr": (0.12, 0.20, 0.12), "gate": None},
     "08-16 交付(+门控)": {"views": ("id", "hflip"),  "iou": 0.40, "conf": "max",
                           "w": (1.0, 2.0), "thr": (0.12, 0.20, 0.12), "gate": 0.5},
+    # Pending the client's decision in results/14: B alone relaxed to 0.68, which
+    # costs one of 47 B boxes and cuts what an inspector reviews by a quarter.
+    # Kept here so that row can be recomputed rather than quoted, whether the
+    # client accepts it or not.
+    "候补 B>=0.68(待客户决定)": {"views": ("id", "hflip"), "iou": 0.40, "conf": "max",
+                          "w": (1.0, 2.0), "thr": (0.15, 0.20, 0.12), "gate": 0.5},
 }
 
 # The router locates the column base itself; damage sits on the member, so a
@@ -185,14 +191,14 @@ def main():
     members_t = member_boxes(device, imgs, sizes)
     print(f"  路由器在 {sum(1 for v in members_t.values() if v)}/{len(members_t)} "
           f"张测试图上定位到柱脚\n")
-    print(f"{'配置':22s} {'P':>7} {'R':>7} {'B':>7} {'C':>7} {'D':>7}  四项")
+    print(f"{'配置':26s} {'P':>7} {'R':>7} {'B':>7} {'C':>7} {'D':>7}  四项")
     for label, c in CONFIGS.items():
         f = apply_gate(fuse(store, c["views"], sizes, c["iou"], c["conf"], c["w"]),
                        members_t, c["gate"])
         p, r, per = score(f, targets, c["thr"])
         ok = r >= TARGET and all(v >= TARGET for v in per)
-        print(f"{label:22s} {p:7.3f} {r:7.3f} {per[0]:7.3f} {per[1]:7.3f} {per[2]:7.3f}  "
-              f"{'达标' if ok else '未达标'}")
+        note = "达标" if ok else ("B 低于 0.70(有意)" if "候补" in label else "未达标")
+        print(f"{label:26s} {p:7.3f} {r:7.3f} {per[0]:7.3f} {per[1]:7.3f} {per[2]:7.3f}  {note}")
 
     sound = sorted(SOUND.glob("*.jpg"))
     if sound:
@@ -208,7 +214,7 @@ def main():
                            members_s, c["gate"])
             fired = sum(1 for d in f.values() if any(x[1] >= c["thr"][x[0]] for x in d))
             boxes = sum(len([x for x in d if x[1] >= c["thr"][x[0]]]) for d in f.values())
-            print(f"  {label:22s} 发火 {fired}/{len(sound)} = {fired/len(sound):.0%},"
+            print(f"  {label:26s} 发火 {fired}/{len(sound)} = {fired/len(sound):.0%},"
                   f"{boxes/len(sound):.2f} 框/张")
 
 
