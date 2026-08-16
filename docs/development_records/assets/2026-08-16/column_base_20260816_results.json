@@ -304,5 +304,16 @@
       "chosen": 0.3,
       "note": "lower thresholds enlarge the union and let false alarms back through"
     }
+  },
+  "inference_side_exhausted": {
+    "fusion_params": "96 view x fusion configs, plus 15 re-swept under the gate -> wbf_iou 0.40, weights 1:2",
+    "operating_point": "128 four-target feasible points, re-ranked by inspector cost -> B .12 / C .20 / D .12",
+    "gate_form": "hard vs soft (linear, power, floored) -> hard; soft lets discounted boxes reappear on sound images",
+    "gate_source": "union vs highest-scoring single box -> single (holdout 92.5% better, 0.0% worse)",
+    "gate_strength": "0.3-0.8 -> 0.5 (plateau 0.4-0.5, cliff at 0.6)",
+    "gate_margin": "0.00-0.30 -> 0.05 (cliff at 0.00; adopted on false-alarm side only)",
+    "router_threshold": "0.30-0.05 -> 0.30 (lower enlarges the union and lets false alarms back in)",
+    "gate_direction": "positive (column-base class) vs negative (other four) -> positive only; negative breaks all four recalls even at 90% overlap because a column base physically sits against walls and RC columns",
+    "third_member": "nine candidates spanning 20-59% agreement -> two-member ensemble remains best"
   }
 }
