@@ -1,0 +1,178 @@
+{
+  "target": 0.7,
+  "frozen_points": {
+    "FP-1 delivered 0.723": {
+      "csv": "br_brl_ens_tta.csv",
+      "thresholds": "0.3,0.15,0.12",
+      "overall_recall": 0.7228915662650602,
+      "overall_precision": 0.40816326530612246,
+      "overall_f1": 0.5217391304347826,
+      "B": {
+        "recall": 0.6363636363636364,
+        "precision": 0.45161290322580644,
+        "tp": 14,
+        "total": 22
+      },
+      "C": {
+        "recall": 0.7333333333333333,
+        "precision": 0.4342105263157895,
+        "tp": 33,
+        "total": 45
+      },
+      "D": {
+        "recall": 0.8125,
+        "precision": 0.325,
+        "tp": 13,
+        "total": 16
+      }
+    },
+    "FP-2 all-four >= 0.70": {
+      "csv": "br_brl_ens_tta.csv",
+      "thresholds": "0.12,0.15,0.18",
+      "overall_recall": 0.7349397590361446,
+      "overall_precision": 0.3588235294117647,
+      "overall_f1": 0.4822134387351778,
+      "B": {
+        "recall": 0.7272727272727273,
+        "precision": 0.23880597014925373,
+        "tp": 16,
+        "total": 22
+      },
+      "C": {
+        "recall": 0.7333333333333333,
+        "precision": 0.4342105263157895,
+        "tp": 33,
+        "total": 45
+      },
+      "D": {
+        "recall": 0.75,
+        "precision": 0.4444444444444444,
+        "tp": 12,
+        "total": 16
+      }
+    },
+    "FP-3 recall-max @P>=0.30": {
+      "csv": "br_brl_ens_tta.csv",
+      "thresholds": "0.1,0.15,0.07",
+      "overall_recall": 0.7590361445783133,
+      "overall_precision": 0.3,
+      "overall_f1": 0.4300341296928327,
+      "B": {
+        "recall": 0.7272727272727273,
+        "precision": 0.21621621621621623,
+        "tp": 16,
+        "total": 22
+      },
+      "C": {
+        "recall": 0.7333333333333333,
+        "precision": 0.4342105263157895,
+        "tp": 33,
+        "total": 45
+      },
+      "D": {
+        "recall": 0.875,
+        "precision": 0.23333333333333334,
+        "tp": 14,
+        "total": 16
+      }
+    },
+    "REF no-BRL 2model+TTA": {
+      "csv": "br_ens2tta.csv",
+      "thresholds": "0.4,0.2,0.3",
+      "overall_recall": 0.6024096385542169,
+      "overall_precision": 0.6097560975609756,
+      "overall_f1": 0.6060606060606061,
+      "B": {
+        "recall": 0.5454545454545454,
+        "precision": 0.5454545454545454,
+        "tp": 12,
+        "total": 22
+      },
+      "C": {
+        "recall": 0.6444444444444445,
+        "precision": 0.58,
+        "tp": 29,
+        "total": 45
+      },
+      "D": {
+        "recall": 0.5625,
+        "precision": 0.9,
+        "tp": 9,
+        "total": 16
+      }
+    }
+  },
+  "grids": {
+    "br_brl_ens_tta.csv": {
+      "ceilings": {
+        "B": {
+          "ceiling": 0.7272727272727273,
+          "tp": 16,
+          "total": 22
+        },
+        "C": {
+          "ceiling": 0.8,
+          "tp": 36,
+          "total": 45
+        },
+        "D": {
+          "ceiling": 0.875,
+          "tp": 14,
+          "total": 16
+        },
+        "overall": {
+          "ceiling": 0.7951807228915663
+        }
+      },
+      "feasible_points": 140,
+      "best_feasible": {
+        "thresholds": "0.12,0.15,0.18",
+        "overall_recall": 0.7349397590361446,
+        "overall_precision": 0.3588235294117647,
+        "overall_f1": 0.4822134387351778,
+        "B": {
+          "recall": 0.7272727272727273,
+          "precision": 0.23880597014925373,
+          "tp": 16,
+          "total": 22
+        },
+        "C": {
+          "recall": 0.7333333333333333,
+          "precision": 0.4342105263157895,
+          "tp": 33,
+          "total": 45
+        },
+        "D": {
+          "recall": 0.75,
+          "precision": 0.4444444444444444,
+          "tp": 12,
+          "total": 16
+        }
+      }
+    },
+    "br_ens2tta.csv": {
+      "ceilings": {
+        "B": {
+          "ceiling": 0.6818181818181818,
+          "tp": 15,
+          "total": 22
+        },
+        "C": {
+          "ceiling": 0.7555555555555555,
+          "tp": 34,
+          "total": 45
+        },
+        "D": {
+          "ceiling": 0.875,
+          "tp": 14,
+          "total": 16
+        },
+        "overall": {
+          "ceiling": 0.7590361445783133
+        }
+      },
+      "feasible_points": 0,
+      "best_feasible": null
+    }
+  }
+}

@@ -45,6 +45,14 @@ def parse_args() -> argparse.Namespace:
     # the two can be set together, or the encoder frozen outright.
     parser.add_argument("--lr-encoder", type=float, default=0.0)
     parser.add_argument("--freeze-encoder", action="store_true")
+    parser.add_argument("--devices", type=int, default=0,
+                        help="GPUs for data-parallel training. batch-size is per device, so "
+                             "2 devices at batch 14 reproduce the delivered effective 28 that "
+                             "does not fit on one 32 GB card")
+    parser.add_argument("--strategy", default="", help="PTL strategy, e.g. ddp")
+    parser.add_argument("--gradient-checkpointing", action="store_true",
+                        help="recompute backbone activations instead of storing them; "
+                             "same gradients, less memory, so batch 28 fits on a 32 GB card")
     # Regularisation. Measured 2026-08-04: train recall 0.995 vs test 0.590 on
     # brace (394 boxes, only 2 missed, zero misses in the smallest quartile) is
     # extreme memorisation, yet the delivered runs used drop_path=0.0 - stochastic
@@ -180,6 +188,12 @@ def build_train_options(args: argparse.Namespace, repo: Path) -> dict[str, Any]:
         options["weight_decay"] = args.weight_decay
     if args.freeze_encoder:
         options["freeze_encoder"] = True
+    if args.gradient_checkpointing:
+        options["gradient_checkpointing"] = True
+    if args.devices:
+        options["devices"] = args.devices
+    if args.strategy:
+        options["strategy"] = args.strategy
     if args.focal_alpha >= 0:
         options["focal_alpha"] = args.focal_alpha
     if args.set_cost_class >= 0:
