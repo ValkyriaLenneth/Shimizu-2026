@@ -72,6 +72,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--timeout", type=int, default=180)
     parser.add_argument("--max-retries", type=int, default=2)
     parser.add_argument("--limit", type=int, default=0)
+    parser.add_argument(
+        "--focus-expected",
+        action="store_true",
+        help="append the directory-level expected class as the primary search target",
+    )
     return parser.parse_args()
 
 
@@ -104,7 +109,7 @@ def extract_interaction_text(body: dict) -> str:
     return ""
 
 
-def generate_with_interactions(api_key: str, image_path: Path, model: str, timeout: int) -> dict:
+def generate_with_interactions(api_key: str, image_path: Path, model: str, timeout: int, prompt: str) -> dict:
     import base64
     import mimetypes
     import urllib.request
@@ -114,7 +119,7 @@ def generate_with_interactions(api_key: str, image_path: Path, model: str, timeo
     payload = {
         "model": model,
         "input": [
-            {"type": "text", "text": PROMPT},
+            {"type": "text", "text": prompt},
             {"type": "image", "mime_type": mime_type, "data": image_data},
         ],
         "response_format": {"type": "text", "mime_type": "application/json"},
@@ -140,7 +145,7 @@ def generate_with_interactions(api_key: str, image_path: Path, model: str, timeo
     }
 
 
-def generate_with_generate_content(api_key: str, image_path: Path, model: str, timeout: int) -> dict:
+def generate_with_generate_content(api_key: str, image_path: Path, model: str, timeout: int, prompt: str) -> dict:
     import base64
     import mimetypes
     import urllib.request
@@ -152,7 +157,7 @@ def generate_with_generate_content(api_key: str, image_path: Path, model: str, t
             {
                 "role": "user",
                 "parts": [
-                    {"text": PROMPT},
+                    {"text": prompt},
                     {"inlineData": {"mimeType": mime_type, "data": image_data}},
                 ],
             }
@@ -183,13 +188,18 @@ def generate_with_generate_content(api_key: str, image_path: Path, model: str, t
     }
 
 
-def generate_with_prompt(api_key: str, image_path: Path, model: str, timeout: int, api_mode: str) -> dict:
+def generate_with_prompt(
+    api_key: str, image_path: Path, model: str, timeout: int, api_mode: str, prompt: str
+) -> dict:
     if api_mode == "interactions":
-        return generate_with_interactions(api_key, image_path, model, timeout)
-    return generate_with_generate_content(api_key, image_path, model, timeout)
+        return generate_with_interactions(api_key, image_path, model, timeout, prompt)
+    return generate_with_generate_content(api_key, image_path, model, timeout, prompt)
 
 
-def worker(row: dict, api_key: str, model: str, timeout: int, max_retries: int, api_mode: str) -> dict:
+def worker(
+    row: dict, api_key: str, model: str, timeout: int, max_retries: int, api_mode: str,
+    focus_expected: bool,
+) -> dict:
     import urllib.error
 
     started = time.monotonic()
@@ -208,7 +218,19 @@ def worker(row: dict, api_key: str, model: str, timeout: int, max_retries: int, 
     for attempt in range(1, max_retries + 1):
         result["attempts"] = attempt
         try:
-            result["response"] = generate_with_prompt(api_key, Path(row["image_path"]), model, timeout, api_mode)
+            prompt = PROMPT
+            if focus_expected:
+                prompt += (
+                    "\nPrimary task for this image: carefully locate every visible region of "
+                    f"the expected directory class '{row['expected_label']}'. Thin, partial, "
+                    "occluded, roof-plane, and background instances still count. Do not relabel "
+                    "a brace as ceiling merely because it is part of a roof truss. Do not relabel "
+                    "a column-base/pedestal region as only RC柱. Return no expected-class box only "
+                    "when that element is genuinely not visible.\n"
+                )
+            result["response"] = generate_with_prompt(
+                api_key, Path(row["image_path"]), model, timeout, api_mode, prompt
+            )
             result["ok"] = True
             break
         except urllib.error.HTTPError as exc:
@@ -284,7 +306,10 @@ def main() -> int:
     done = 0
     with concurrent.futures.ThreadPoolExecutor(max_workers=args.concurrency) as executor:
         futures = {
-            executor.submit(worker, row, api_key, args.model, args.timeout, args.max_retries, args.api_mode): row
+            executor.submit(
+                worker, row, api_key, args.model, args.timeout, args.max_retries, args.api_mode,
+                args.focus_expected,
+            ): row
             for row in plan
         }
         for future in concurrent.futures.as_completed(futures):

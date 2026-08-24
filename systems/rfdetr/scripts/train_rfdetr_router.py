@@ -83,6 +83,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--set-cost-giou", type=float, default=-1.0)
     parser.add_argument("--use-varifocal-loss", action="store_true")
     parser.add_argument("--checkpoint", default="", help="RF-DETR .pth checkpoint to initialize from")
+    parser.add_argument(
+        "--train-class-rows",
+        default="",
+        help="freeze all parameters except selected rows of every class_embed head, e.g. 3,4",
+    )
     parser.add_argument("--checkpoint-interval", type=int, default=0)
     parser.add_argument("--trainer-precision", default="")
     parser.add_argument("--aug-config", default="", help="augmentation preset name or YAML/JSON file")
@@ -265,6 +270,34 @@ def build_model(model_size: str, checkpoint: str = "", model_kwargs: dict[str, A
     return model_class(**model_kwargs)
 
 
+def configure_class_row_training(model: Any, class_ids: list[int]) -> None:
+    """Freeze the model and mask classifier gradients to selected class rows."""
+    inner = model
+    while not hasattr(inner, "named_parameters") and hasattr(inner, "model"):
+        inner = inner.model
+    if not hasattr(inner, "named_parameters"):
+        raise TypeError(f"could not locate torch module under {type(model)!r}")
+    selected = set(class_ids)
+    trainable = 0
+    heads = 0
+    for name, parameter in inner.named_parameters():
+        parameter.requires_grad = False
+        if "class_embed" not in name or parameter.ndim not in {1, 2}:
+            continue
+        if not selected or max(selected) >= parameter.shape[0]:
+            raise ValueError(f"class ids {sorted(selected)} incompatible with {name} {tuple(parameter.shape)}")
+        parameter.requires_grad = True
+        mask = parameter.new_zeros(parameter.shape)
+        for class_id in selected:
+            mask[class_id] = 1
+        parameter.register_hook(lambda gradient, row_mask=mask: gradient * row_mask)
+        trainable += sum(parameter[class_id].numel() for class_id in selected)
+        heads += 1
+    if not heads:
+        raise RuntimeError("no class_embed parameters found for row-only training")
+    print(f"[class-row-training] classes={sorted(selected)} heads={heads} trainable_values={trainable}")
+
+
 def main() -> int:
     args = parse_args()
     if getattr(args, "brl_threshold", 0.0) > 0:
@@ -312,6 +345,10 @@ def main() -> int:
     if options.pop("freeze_encoder", False):
         model_kwargs["freeze_encoder"] = True
     model = build_model(model_size, checkpoint, model_kwargs)
+    if args.train_class_rows:
+        configure_class_row_training(
+            model, [int(value) for value in args.train_class_rows.split(",") if value.strip()]
+        )
     model.train(**options)
     return 0
 

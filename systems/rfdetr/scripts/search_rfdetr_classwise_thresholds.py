@@ -67,7 +67,10 @@ def main() -> int:
     dataset_dir = Path(args.dataset_dir)
     image_dir = dataset_dir / args.split / "images"
     label_dir = dataset_dir / args.split / "labels"
-    image_paths = sorted(path for path in image_dir.iterdir() if path.suffix in IMAGE_EXTS)
+    image_paths = sorted(
+        path for path in image_dir.iterdir()
+        if path.suffix in IMAGE_EXTS and not path.name.startswith("._")
+    )
 
     cached = []
     for idx, image_path in enumerate(image_paths, start=1):

@@ -164,7 +164,10 @@ def main() -> int:
     dataset_dir = Path(args.dataset_dir)
     image_dir = dataset_dir / args.split / "images"
     label_dir = dataset_dir / args.split / "labels"
-    image_paths = sorted(path for path in image_dir.iterdir() if path.suffix in IMAGE_EXTS)
+    image_paths = sorted(
+        path for path in image_dir.iterdir()
+        if path.suffix in IMAGE_EXTS and not path.name.startswith("._")
+    )
 
     per_threshold = {
         threshold: {cls: {"tp": 0, "fp": 0, "fn": 0, "gt": 0, "pred": 0} for cls in range(args.num_classes)}
