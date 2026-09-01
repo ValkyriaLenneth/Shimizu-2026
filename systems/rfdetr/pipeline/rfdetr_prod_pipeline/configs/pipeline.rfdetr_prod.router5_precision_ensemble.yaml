@@ -1,0 +1,105 @@
+pipeline:
+  router_backend: rfdetr_precision_ensemble
+  router_ensemble_config: ../../../router/configs/router_5class_precision_ensemble_20260831.yaml
+  router_ensemble_checkpoint_overrides:
+    primary_5class: ../../../../../handoff_20260824_router_incremental_compact_final/models/baseline/selected_precision_p090_classwise_epoch004_brace_balanced_v2.pth
+    confirmation_3class: ../../../../../handoff_20260707_rfdetr_main/models/rfdetr/router_3class/checkpoint_epoch_023.pth
+    brace_confirmation_5class: ../../../../../handoff_20260707_rfdetr_main/models/rfdetr/router_5class/selected_precision_p090_epoch049_thr069.pth
+  router_ensemble_devices:
+    primary: cuda:0
+    confirmation_3class: cuda:1
+    brace_confirmation_5class: cuda:1
+  router_ensemble_parallel: true
+  router_lazy_confirmation_models: [brace_confirmation_5class]
+  router_candidate_max_det: 300
+  router_overlap_policy: keep_all
+  router_max_det: 300
+  router_max_regions: 0
+  router_rescue_top_k_if_empty: 0
+  region_transport: ndarray_slice
+  region_padding_ratio: 0.12
+  use_full_image_if_area_ratio_ge: 0.85
+  save_debug_crops: false
+
+classes:
+  router:
+    0: 天井
+    1: 壁类
+    2: RC柱
+    3: ブレース
+    4: 柱脚
+
+crack_models:
+  ceiling:
+    backend: rfdetr
+    checkpoint: ../../../../../final_release_20260615/models/rfdetr/downstream/tenjo/tenjo_standard_orig_checkpoint_epoch_009.pth
+    thresholds: [0.20, 0.30, 0.30]
+  inner_wall:
+    backend: rfdetr
+    checkpoint: ../../../../../final_release_20260615/models/rfdetr/downstream/inner_wall/inner_wall_checkpoint_epoch_026.pth
+    thresholds: [0.35, 0.35, 0.35]
+  rc_wall:
+    backend: rfdetr
+    checkpoint: ../../../../../final_release_20260615/models/rfdetr/downstream/rc_wall/rc_wall_checkpoint_epoch_009.pth
+    thresholds: [0.20, 0.35, 0.25]
+  rc_column:
+    backend: rfdetr
+    checkpoint: ../../../../../final_release_20260615/models/rfdetr/downstream/rc_column/checkpoint_epoch_047.pth
+    thresholds: [0.40, 0.40, 0.40]
+  brace:
+    backend: noop
+    note: ブレース BCD model is not trained yet. Router detections are returned, downstream damage detections are intentionally empty.
+  column_base:
+    backend: noop
+    note: 柱脚 BCD model is not trained yet. Router detections are returned, downstream damage detections are intentionally empty.
+  wall_merged: null
+
+model_readiness:
+  router5:
+    status: ready_assumed
+    classes: ["天井", "壁类", "RC柱", "ブレース", "柱脚"]
+  downstream:
+    天井: ready
+    壁类: ready_via_inner_wall_and_rc_wall_parallel
+    RC柱: ready
+    ブレース: pending_training
+    柱脚: pending_training
+
+wall_strategy:
+  mode: context_select
+  fallback: wall_parallel_debug
+
+low_confidence_policy:
+  mode: keep_router_result_and_warn
+  candidate_multi_model_fallback: false
+
+crack_merge:
+  mode: nms
+  same_grade_iou_threshold: 0.90
+  cross_grade_iou_threshold: 0.95
+  prefer_higher_grade: true
+  keep_conflicts_in_debug: true
+
+display_merge:
+  enabled: true
+  iou_threshold: 0.35
+  ioa_threshold: 0.70
+  cross_class_ioa_threshold: 1.01
+  note: Final display merge is class-safe. Same class may merge to the most severe grade; cross-class detections are never suppressed.
+
+final_output_fallback:
+  enabled: true
+  restore_suppressed: true
+  rebuild_wall_display_if_empty: true
+  include_merged_candidates: true
+  include_raw_candidates: true
+  max_outputs: 12
+
+outputs:
+  root: ../../../../../outputs/rfdetr_prod_pipeline_api
+  save_jsonl: true
+  save_visualizations: true
+  save_audit_log: true
+
+conf_threshold: 0.25
+iou_threshold: 0.45

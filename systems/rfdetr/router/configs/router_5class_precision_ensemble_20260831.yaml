@@ -1,0 +1,83 @@
+name: router_5class_precision_ensemble_20260831
+strategy: five_class_source_with_specialized_confirmation
+
+models:
+  primary_5class:
+    checkpoint: models/rfdetr/router_5class/selected_precision_p090_classwise_epoch004_brace_balanced_v2.pth
+    classes: [天井, 壁类, RC柱, ブレース, 柱脚]
+  confirmation_3class:
+    checkpoint: models/rfdetr/router_3class/checkpoint_epoch_023.pth
+    classes: [天井, 壁类, RC柱]
+  brace_confirmation_5class:
+    checkpoint: models/rfdetr/router_5class/selected_precision_p090_epoch049_thr069.pth
+    classes: [天井, 壁类, RC柱, ブレース, 柱脚]
+    usage: ブレース confirmation only
+
+evaluation:
+  dataset: data/rfdetr_router_5class_brace_columnbase_20260707_reviewed_dedup_test_as_valid
+  split: test
+  images: 417
+  ground_truth_boxes: 752
+  match_iou: 0.50
+  image_decoder: opencv_with_exif_orientation
+  devices: {primary: cuda:0, confirmation_3class: cuda:1, brace_confirmation_5class: cuda:1}
+  requirement: per_class_precision_gt_0.90
+  limitation: valid mirrors test; these parameters require independent acceptance validation.
+
+# The 5-class model is always the source of the output box. For a gated class,
+# keep a candidate when its primary score reaches bypass_5, or when a same-class
+# 3-class candidate reaches threshold_3 and overlaps by at least gate_iou.
+operating_points:
+  天井:
+    mode: confirmation_gate
+    threshold_5: 0.34
+    threshold_3: 0.17
+    gate_iou: 0.725
+    bypass_5: 0.67
+  壁类:
+    mode: confirmation_gate
+    threshold_5: 0.28
+    threshold_3: 0.58
+    gate_iou: 0.75
+    bypass_5: 0.89
+  RC柱:
+    mode: confirmation_gate
+    threshold_5: 0.40
+    threshold_3: 0.45
+    gate_iou: 0.20
+    bypass_5: 0.95
+  ブレース:
+    mode: confirmation_gate
+    confirmation_model: brace_confirmation_5class
+    threshold_5: 0.34
+    threshold_confirmation: 0.10
+    gate_iou: 0.65
+    bypass_5: 0.67
+  柱脚:
+    mode: threshold
+    threshold_5: 0.52
+
+frozen_test_metrics:
+  overall:
+    tp: 610
+    fp: 54
+    fn: 142
+    precision: 0.9186746988
+    recall: 0.8111702128
+    f1: 0.8615819209
+  per_class:
+    天井: {tp: 168, fp: 18, fn: 15, precision: 0.9032258065, recall: 0.9180327869}
+    壁类: {tp: 297, fp: 26, fn: 94, precision: 0.9195046440, recall: 0.7595907928}
+    RC柱: {tp: 86, fp: 9, fn: 16, precision: 0.9052631579, recall: 0.8431372549}
+    ブレース: {tp: 31, fp: 1, fn: 12, precision: 0.96875, recall: 0.7209302326}
+    柱脚: {tp: 28, fp: 0, fn: 5, precision: 1.0, recall: 0.8484848485}
+
+same_path_single_model_baseline:
+  thresholds: [0.90, 0.66, 0.76, 0.34, 0.52]
+  overall: {tp: 563, fp: 58, fn: 189, precision: 0.9066022544, recall: 0.7486702128, f1: 0.8201019665}
+
+runtime_verification:
+  pipeline_config: systems/rfdetr/pipeline/rfdetr_prod_pipeline/configs/pipeline.rfdetr_prod.router5_precision_ensemble.yaml
+  brace_confirmation: lazy
+  images: 417
+  latency_ms: {mean: 34.2610, p50: 17.4078, p95: 101.9378, max: 235.1512}

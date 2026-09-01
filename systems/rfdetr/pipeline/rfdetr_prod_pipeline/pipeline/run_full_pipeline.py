@@ -23,7 +23,13 @@ from .fallback_policy import (
     plan_main_tasks,
     plan_static_fallback_tasks,
 )
-from .rfdetr_router_infer import RfdetrRouterConfig, RfdetrRouterInfer
+from .rfdetr_router_infer import (
+    PrecisionGateConfig,
+    RfdetrPrecisionEnsembleConfig,
+    RfdetrPrecisionEnsembleInfer,
+    RfdetrRouterConfig,
+    RfdetrRouterInfer,
+)
 from .region_view import make_region_view, map_region_xyxy_to_original, padded_xyxy
 from .result_merge import Detection, center_in_xyxy, grade_level, ioa_min_xyxy, ioa_over_first_xyxy, iou_xyxy, nms_detections, prod_like_merge_detections
 from .router_infer import RouterConfig, RouterInfer
@@ -105,6 +111,49 @@ def main() -> int:
 
 def build_router(pipeline_cfg: dict[str, Any], config: dict[str, Any], root: Path, device: str) -> Any:
     backend = str(pipeline_cfg.get("router_backend", "yolo")).lower()
+    if backend == "rfdetr_precision_ensemble":
+        classes = {int(k): str(v) for k, v in config["classes"]["router"].items()}
+        ensemble_path = resolve_path(pipeline_cfg["router_ensemble_config"], root)
+        ensemble = load_config(ensemble_path)
+        checkpoint_overrides = pipeline_cfg.get("router_ensemble_checkpoint_overrides", {}) or {}
+
+        def checkpoint(model_name: str) -> Path:
+            value = checkpoint_overrides.get(model_name, ensemble["models"][model_name]["checkpoint"])
+            return resolve_path(value, root if model_name in checkpoint_overrides else ensemble_path.parent)
+
+        class_ids = {name: class_id for class_id, name in classes.items()}
+        operating_points = {}
+        confirmation_names = set()
+        for class_name, values in ensemble["operating_points"].items():
+            model_name = values.get("confirmation_model")
+            if values["mode"] == "confirmation_gate":
+                model_name = str(model_name or "confirmation_3class")
+                confirmation_names.add(model_name)
+            operating_points[class_ids[str(class_name)]] = PrecisionGateConfig(
+                primary_threshold=float(values["threshold_5"]),
+                confirmation_model=model_name,
+                confirmation_threshold=float(values.get("threshold_confirmation", values.get("threshold_3", 0.0))) if model_name else None,
+                gate_iou=float(values["gate_iou"]) if model_name else None,
+                bypass_primary=float(values["bypass_5"]) if model_name else None,
+            )
+        confirmation_checkpoints = {name: checkpoint(name) for name in confirmation_names}
+        configured_devices = {str(k): str(v) for k, v in (pipeline_cfg.get("router_ensemble_devices", {}) or {}).items()}
+        devices = {name: configured_devices.get(name, device) for name in {"primary", *confirmation_names}}
+        return RfdetrPrecisionEnsembleInfer(
+            RfdetrPrecisionEnsembleConfig(
+                primary_checkpoint=checkpoint("primary_5class"),
+                confirmation_checkpoints=confirmation_checkpoints,
+                class_names=classes,
+                operating_points=operating_points,
+                devices=devices,
+                max_det=int(pipeline_cfg.get("router_max_det", 20)),
+                candidate_max_det=int(pipeline_cfg.get("router_candidate_max_det", 300)),
+                parallel=bool(pipeline_cfg.get("router_ensemble_parallel", True)),
+                lazy_confirmation_models=frozenset(
+                    str(name) for name in pipeline_cfg.get("router_lazy_confirmation_models", [])
+                ),
+            )
+        )
     if backend == "rfdetr":
         classes = {int(k): str(v) for k, v in config["classes"]["router"].items()}
         return RfdetrRouterInfer(

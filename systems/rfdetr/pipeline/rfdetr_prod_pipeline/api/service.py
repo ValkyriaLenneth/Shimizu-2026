@@ -57,6 +57,10 @@ class PipelineService:
     def info(self) -> dict[str, Any]:
         pipeline_cfg = self.config.get("pipeline", {})
         model_readiness = self.config.get("model_readiness", {})
+        router_models = pipeline_cfg.get("router_ensemble_checkpoint_overrides")
+        if not router_models:
+            checkpoint = pipeline_cfg.get("router_checkpoint")
+            router_models = {"primary": checkpoint} if checkpoint else {}
         return {
             "api_version": "v1",
             "service": "shimizu-rfdetr-pipeline",
@@ -66,7 +70,15 @@ class PipelineService:
             "mock_crack": self.mock_crack,
             "router": {
                 "backend": pipeline_cfg.get("router_backend"),
-                "checkpoint": str(resolve_path(pipeline_cfg.get("router_checkpoint", ""), self.config_path.parent)),
+                "checkpoint": (
+                    str(resolve_path(pipeline_cfg["router_checkpoint"], self.config_path.parent))
+                    if pipeline_cfg.get("router_checkpoint")
+                    else None
+                ),
+                "models": {
+                    str(name): str(resolve_path(value, self.config_path.parent))
+                    for name, value in router_models.items()
+                },
                 "classes": self.config.get("classes", {}).get("router", {}),
             },
             "model_readiness": model_readiness,

@@ -80,6 +80,18 @@ Batch smoke:
 python rfdetr_prod_pipeline/scripts/test_pipeline_batch_smoke.py
 ```
 
+Five-class precision ensemble (two GPUs):
+
+```bash
+python -m rfdetr_prod_pipeline.pipeline.run_full_pipeline \
+  --config systems/rfdetr/pipeline/rfdetr_prod_pipeline/configs/pipeline.rfdetr_prod.router5_precision_ensemble.yaml \
+  --source <image-or-directory> \
+  --device cuda:0
+```
+
+This configuration places the primary model on `cuda:0`, confirmation models
+on `cuda:1`, and lazily runs brace confirmation only when required.
+
 汇总任意一次 pipeline JSONL 输出：
 
 ```bash
