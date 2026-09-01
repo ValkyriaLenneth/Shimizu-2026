@@ -1,0 +1,12 @@
+﻿group,rank,image,tp_before,fp_before,fn_before,tp_after,fp_after,fn_after,tp_added,fp_removed,fn_removed,asset
+recognition_corrections,1,old3__内壁_b-40123_03435.jpg,1,1,3,2,0,2,1,1,1,recognition_corrections/01_old3__内壁_b-40123_03435.png
+recognition_corrections,2,old3__内壁_b-40161_03402.jpg,2,1,2,3,0,1,1,1,1,recognition_corrections/02_old3__内壁_b-40161_03402.png
+recognition_corrections,3,old3__天井_1-C-00027_03306.jpg,0,1,1,1,0,0,1,1,1,recognition_corrections/03_old3__天井_1-C-00027_03306.png
+missed_recovered,1,old3__RC柱_d-40027_03307.jpg,0,0,5,3,0,2,3,0,3,missed_recovered/01_old3__RC柱_d-40027_03307.png
+missed_recovered,2,old3__RC壁_c-40023_03254.jpg,1,0,3,3,0,1,2,0,2,missed_recovered/02_old3__RC壁_c-40023_03254.png
+missed_recovered,3,old3__RC柱_d-189_03370.jpg,0,0,2,2,0,0,2,0,2,missed_recovered/03_old3__RC柱_d-189_03370.png
+missed_recovered,4,old3__内壁_b-30140_03375.jpg,0,0,2,2,0,0,2,0,2,missed_recovered/04_old3__内壁_b-30140_03375.png
+false_positives_removed,1,new20260630__test__00043__e-00025.jpg,0,2,1,0,0,1,0,2,0,false_positives_removed/01_new20260630__test__00043__e-00025.png
+false_positives_removed,2,new20260630__test__00032__e-00188.jpg,1,1,0,1,0,0,0,1,0,false_positives_removed/02_new20260630__test__00032__e-00188.png
+false_positives_removed,3,new20260630__test__00058__e-00375.jpg,1,1,0,1,0,0,0,1,0,false_positives_removed/03_new20260630__test__00058__e-00375.png
+false_positives_removed,4,old3__内壁_2-B-10032_03377.jpg,3,1,0,3,0,0,0,1,0,false_positives_removed/04_old3__内壁_2-B-10032_03377.png
